@@ -130,7 +130,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupModel()
         try:
             csv_file = 'csvs/fer2013.csv'
-
+    
             try:
                 test_size = float(self.test_text.text())
                 if not (0 < test_size < 1):
@@ -138,8 +138,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid test size. Please enter a float between 0 and 1.\n")
                 return
-            self.train_text.setText(str(1 - test_size))
-
+            self.train_text.setText(f"{1 - test_size:.2f}")
+    
             try:
                 batch_size = int(self.batch_text.text())
                 if batch_size <= 0:
@@ -147,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid batch size. Please enter a valid positive integer.\n")
                 return
-
+    
             try:
                 num_epochs = int(self.epoch_text.text())
                 if num_epochs <= 1:
@@ -155,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid number of epochs. Please enter an integer greater than 1.\n")
                 return
-
+    
             try:
                 learning_rate = float(self.lr_text.text())
                 if learning_rate <= 0:
@@ -163,18 +163,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid learning rate. Please enter a float greater than 0.\n")
                 return
-
+    
             if self.framework_group.checkedButton().text() == "PyTorch":
                 # 加载和划分数据集
-                dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, test_size=test_size)
-
-                # 设置为训练模式并创建训练数据加载器
-                dataset.set_mode('train')
-                self.train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-
-                # 设置为测试模式并创建测试数据加载器
-                dataset.set_mode('test')
-                self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+                train_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, mode='train', test_size=test_size)
+                test_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, mode='test', test_size=test_size)
+    
+                # 创建训练数据加载器
+                self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    
+                # 创建测试数据加载器
+                self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
             elif self.framework_group.checkedButton().text() == "TensorFlow":
                 pass
             #   TODO
@@ -184,7 +183,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             elif self.framework_group.checkedButton().text() == "PaddlePaddle":
                 pass
             #   TODO
-
+    
             self.process_text.append("Data loaded successfully.\n")
             self.load.setEnabled(False)
         except Exception as e:

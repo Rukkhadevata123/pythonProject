@@ -16,10 +16,10 @@ from sklearn.model_selection import train_test_split
 
 # 自定义数据集类
 class FER2013Dataset_pytorch(Dataset):
-    def __init__(self, csv_file, self_transform=None, test_size=0.1):
+    def __init__(self, csv_file, self_transform=None, mode='train', test_size=0.1):
         self.data = pd.read_csv(csv_file)
         self.transform = self_transform
-        self.mode = 'train'  # 默认模式为训练
+        self.mode = mode  # 根据传入的 mode 参数设置模式
 
         # 将数据划分为训练集和测试集
         train_data, test_data = train_test_split(self.data, test_size=test_size, random_state=42, shuffle=True)
@@ -52,11 +52,6 @@ class FER2013Dataset_pytorch(Dataset):
             img = self.transform(img)
 
         return {'image': img, 'label': label}
-
-    def set_mode(self, mode):
-        if mode not in ['train', 'test']:
-            raise ValueError("Invalid mode. Must be 'train' or 'test'.")
-        self.mode = mode
     
 # 数据增强和预处理
 transform_pytorch = transforms.Compose([
