@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>900</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>90</y>
+     <width>911</width>
+     <height>561</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>城市天气预报</string>
+   </property>
+   <widget class="QComboBox" name="comboBox">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>50</y>
+      <width>86</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>北京</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>苏州</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>上海</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>50</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>城市</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>120</y>
+      <width>601</width>
+      <height>381</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>730</y>
+     <width>121</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>清除</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>960</x>
+     <y>730</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>查询</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>665</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>449</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>984</x>
+     <y>672</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>449</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

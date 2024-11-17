@@ -1,0 +1,13 @@
+archive/
+__pycache__/
+csvs/
+*.pth
+ROC/
+result_pth/
+qt_theme_test/build
+tmp_examples/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*/*/*/*/__pycache__/
+to_be_predicted/

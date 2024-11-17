@@ -1,0 +1,767 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1250</width>
+    <height>728</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>FER2013 Practice Project</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="cur_model_box">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>20</y>
+      <width>591</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>当前模型</string>
+    </property>
+    <widget class="QTextEdit" name="cur_model">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>571</width>
+       <height>221</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;隐含层 输出=64 激活=ReLU&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;隐含层 输出=64 激活=ReLU&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;隐含层 输出=64 激活=ReLU&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;输出层 输出=7 激活=Softmax&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="model_box">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>20</y>
+      <width>251</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>模型选择</string>
+    </property>
+    <widget class="QComboBox" name="comboBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>81</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>MLP_1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MLP_2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MLP_3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MLP_4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CNN_1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CNN_2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CNN_3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CNN_4</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QTextEdit" name="textEdit">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>201</width>
+       <height>171</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;多层感知器&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;(Multilayer Perceptron, MLP)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;卷积神经网络&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;(Convolutional Neural Network, CNN)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="framework">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>310</y>
+      <width>151</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>开发框架</string>
+    </property>
+    <widget class="QRadioButton" name="pytorch">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>PyTorch</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="tensorflow">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Tensorflow</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="sklearn">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Scikit-Learn</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="paddlepaddle">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>PaddlePaddle</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="optimizer">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>490</y>
+      <width>151</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>优化器</string>
+    </property>
+    <widget class="QRadioButton" name="adam">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Adam</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="adam8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>AdamW</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="sgd">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>SGD</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="adagrad">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Adagrad</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="momentum">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>131</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Adamax</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="hyper_param">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>310</y>
+      <width>251</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>超参数(后面按钮还原默认值)</string>
+    </property>
+    <widget class="QLineEdit" name="lr_text">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>40</y>
+       <width>91</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.001</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="learning_rate">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>51</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>学习率</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="resume_lr">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>40</y>
+       <width>31</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>C</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="batch">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>80</y>
+       <width>71</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>批次大小</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="batch_text">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>80</y>
+       <width>91</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>32</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="resume_batch">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>80</y>
+       <width>31</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>C</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="epoch">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>120</y>
+       <width>71</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>训练轮数</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="epoch_text">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>120</y>
+       <width>91</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>25</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="resume_epoch">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>120</y>
+       <width>31</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>C</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="settings">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>20</y>
+      <width>251</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>系统设置</string>
+    </property>
+    <widget class="QLineEdit" name="result_text">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>40</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>models/ROC/ models/result_pth/</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="result_path">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>61</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>结果路径</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="data_path">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>80</y>
+       <width>81</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>数据集路径</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="data_text">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>80</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>csvs/fer2013.csv</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="gpu">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>160</y>
+       <width>71</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>启用GPU</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="gpu_true">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>160</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>True</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="train">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>200</y>
+       <width>81</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>训练集比例</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="train_text">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>200</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.9</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="test">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>240</y>
+       <width>81</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>测试集比例</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="test_text">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>240</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.1</string>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="data_path_2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>120</y>
+       <width>81</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>测试路径</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="gpu_true_2">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>120</y>
+       <width>121</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>to_be_predicted/</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="functions">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>490</y>
+      <width>251</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>功能区</string>
+    </property>
+    <widget class="QPushButton" name="load">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>载入模型</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="start">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>开始训练</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pause">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>110</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>暂停训练</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="resume">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>150</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>恢复训练</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="save_checkpoint">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>30</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>断点保存</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="save_best_model">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>70</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>最优保存</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="stop">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>110</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>停止训练</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="final_test">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>150</y>
+       <width>88</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>模型测试</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="process">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>310</y>
+      <width>671</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>训练过程</string>
+    </property>
+    <widget class="QTextEdit" name="process_text">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>651</width>
+       <height>311</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>350</y>
+       <width>651</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

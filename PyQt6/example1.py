@@ -9,42 +9,32 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(443, 213)
-        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.pushButton = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.pushButton.setObjectName("pushButton")
-        self.verticalLayout.addWidget(self.pushButton)
-        self.label = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
-        self.button = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button.setObjectName("button")
-        self.verticalLayout.addWidget(self.button)
-        MainWindow.setCentralWidget(self.centralwidget)
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(400, 300)
+        self.buttonBox = QtWidgets.QDialogButtonBox(parent=Dialog)
+        self.buttonBox.setGeometry(QtCore.QRect(30, 240, 341, 32))
+        self.buttonBox.setOrientation(QtCore.Qt.Orientation.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel|QtWidgets.QDialogButtonBox.StandardButton.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+        self.textEdit = QtWidgets.QTextEdit(parent=Dialog)
+        self.textEdit.setGeometry(QtCore.QRect(50, 30, 231, 91))
+        self.textEdit.setObjectName("textEdit")
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(Dialog)
+        self.buttonBox.accepted.connect(Dialog.accept) # type: ignore
+        self.buttonBox.rejected.connect(Dialog.reject) # type: ignore
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "简单的 PyQt6 界面"))
-        self.pushButton.setText(_translate("MainWindow", "PushButton"))
-        self.label.setText(_translate("MainWindow", "Hello, PyQt6!"))
-        self.button.setText(_translate("MainWindow", "点击我"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec())
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.textEdit.setHtml(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
+"</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">hello</p></body></html>"))
