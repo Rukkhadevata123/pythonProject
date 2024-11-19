@@ -13,6 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1250, 728)
+        MainWindow.setUnifiedTitleAndToolBarOnMac(True)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.cur_model_box = QtWidgets.QGroupBox(parent=self.centralwidget)
@@ -146,10 +147,10 @@ class Ui_MainWindow(object):
         self.data_path_2 = QtWidgets.QLabel(parent=self.settings)
         self.data_path_2.setGeometry(QtCore.QRect(20, 120, 81, 30))
         self.data_path_2.setObjectName("data_path_2")
-        self.gpu_true_2 = QtWidgets.QLineEdit(parent=self.settings)
-        self.gpu_true_2.setGeometry(QtCore.QRect(110, 120, 121, 30))
-        self.gpu_true_2.setReadOnly(True)
-        self.gpu_true_2.setObjectName("gpu_true_2")
+        self.test_path = QtWidgets.QLineEdit(parent=self.settings)
+        self.test_path.setGeometry(QtCore.QRect(110, 120, 121, 30))
+        self.test_path.setReadOnly(True)
+        self.test_path.setObjectName("test_path")
         self.functions = QtWidgets.QGroupBox(parent=self.centralwidget)
         self.functions.setGeometry(QtCore.QRect(240, 490, 251, 201))
         self.functions.setObjectName("functions")
@@ -198,7 +199,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "FER2013 Practice Project"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "FER2013 Practice"))
         self.cur_model_box.setTitle(_translate("MainWindow", "当前模型"))
         self.cur_model.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -253,13 +254,13 @@ class Ui_MainWindow(object):
         self.data_path.setText(_translate("MainWindow", "数据集路径"))
         self.data_text.setText(_translate("MainWindow", "csvs/fer2013.csv"))
         self.gpu.setText(_translate("MainWindow", "启用GPU"))
-        self.gpu_true.setText(_translate("MainWindow", "True"))
+        self.gpu_true.setText(_translate("MainWindow", "False"))
         self.train.setText(_translate("MainWindow", "训练集比例"))
         self.train_text.setText(_translate("MainWindow", "0.9"))
         self.test.setText(_translate("MainWindow", "测试集比例"))
         self.test_text.setText(_translate("MainWindow", "0.1"))
         self.data_path_2.setText(_translate("MainWindow", "测试路径"))
-        self.gpu_true_2.setText(_translate("MainWindow", "to_be_predicted/"))
+        self.test_path.setText(_translate("MainWindow", "to_be_predicted/"))
         self.functions.setTitle(_translate("MainWindow", "功能区"))
         self.load.setText(_translate("MainWindow", "载入模型"))
         self.start.setText(_translate("MainWindow", "开始训练"))

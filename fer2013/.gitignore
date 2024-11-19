@@ -3,7 +3,8 @@ __pycache__/
 csvs/
 *.pth
 ROC/
-result_pth/
+models/result_pth/
+models/result_h5/
 qt_theme_test/build
 tmp_examples/
 */__pycache__/

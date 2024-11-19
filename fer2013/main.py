@@ -1,12 +1,16 @@
 import os
 import torch
+import numpy as np
+import tensorflow as tf
 from PIL import Image
 from torch.utils.data import DataLoader
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from torchvision import transforms
 from PyQt6.QtCore import pyqtSlot
 from models.framework._pytorch import TrainThread_pytorch, FER2013Dataset_pytorch, transform_pytorch
-from models.models._MLP import MLP_1, MLP_2
-# from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4
+from models.framework._tensorflow import TrainThread_tensorflow, FER2013Dataset_tf, preprocess_image, create_tf_dataset_from_csv
+from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4, MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4
+from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4
 
 from PyQt6 import QtWidgets, QtCore
 from ui.fer2013_ui import Ui_MainWindow
@@ -20,6 +24,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupButtonGroups()
         self.setupResetButtons()
         self.setupComboBox()
+        self.setFixedSize(self.width(), self.height())
 
         self.train_thread = None
 
@@ -31,6 +36,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.save_checkpoint.clicked.connect(self.enable_save_checkpoint)
         self.save_best_model.clicked.connect(self.enable_save_best_model)
         self.final_test.clicked.connect(self.test_model)
+        self.final_test.setEnabled(False)
 
     def setupButtonGroups(self):
         # 创建框架按钮组
@@ -108,26 +114,47 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def setupModel(self):
         model_name = self.comboBox.currentText()
-        if model_name == "MLP_1":
-            self.model = MLP_1(num_classes=7)
-        elif model_name == "MLP_2":
-            self.model = MLP_2(num_classes=7)
-        # elif model_name == "MLP_3":
-        #     self.model = MLP_3(num_classes=7)
-        # elif model_name == "MLP_4":
-        #     self.model = MLP_4(num_classes=7)
-        # elif model_name == "CNN_1":
-        #     self.model = CNN_1(num_classes=7)
-        # elif model_name == "CNN_2":
-        #     self.model = CNN_2(num_classes=7)
-        # elif model_name == "CNN_3":
-        #     self.model = CNN_3(num_classes=7)
-        # elif model_name == "CNN_4":
-        #     self.model = CNN_4(num_classes=7)
+        if self.framework_group.checkedButton().text() == "PyTorch":
+            if model_name == "MLP_1":
+                self.model = MLP_1(num_classes=7)
+            elif model_name == "MLP_2":
+                self.model = MLP_2(num_classes=7)
+            elif model_name == "MLP_3":
+                self.model = MLP_3(num_classes=7)
+            elif model_name == "MLP_4":
+                self.model = MLP_4(num_classes=7)
+            elif model_name == "CNN_1":
+                self.model = CNN_1(num_classes=7)
+            elif model_name == "CNN_2":
+                self.model = CNN_2(num_classes=7)
+            elif model_name == "CNN_3":
+                self.model = CNN_3(num_classes=7)
+            elif model_name == "CNN_4":
+                self.model = CNN_4(num_classes=7)
+
+        elif self.framework_group.checkedButton().text() == "Tensorflow":
+            if model_name == "MLP_1":
+                self.model = MLP_tf_1(num_classes=7)
+            elif model_name == "MLP_2":
+                self.model = MLP_tf_2(num_classes=7)
+            elif model_name == "MLP_3":
+                self.model = MLP_tf_3(num_classes=7)
+            elif model_name == "MLP_4":
+                self.model = MLP_tf_4(num_classes=7)
+            # elif model_name == "CNN_1":
+            #     self.model = CNN_tf_1(num_classes=7)
+            # elif model_name == "CNN_2":
+            #     self.model = CNN_tf_2(num_classes=7)
+            # elif model_name == "CNN_3":
+            #     self.model = CNN_tf_3(num_classes=7)
+            # elif model_name == "CNN_4":
+            #     self.model = CNN_tf_4(num_classes=7)
 
     @pyqtSlot()
     def load_data(self):
         self.setupModel()
+        self.final_test.setEnabled(True)
+        
         try:
             csv_file = 'csvs/fer2013.csv'
     
@@ -174,16 +201,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
                 # 创建测试数据加载器
                 self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-            elif self.framework_group.checkedButton().text() == "TensorFlow":
-                pass
-            #   TODO
+            elif self.framework_group.checkedButton().text() == "Tensorflow":
+                # 加载和划分数据集
+                self.train_loader, self.train_size = create_tf_dataset_from_csv(csv_file, batch_size=batch_size, mode='train', test_size=test_size, shuffle=True)
+                self.test_loader, self.test_size = create_tf_dataset_from_csv(csv_file, batch_size=batch_size, mode='test', test_size=test_size, shuffle=False)                
             elif self.framework_group.checkedButton().text() == "Scikit-Learn":
                 pass
             #   TODO
             elif self.framework_group.checkedButton().text() == "PaddlePaddle":
                 pass
             #   TODO
-    
+
+            # 禁用框架按钮组中的所有按钮
+            for button in self.framework_group.buttons():
+                button.setEnabled(False)
+
             self.process_text.append("Data loaded successfully.\n")
             self.load.setEnabled(False)
         except Exception as e:
@@ -206,10 +238,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     num_epochs=int(self.epoch_text.text()),
                     learning_rate=float(self.lr_text.text())
                 )
-                self.gpu_true = torch.cuda.is_available()
-            elif self.framework_group.checkedButton().text() == "TensorFlow":
-                pass
-            #   TODO
+                self.gpu_true.setText(str(torch.cuda.is_available()))
+            elif self.framework_group.checkedButton().text() == "Tensorflow":
+                self.train_thread = TrainThread_tensorflow(
+                    model=self.model,
+                    train_dataset=self.train_loader,
+                    test_dataset=self.test_loader,
+                    train_size=self.train_size,
+                    test_size=self.test_size,
+                    optimizer=self.optimizer_group.checkedButton().text(),
+                    num_epochs=int(self.epoch_text.text()),
+                    learning_rate=float(self.lr_text.text())
+                )
+                self.gpu_true.setText(str(tf.test.is_gpu_available()))
             elif self.framework_group.checkedButton().text() == "Scikit-Learn":
                 pass
             #   TODO
@@ -238,6 +279,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.process_text.append("Training stopped...\n")
             self.train_thread.stop()
             self.load.setEnabled(True)
+            # 恢复框架按钮组中的所有按钮
+            for button in self.framework_group.buttons():
+                button.setEnabled(True)
 
     @pyqtSlot()
     def enable_save_checkpoint(self):
@@ -256,63 +300,92 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.pause()
             self.process_text.append("Training paused for model testing...\n")
-
-        best_model_path = 'models/result_pth/best_model.pth'
-        checkpoint_path = 'models/result_pth/checkpoint.pth'
+    
+        if self.framework_group.checkedButton().text() == "PyTorch":
+            best_model_path = 'models/result_pth/best_model.pth'
+            checkpoint_path = 'models/result_pth/checkpoint.pth'
+        elif self.framework_group.checkedButton().text() == "Tensorflow":
+            best_model_path = 'models/result_h5/best_model.weights.h5'
+            checkpoint_path = 'models/result_h5/checkpoint.weights.h5'
+        else:
+            self.process_text.append("Unsupported framework for testing.\n")
+            return
+    
         model_path = None
-
+    
         if os.path.exists(best_model_path):
             model_path = best_model_path
-            self.process_text.append("Using best_model.pth for testing...\n")
+            self.process_text.append(f"Using {best_model_path} for testing...\n")
         elif os.path.exists(checkpoint_path):
             model_path = checkpoint_path
-            self.process_text.append("Using checkpoint.pth for testing...\n")
+            self.process_text.append(f"Using {checkpoint_path} for testing...\n")
         else:
             self.process_text.append("No model found for testing.\n")
             return
-
+    
         to_be_predicted_dir = 'to_be_predicted'
         if not os.path.exists(to_be_predicted_dir):
             os.makedirs(to_be_predicted_dir)
             self.process_text.append("Please put images to be predicted in the to_be_predicted folder.\n")
             return
         emotion_labels = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"]
-
-        
+    
         if self.framework_group.checkedButton().text() == "PyTorch":
             if model_path == checkpoint_path:
                 checkpoint = torch.load(model_path)
                 self.model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 self.model.load_state_dict(torch.load(model_path))
-
+    
             transform = transforms.Compose([
-                transforms.Resize((48, 48)),
+                transforms.Resize((224, 224)),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+                transforms.Normalize(mean=[0.5], std=[0.5])
             ])
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             self.model.to(device)
             self.model.eval()
-
+    
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
                     images_found = True
                     img_path = os.path.join(to_be_predicted_dir, img_name)
-                    img = Image.open(img_path).convert('RGB')
+                    img = Image.open(img_path).convert('L')
                     img = transform(img).unsqueeze(0).to(device)
-                    
-                    with torch.no_grad():
-                        outputs = self.model(img)
-                        _, predicted = torch.max(outputs, 1)
-                        self.process_text.append(f"Prediction for {img_name}: {emotion_labels[predicted.item()]}\n")
+                    outputs = self.model(img)
+                    _, predicted = torch.max(outputs.data, 1)
+                    emotion = emotion_labels[predicted.item()]
+                    self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
+    
             if not images_found:
-                self.process_text.append("No images found for prediction.\n")
-
-            if self.train_thread and self.train_thread.isRunning():
-                self.train_thread.resume()
-                self.process_text.append("Training resumed...\n")
+                self.process_text.append("No images found in the to_be_predicted folder.\n")
+    
+        elif self.framework_group.checkedButton().text() == "Tensorflow":
+            model = self.model
+            model.load_weights(model_path)
+    
+            transform = ImageDataGenerator(rescale=1./255)
+    
+            images_found = False
+            for img_name in os.listdir(to_be_predicted_dir):
+                if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    images_found = True
+                    img_path = os.path.join(to_be_predicted_dir, img_name)
+                    img = Image.open(img_path).convert('L')
+                    img = img.resize((224, 224))
+                    img = np.array(img).reshape((1, 224, 224, 1)) / 255.0
+                    predictions = self.model.predict(img)
+                    predicted = np.argmax(predictions, axis=1)
+                    emotion = emotion_labels[predicted[0]]
+                    self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
+    
+            if not images_found:
+                self.process_text.append("No images found in the to_be_predicted folder.\n")
+    
+        if self.train_thread and self.train_thread.isRunning():
+            self.train_thread.resume()
+            self.process_text.append("Training resumed...\n")
 
     def append_text(self, text):
         self.process_text.append(text)

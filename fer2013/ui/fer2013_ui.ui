@@ -11,7 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>FER2013 Practice Project</string>
+   <string>FER2013 Practice</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QGroupBox" name="cur_model_box">
@@ -509,7 +512,7 @@ p, li { white-space: pre-wrap; }
       </rect>
      </property>
      <property name="text">
-      <string>True</string>
+      <string>False</string>
      </property>
      <property name="readOnly">
       <bool>true</bool>
@@ -586,7 +589,7 @@ p, li { white-space: pre-wrap; }
       <string>测试路径</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="gpu_true_2">
+    <widget class="QLineEdit" name="test_path">
      <property name="geometry">
       <rect>
        <x>110</x>
