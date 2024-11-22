@@ -10,7 +10,7 @@ from PyQt6.QtCore import pyqtSlot
 from models.framework._pytorch import TrainThread_pytorch, FER2013Dataset_pytorch, transform_pytorch
 from models.framework._tensorflow import TrainThread_tensorflow, FER2013Dataset_tf
 from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4, MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4
-from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4
+from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4, CNN_1_tf, CNN_2_tf, CNN_3_tf, CNN_4_tf
 
 from PyQt6 import QtWidgets, QtCore
 from ui.fer2013_ui import Ui_MainWindow
@@ -141,14 +141,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.model = MLP_tf_3(num_classes=7)
             elif model_name == "MLP_4":
                 self.model = MLP_tf_4(num_classes=7)
-            # elif model_name == "CNN_1":
-            #     self.model = CNN_tf_1(num_classes=7)
-            # elif model_name == "CNN_2":
-            #     self.model = CNN_tf_2(num_classes=7)
-            # elif model_name == "CNN_3":
-            #     self.model = CNN_tf_3(num_classes=7)
-            # elif model_name == "CNN_4":
-            #     self.model = CNN_tf_4(num_classes=7)
+            elif model_name == "CNN_1":
+                self.model = CNN_1_tf(num_classes=7)
+            elif model_name == "CNN_2":
+                self.model = CNN_2_tf(num_classes=7)
+            elif model_name == "CNN_3":
+                self.model = CNN_3_tf(num_classes=7)
+            elif model_name == "CNN_4":
+                self.model = CNN_4_tf(num_classes=7)
 
     @pyqtSlot()
     def load_data(self):

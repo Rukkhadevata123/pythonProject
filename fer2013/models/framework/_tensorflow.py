@@ -30,7 +30,8 @@ tf.experimental.numpy.experimental_enable_numpy_behavior()
 
 # 自定义数据集类
 class FER2013Dataset_tf(tf.keras.utils.Sequence):
-    def __init__(self, csv_file, mode='train', batch_size=32, test_size=0.1):
+    def __init__(self, csv_file, mode='train', batch_size=32, test_size=0.1, **kwargs):
+        super().__init__(**kwargs)
         self.data = pd.read_csv(csv_file)
         self.mode = mode
         self.batch_size = batch_size
@@ -94,8 +95,10 @@ def MLP_tf_1(input_shape=(224, 224, 1), num_classes=7):
 
 # 自定义回调函数
 class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
-    def __init__(self, test_dataset):
+    def __init__(self, test_dataset, update_text_signal):
+        super().__init__()
         self.test_dataset = test_dataset
+        self.update_text_signal = update_text_signal
 
     def on_epoch_end(self, epoch, logs=None):
         y_true = []
@@ -116,18 +119,18 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
         FN = conf_matrix.sum(axis=1) - TP
         TN = conf_matrix.sum() - (FP + FN + TP)
 
-        # 输出每种情绪的TP, FP, TN, FN
-        for i in range(7):
-            print(f"Class {i} - TP: {TP[i]}, FP: {FP[i]}, TN: {TN[i]}, FN: {FN[i]}")
-
-        # 计算并输出准确率、精确率、召回率和F1值
+        # 计算准确率、精确率、召回率和F1值
         accuracy = (TP + TN) / (TP + FP + TN + FN)
-        precision = TP / (TP + FP)
-        recall = TP / (TP + FN)
-        f1_score = 2 * (precision * recall) / (precision + recall)
+        precision = np.divide(TP, (TP + FP), out=np.zeros_like(TP, dtype=float), where=(TP + FP) != 0)
+        recall = np.divide(TP, (TP + FN), out=np.zeros_like(TP, dtype=float), where=(TP + FN) != 0)
+        f1_score = np.divide(2 * (precision * recall), (precision + recall), out=np.zeros_like(precision, dtype=float), where=(precision + recall) != 0)
 
+        # 输出每种情绪的TP, FP, TN, FN以及准确率、精确率、召回率和F1值
         for i in range(7):
-            print(f"Class {i} - Accuracy: {accuracy[i]:.4f}, Precision: {precision[i]:.4f}, Recall: {recall[i]:.4f}, F1 Score: {f1_score[i]:.4f}")
+            class_info = (f"Class {i} - TP: {TP[i]}, FP: {FP[i]}, TN: {TN[i]}, FN: {FN[i]}, "
+                          f"Accuracy: {accuracy[i]:.4f}, Precision: {precision[i]:.4f}, Recall: {recall[i]:.4f}, F1 Score: {f1_score[i]:.4f}")
+            print(class_info)
+            self.update_text_signal.emit(class_info + "\n")
 
         # 绘制并保存ROC曲线
         y_true_bin = label_binarize(y_true, classes=[0, 1, 2, 3, 4, 5, 6])
@@ -191,33 +194,33 @@ class TrainThread_tensorflow(QThread):
 
     def run(self):
         self.compile_model()
-
+    
         best_accuracy = 0.0
-
+    
         # 定义模型检查点回调函数
         checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_h5', 'checkpoint.weights.h5')
         best_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_h5', 'best_model.keras')
-
+    
         cp_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=checkpoint_path,
             save_weights_only=True,
             verbose=1,
             save_freq='epoch')  # 每个 epoch 保存一次
-
+    
         best_model_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=best_model_path,
             save_best_only=True,
             monitor='val_accuracy',
             mode='max',
             verbose=1)
-
+    
         class ProgressCallback(tf.keras.callbacks.Callback):
             def __init__(self, total_batches, update_progress_signal, train_thread):
                 super().__init__()
                 self.total_batches = total_batches
                 self.update_progress_signal = update_progress_signal
                 self.train_thread = train_thread
-
+    
             def on_batch_end(self, batch, logs=None):
                 while self.train_thread.paused:
                     self.train_thread.msleep(100)
@@ -225,39 +228,39 @@ class TrainThread_tensorflow(QThread):
                     self.model.stop_training = True
                 progress = int((batch + 1) / self.total_batches * 100)
                 self.update_progress_signal.emit(progress)
-
+    
         total_batches = len(self.train_dataset)
         progress_callback = ProgressCallback(total_batches, self.update_progress, self)
-
+    
         # 添加 ConfusionMatrixCallback 回调
-        confusion_matrix_callback = ConfusionMatrixCallback(self.test_dataset)
-
+        confusion_matrix_callback = ConfusionMatrixCallback(self.test_dataset, self.update_text)
+    
         for epoch in range(self.num_epochs):
             if self.stop_training:
                 break
             self.update_text.emit(f"正在训练第 {epoch + 1} 轮...\n")
-
+    
             # 训练一个 epoch
             history = self.model.fit(self.train_dataset,
                                      epochs=1,
                                      validation_data=self.test_dataset,
                                      callbacks=[cp_callback, best_model_callback, progress_callback, confusion_matrix_callback])
-
+    
             # 更新最佳准确率
             val_accuracy = history.history['val_accuracy'][-1]
             if val_accuracy > best_accuracy:
                 best_accuracy = val_accuracy
-
+    
             # 保存断点
             if self.save_checkpoint_flag:
                 self.model.save_weights(checkpoint_path)
                 self.update_text.emit(f"Checkpoint saved at epoch {epoch + 1}.\n")
                 self.save_checkpoint_flag = False  # 重置标志
-
+    
             # 测试准确率
             test_loss, test_accuracy = self.model.evaluate(self.test_dataset, verbose=0)
             self.update_text.emit(f"Test Accuracy: {test_accuracy * 100:.4f}%\n")
-
+    
             # 保存最优模型
             if self.save_best_model_flag and test_accuracy > best_accuracy:
                 best_accuracy = test_accuracy

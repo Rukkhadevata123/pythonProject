@@ -46,7 +46,7 @@ class FER2013Dataset_pytorch(Dataset):
         img = data.iloc[idx, 1]
         img = np.fromstring(img, sep=' ').reshape(48, 48).astype(np.uint8)
         img = Image.fromarray(img).convert('L')
-        img = img.resize((224, 224)) # 调整图像尺寸为 128x128
+        img = img.resize((224, 224)) # 调整图像尺寸为 224x224
         label = int(data.iloc[idx, 0])  # 标签通常位于 CSV 文件的第一列
 
         if self.transform:
@@ -56,7 +56,6 @@ class FER2013Dataset_pytorch(Dataset):
     
 # 数据增强和预处理
 transform_pytorch = transforms.Compose([
-    # transforms.Resize((48, 48)),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
     transforms.ToTensor(),
@@ -189,10 +188,10 @@ class TrainThread_pytorch(QThread):
                     precision = TP / (TP + FP) if (TP + FP) > 0 else 0
                     recall = TP / (TP + FN) if (TP + FN) > 0 else 0
                     f1_score = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-                    class_info = f"Class {i} ({emotion_labels[i]}): TP={TP}, FP={FP}, TN={TN}, FN={FN}\n"
+                    class_info = (f"Class {i} ({emotion_labels[i]}): TP={TP}, FP={FP}, TN={TN}, FN={FN}, "
+                                  f"Accuracy={(TP + TN) / (TP + FP + TN + FN):.4f}, Precision={precision:.4f}, "
+                                  f"Recall={recall:.4f}, F1 Score={f1_score:.4f}\n")
                     self.update_text.emit(class_info)
-                overall_info = f"Overall: Accuracy={accuracy:.4f}%, Precision={precision:.4f}, Recall={recall:.4f}, F1 Score={f1_score:.4f}\n"
-                self.update_text.emit(overall_info)
 
                 # 创建保存 ROC 曲线的目录
                 roc_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ROC')

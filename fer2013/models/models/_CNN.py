@@ -102,3 +102,85 @@ class CNN_4(nn.Module):
     def forward(self, x):
         x = self.net(x)
         return x
+    
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+# 定义 CNN_1 模型（类似于 AlexNet）
+def CNN_1_tf(input_shape=(224, 224, 1), num_classes=7):
+    model = models.Sequential()
+    model.add(layers.Conv2D(96, kernel_size=11, strides=4, padding='same', activation='relu', input_shape=input_shape))
+    model.add(layers.MaxPooling2D(pool_size=3, strides=2))
+    model.add(layers.Conv2D(256, kernel_size=5, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=3, strides=2))
+    model.add(layers.Conv2D(384, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(384, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(256, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=3, strides=2))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(4096, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(4096, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    return model
+
+# 定义 CNN_2 模型
+def CNN_2_tf(input_shape=(224, 224, 1), num_classes=7):
+    model = models.Sequential()
+    model.add(layers.Conv2D(64, kernel_size=3, padding='same', activation='relu', input_shape=input_shape))
+    model.add(layers.Conv2D(64, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(128, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(128, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(256, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(256, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(256, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(1024, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(1024, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    return model
+
+# 定义 CNN_3 模型
+def CNN_3_tf(input_shape=(224, 224, 1), num_classes=7):
+    model = models.Sequential()
+    model.add(layers.Conv2D(32, kernel_size=3, padding='same', activation='relu', input_shape=input_shape))
+    model.add(layers.Conv2D(32, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(64, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(64, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(128, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.Conv2D(128, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(512, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(512, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    return model
+
+# 定义 CNN_4 模型
+def CNN_4_tf(input_shape=(224, 224, 1), num_classes=7):
+    model = models.Sequential()
+    model.add(layers.Conv2D(32, kernel_size=3, padding='same', activation='relu', input_shape=input_shape))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(64, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(128, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Conv2D(256, kernel_size=3, padding='same', activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=2, strides=2))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(1024, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(512, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    return model
