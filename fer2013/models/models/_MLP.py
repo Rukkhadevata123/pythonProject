@@ -75,45 +75,48 @@ class MLP_4(nn.Module):
     
 
 # 定义 TensorFlow MLP 模型
-import tensorflow as tf
 from tensorflow.keras import layers, models
 
 def MLP_tf_1(input_shape=(224, 224, 1), num_classes=7):
     model = models.Sequential()
+    model.add(layers.Input(shape=input_shape))
     model.add(layers.Flatten(input_shape=input_shape))
-    model.add(layers.Dense(256, activation='relu'))  # 减少神经元数量
-    model.add(layers.Dense(64, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(512, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(num_classes, activation='softmax'))
     return model
 
 def MLP_tf_2(input_shape=(224, 224, 1), num_classes=7):
     model = models.Sequential()
+    model.add(layers.Input(shape=input_shape))
     model.add(layers.Flatten(input_shape=input_shape))
-    model.add(layers.Dense(512, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(512, activation='relu'))  
     model.add(layers.Dropout(0.5))
-    model.add(layers.Dense(256, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(256, activation='relu'))  
     model.add(layers.Dropout(0.5))
-    model.add(layers.Dense(64, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(64, activation='relu'))  
     model.add(layers.Dense(num_classes, activation='softmax'))
     return model
 
 def MLP_tf_3(input_shape=(224, 224, 1), num_classes=7):
     model = models.Sequential()
+    model.add(layers.Input(shape=input_shape))
     model.add(layers.Flatten(input_shape=input_shape))
-    model.add(layers.Dense(1024, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(1024, activation='relu'))  
     model.add(layers.Dropout(0.5))
-    model.add(layers.Dense(512, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(512, activation='relu'))  
     model.add(layers.Dropout(0.5))
-    model.add(layers.Dense(256, activation='relu'))  # 减少神经元数量
-    model.add(layers.Dense(64, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(256, activation='relu'))  
+    model.add(layers.Dense(64, activation='relu'))  
     model.add(layers.Dense(num_classes, activation='softmax'))
     return model
 
 def MLP_tf_4(input_shape=(224, 224, 1), num_classes=7):
     model = models.Sequential()
+    model.add(layers.Input(shape=input_shape))
     model.add(layers.Flatten(input_shape=input_shape))
-    model.add(layers.Dense(128, activation='relu'))  # 减少神经元数量
-    model.add(layers.Dense(64, activation='relu'))  # 减少神经元数量
-    model.add(layers.Dense(32, activation='relu'))  # 减少神经元数量
+    model.add(layers.Dense(128, activation='relu'))  
+    model.add(layers.Dense(64, activation='relu'))  
+    model.add(layers.Dense(32, activation='relu'))  
     model.add(layers.Dense(num_classes, activation='softmax'))
     return model

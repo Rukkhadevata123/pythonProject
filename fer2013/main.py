@@ -8,7 +8,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from torchvision import transforms
 from PyQt6.QtCore import pyqtSlot
 from models.framework._pytorch import TrainThread_pytorch, FER2013Dataset_pytorch, transform_pytorch
-from models.framework._tensorflow import TrainThread_tensorflow, FER2013Dataset_tf, preprocess_image, create_tf_dataset_from_csv
+from models.framework._tensorflow import TrainThread_tensorflow, FER2013Dataset_tf
 from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4, MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4
 from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4
 
@@ -203,8 +203,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
             elif self.framework_group.checkedButton().text() == "Tensorflow":
                 # 加载和划分数据集
-                self.train_loader, self.train_size = create_tf_dataset_from_csv(csv_file, batch_size=batch_size, mode='train', test_size=test_size, shuffle=True)
-                self.test_loader, self.test_size = create_tf_dataset_from_csv(csv_file, batch_size=batch_size, mode='test', test_size=test_size, shuffle=False)                
+                self.train_loader = FER2013Dataset_tf(csv_file=csv_file, mode='train', batch_size=batch_size, test_size=test_size)
+                self.test_loader = FER2013Dataset_tf(csv_file=csv_file, mode='test', batch_size=batch_size, test_size=test_size)                
             elif self.framework_group.checkedButton().text() == "Scikit-Learn":
                 pass
             #   TODO
@@ -244,8 +244,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     model=self.model,
                     train_dataset=self.train_loader,
                     test_dataset=self.test_loader,
-                    train_size=self.train_size,
-                    test_size=self.test_size,
                     optimizer=self.optimizer_group.checkedButton().text(),
                     num_epochs=int(self.epoch_text.text()),
                     learning_rate=float(self.lr_text.text())
@@ -280,8 +278,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.train_thread.stop()
             self.load.setEnabled(True)
             # 恢复框架按钮组中的所有按钮
-            for button in self.framework_group.buttons():
-                button.setEnabled(True)
+            # for button in self.framework_group.buttons():
+            #     button.setEnabled(True)
 
     @pyqtSlot()
     def enable_save_checkpoint(self):
@@ -305,7 +303,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             best_model_path = 'models/result_pth/best_model.pth'
             checkpoint_path = 'models/result_pth/checkpoint.pth'
         elif self.framework_group.checkedButton().text() == "Tensorflow":
-            best_model_path = 'models/result_h5/best_model.weights.h5'
+            best_model_path = 'models/result_h5/best_model.keras'
             checkpoint_path = 'models/result_h5/checkpoint.weights.h5'
         else:
             self.process_text.append("Unsupported framework for testing.\n")
@@ -364,9 +362,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.framework_group.checkedButton().text() == "Tensorflow":
             model = self.model
             model.load_weights(model_path)
-    
-            transform = ImageDataGenerator(rescale=1./255)
-    
+
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -375,14 +371,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     img = Image.open(img_path).convert('L')
                     img = img.resize((224, 224))
                     img = np.array(img).reshape((1, 224, 224, 1)) / 255.0
-                    predictions = self.model.predict(img)
+                    predictions = model.predict(img)
                     predicted = np.argmax(predictions, axis=1)
                     emotion = emotion_labels[predicted[0]]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-    
+
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-    
+
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.resume()
             self.process_text.append("Training resumed...\n")
