@@ -2,15 +2,18 @@ import os
 import torch
 import numpy as np
 import tensorflow as tf
+import paddle
 from PIL import Image
 from torch.utils.data import DataLoader
+from paddle.io import DataLoader as pDataLoader
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from torchvision import transforms
 from PyQt6.QtCore import pyqtSlot
 from models.framework._pytorch import TrainThread_pytorch, FER2013Dataset_pytorch, transform_pytorch
 from models.framework._tensorflow import TrainThread_tensorflow, FER2013Dataset_tf
-from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4, MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4
-from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4, CNN_1_tf, CNN_2_tf, CNN_3_tf, CNN_4_tf
+from models.framework._paddlepaddle import TrainThread_paddle, FER2013Dataset_paddle, transform_paddle
+from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4, MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4, MLP_1_pp, MLP_2_pp, MLP_3_pp, MLP_4_pp
+from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4, CNN_1_tf, CNN_2_tf, CNN_3_tf, CNN_4_tf, CNN_1_pp, CNN_2_pp, CNN_3_pp, CNN_4_pp
 
 from PyQt6 import QtWidgets, QtCore
 from ui.fer2013_ui import Ui_MainWindow
@@ -149,6 +152,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.model = CNN_3_tf(num_classes=7)
             elif model_name == "CNN_4":
                 self.model = CNN_4_tf(num_classes=7)
+        
+        elif self.framework_group.checkedButton().text() == "PaddlePaddle":
+            if model_name == "MLP_1":
+                self.model = MLP_1_pp(num_classes=7)
+            elif model_name == "MLP_2":
+                self.model = MLP_2_pp(num_classes=7)
+            elif model_name == "MLP_3":
+                self.model = MLP_3_pp(num_classes=7)
+            elif model_name == "MLP_4":
+                self.model = MLP_4_pp(num_classes=7)
+            elif model_name == "CNN_1":
+                self.model = CNN_1_pp(num_classes=7)
+            elif model_name == "CNN_2":
+                self.model = CNN_2_pp(num_classes=7)
+            elif model_name == "CNN_3":
+                self.model = CNN_3_pp(num_classes=7)
+            elif model_name == "CNN_4":
+                self.model = CNN_4_pp(num_classes=7)    
+            
 
     @pyqtSlot()
     def load_data(self):
@@ -209,8 +231,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 pass
             #   TODO
             elif self.framework_group.checkedButton().text() == "PaddlePaddle":
-                pass
-            #   TODO
+                train_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle, mode='train', test_size=test_size)
+                test_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle, mode='test', test_size=test_size)
+
+                self.train_loader = pDataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+                self.test_loader = pDataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
             # 禁用框架按钮组中的所有按钮
             for button in self.framework_group.buttons():
@@ -253,8 +278,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 pass
             #   TODO
             elif self.framework_group.checkedButton().text() == "PaddlePaddle":
-                pass
-            #   TODO
+                self.train_thread = TrainThread_paddle(
+                    model=self.model,
+                    train_loader=self.train_loader,
+                    test_loader=self.test_loader,
+                    optimizer=self.optimizer_group.checkedButton().text(),
+                    num_epochs=int(self.epoch_text.text()),
+                    learning_rate=float(self.lr_text.text())
+                )
             self.train_thread.update_text.connect(self.append_text)
             self.train_thread.update_progress.connect(self.update_progress)
             self.train_thread.start()
@@ -299,12 +330,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.train_thread.pause()
             self.process_text.append("Training paused for model testing...\n")
     
-        if self.framework_group.checkedButton().text() == "PyTorch":
+        framework = self.framework_group.checkedButton().text()
+        if framework == "PyTorch":
             best_model_path = 'models/result_pth/best_model.pth'
             checkpoint_path = 'models/result_pth/checkpoint.pth'
-        elif self.framework_group.checkedButton().text() == "Tensorflow":
+        elif framework == "Tensorflow":
             best_model_path = 'models/result_h5/best_model.keras'
             checkpoint_path = 'models/result_h5/checkpoint.weights.h5'
+        elif framework == "PaddlePaddle":
+            best_model_path = 'models/result_paddle/best_model.pdparams'
+            checkpoint_path = 'models/result_paddle/checkpoint.pdparams'
         else:
             self.process_text.append("Unsupported framework for testing.\n")
             return
@@ -326,9 +361,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             os.makedirs(to_be_predicted_dir)
             self.process_text.append("Please put images to be predicted in the to_be_predicted folder.\n")
             return
+    
         emotion_labels = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"]
     
-        if self.framework_group.checkedButton().text() == "PyTorch":
+        if framework == "PyTorch":
             if model_path == checkpoint_path:
                 checkpoint = torch.load(model_path)
                 self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -359,10 +395,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
     
-        elif self.framework_group.checkedButton().text() == "Tensorflow":
+        elif framework == "Tensorflow":
             model = self.model
             model.load_weights(model_path)
-
+    
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -375,10 +411,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     predicted = np.argmax(predictions, axis=1)
                     emotion = emotion_labels[predicted[0]]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-
+    
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-
+    
+        elif framework == "PaddlePaddle":
+            model = self.model
+            model.set_state_dict(paddle.load(model_path))
+    
+            transform = paddle.vision.transforms.Compose([
+                paddle.vision.transforms.Resize((224, 224)),
+                paddle.vision.transforms.ToTensor(),
+                paddle.vision.transforms.Normalize(mean=[0.5], std=[0.5])
+            ])
+            device = paddle.set_device('gpu' if paddle.is_compiled_with_cuda() else 'cpu')
+            model.to(device)
+            model.eval()
+    
+            images_found = False
+            for img_name in os.listdir(to_be_predicted_dir):
+                if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    images_found = True
+                    img_path = os.path.join(to_be_predicted_dir, img_name)
+                    img = Image.open(img_path).convert('L')
+                    img = transform(img).unsqueeze(0).to(device)
+                    outputs = model(img)
+                    predicted = paddle.argmax(outputs, axis=1)
+                    emotion = emotion_labels[predicted.item()]
+                    self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
+    
+            if not images_found:
+                self.process_text.append("No images found in the to_be_predicted folder.\n")
+    
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.resume()
             self.process_text.append("Training resumed...\n")

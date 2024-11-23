@@ -149,7 +149,10 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
         plt.ylabel('True Positive Rate')
         plt.title(f'ROC Curve - Epoch {epoch + 1}')
         plt.legend(loc='lower right')
-        plt.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ROC', f'roc_{epoch + 1}.png'))
+        roc_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ROC')
+        if not os.path.exists(roc_dir):
+            os.makedirs(roc_dir)
+        plt.savefig(os.path.join(roc_dir, f'roc_{epoch + 1}.png'))
         plt.close()
 
 # 训练线程类

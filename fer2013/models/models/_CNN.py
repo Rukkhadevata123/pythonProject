@@ -184,3 +184,104 @@ def CNN_4_tf(input_shape=(224, 224, 1), num_classes=7):
     model.add(layers.Dropout(0.5))
     model.add(layers.Dense(num_classes, activation='softmax'))
     return model
+
+import paddle.nn as pnn
+
+# 定义 CNN_1_pp 模型（类似于 AlexNet）
+class CNN_1_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(CNN_1_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Conv2D(1, 96, kernel_size=11, stride=4, padding=2), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=3, stride=2),
+            pnn.Conv2D(96, 256, kernel_size=5, padding=2), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=3, stride=2),
+            pnn.Conv2D(256, 384, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(384, 384, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(384, 256, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=3, stride=2),
+            pnn.Flatten(),
+            pnn.Linear(256 * 6 * 6, 4096), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(4096, 4096), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(4096, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+# 定义 CNN_2_pp 模型
+class CNN_2_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(CNN_2_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Conv2D(1, 64, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(64, 64, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(64, 128, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(128, 128, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(128, 256, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(256, 256, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(256, 256, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Flatten(),
+            pnn.Linear(256 * 28 * 28, 1024), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(1024, 1024), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(1024, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+# 定义 CNN_3_pp 模型
+class CNN_3_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(CNN_3_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Conv2D(1, 32, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(32, 32, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(32, 64, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(64, 64, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(64, 128, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.Conv2D(128, 128, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Flatten(),
+            pnn.Linear(128 * 28 * 28, 512), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(512, 512), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(512, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+# 定义 CNN_4_pp 模型
+class CNN_4_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(CNN_4_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Conv2D(1, 32, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(32, 64, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(64, 128, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Conv2D(128, 256, kernel_size=3, padding=1), pnn.ReLU(),
+            pnn.MaxPool2D(kernel_size=2, stride=2),
+            pnn.Flatten(),
+            pnn.Linear(256 * 14 * 14, 1024), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(1024, 512), pnn.ReLU(),
+            pnn.Dropout(p=0.5),
+            pnn.Linear(512, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)

@@ -120,3 +120,79 @@ def MLP_tf_4(input_shape=(224, 224, 1), num_classes=7):
     model.add(layers.Dense(32, activation='relu'))  
     model.add(layers.Dense(num_classes, activation='softmax'))
     return model
+
+import paddle.nn as pnn
+import paddle.nn.functional as F
+
+# 定义 MLP 模型
+class MLP_1_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(MLP_1_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Flatten(),
+            pnn.Linear(224 * 224 * 1, 512),
+            pnn.ReLU(),
+            pnn.Linear(512, 128),
+            pnn.ReLU(),
+            pnn.Linear(128, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+class MLP_2_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(MLP_2_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Flatten(),
+            pnn.Linear(224 * 224 * 1, 1024),
+            pnn.ReLU(),
+            pnn.Dropout(0.5),
+            pnn.Linear(1024, 512),
+            pnn.ReLU(),
+            pnn.Dropout(0.5),
+            pnn.Linear(512, 128),
+            pnn.ReLU(),
+            pnn.Linear(128, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+class MLP_3_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(MLP_3_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Flatten(),
+            pnn.Linear(224 * 224 * 1, 2048),
+            pnn.ReLU(),
+            pnn.Dropout(0.5),
+            pnn.Linear(2048, 1024),
+            pnn.ReLU(),
+            pnn.Dropout(0.5),
+            pnn.Linear(1024, 512),
+            pnn.ReLU(),
+            pnn.Linear(512, 128),
+            pnn.ReLU(),
+            pnn.Linear(128, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+class MLP_4_pp(pnn.Layer):
+    def __init__(self, num_classes=7):
+        super(MLP_4_pp, self).__init__()
+        self.net = pnn.Sequential(
+            pnn.Flatten(),
+            pnn.Linear(224 * 224 * 1, 256),
+            pnn.ReLU(),
+            pnn.Linear(256, 128),
+            pnn.ReLU(),
+            pnn.Linear(128, 64),
+            pnn.ReLU(),
+            pnn.Linear(64, num_classes)
+        )
+
+    def forward(self, x):
+        return self.net(x)
