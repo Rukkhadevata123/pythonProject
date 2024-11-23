@@ -1,20 +1,7 @@
-import os
-import torch
 import numpy as np
-import tensorflow as tf
-import paddle
+import os
 from PIL import Image
-from torch.utils.data import DataLoader
-from paddle.io import DataLoader as pDataLoader
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from torchvision import transforms
 from PyQt6.QtCore import pyqtSlot
-from models.framework._pytorch import TrainThread_pytorch, FER2013Dataset_pytorch, transform_pytorch
-from models.framework._tensorflow import TrainThread_tensorflow, FER2013Dataset_tf
-from models.framework._paddlepaddle import TrainThread_paddle, FER2013Dataset_paddle, transform_paddle
-from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4, MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4, MLP_1_pp, MLP_2_pp, MLP_3_pp, MLP_4_pp
-from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4, CNN_1_tf, CNN_2_tf, CNN_3_tf, CNN_4_tf, CNN_1_pp, CNN_2_pp, CNN_3_pp, CNN_4_pp
-
 from PyQt6 import QtWidgets, QtCore
 from ui.fer2013_ui import Ui_MainWindow
 
@@ -97,9 +84,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                               "li.checked::marker { content: \"\\2612\"; }\n"
                                               "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">输出层 输出=7 激活=Softmax</p></body></html>"))
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin右:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin左:0px; margin右:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin左:0px; margin右:0px; -qt-block-indent:0; text-indent:0px;\">输出层 输出=7 激活=Softmax</p></body></html>"))
         elif model_name == "MLP_2":
             self.cur_model.setHtml("# TODO")
         elif model_name == "MLP_3":
@@ -117,7 +104,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def setupModel(self):
         model_name = self.comboBox.currentText()
-        if self.framework_group.checkedButton().text() == "PyTorch":
+        framework = self.framework_group.checkedButton().text()
+
+        if framework == "PyTorch":
+            try:
+                from models.models._MLP import MLP_1, MLP_2, MLP_3, MLP_4
+                from models.models._CNN import CNN_1, CNN_2, CNN_3, CNN_4
+            except ImportError as e:
+                self.process_text.append(f"Failed to import PyTorch models: {e}\n")
+                return
+
             if model_name == "MLP_1":
                 self.model = MLP_1(num_classes=7)
             elif model_name == "MLP_2":
@@ -135,7 +131,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             elif model_name == "CNN_4":
                 self.model = CNN_4(num_classes=7)
 
-        elif self.framework_group.checkedButton().text() == "Tensorflow":
+        elif framework == "Tensorflow":
+            try:
+                from models.models._MLP import MLP_tf_1, MLP_tf_2, MLP_tf_3, MLP_tf_4
+                from models.models._CNN import CNN_1_tf, CNN_2_tf, CNN_3_tf, CNN_4_tf
+            except ImportError as e:
+                self.process_text.append(f"Failed to import Tensorflow models: {e}\n")
+                return
+
             if model_name == "MLP_1":
                 self.model = MLP_tf_1(num_classes=7)
             elif model_name == "MLP_2":
@@ -152,8 +155,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.model = CNN_3_tf(num_classes=7)
             elif model_name == "CNN_4":
                 self.model = CNN_4_tf(num_classes=7)
-        
-        elif self.framework_group.checkedButton().text() == "PaddlePaddle":
+
+        elif framework == "PaddlePaddle":
+            try:
+                from models.models._MLP import MLP_1_pp, MLP_2_pp, MLP_3_pp, MLP_4_pp
+                from models.models._CNN import CNN_1_pp, CNN_2_pp, CNN_3_pp, CNN_4_pp
+            except ImportError as e:
+                self.process_text.append(f"Failed to import PaddlePaddle models: {e}\n")
+                return
+
             if model_name == "MLP_1":
                 self.model = MLP_1_pp(num_classes=7)
             elif model_name == "MLP_2":
@@ -169,17 +179,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             elif model_name == "CNN_3":
                 self.model = CNN_3_pp(num_classes=7)
             elif model_name == "CNN_4":
-                self.model = CNN_4_pp(num_classes=7)    
-            
+                self.model = CNN_4_pp(num_classes=7)
 
     @pyqtSlot()
     def load_data(self):
         self.setupModel()
         self.final_test.setEnabled(True)
-        
+
         try:
             csv_file = 'csvs/fer2013.csv'
-    
+
             try:
                 test_size = float(self.test_text.text())
                 if not (0 < test_size < 1):
@@ -188,7 +197,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.process_text.append("Invalid test size. Please enter a float between 0 and 1.\n")
                 return
             self.train_text.setText(f"{1 - test_size:.2f}")
-    
+
             try:
                 batch_size = int(self.batch_text.text())
                 if batch_size <= 0:
@@ -196,7 +205,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid batch size. Please enter a valid positive integer.\n")
                 return
-    
+
             try:
                 num_epochs = int(self.epoch_text.text())
                 if num_epochs <= 1:
@@ -204,7 +213,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid number of epochs. Please enter an integer greater than 1.\n")
                 return
-    
+
             try:
                 learning_rate = float(self.lr_text.text())
                 if learning_rate <= 0:
@@ -212,25 +221,46 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ValueError:
                 self.process_text.append("Invalid learning rate. Please enter a float greater than 0.\n")
                 return
-    
-            if self.framework_group.checkedButton().text() == "PyTorch":
+
+            framework = self.framework_group.checkedButton().text()
+            if framework == "PyTorch":
+                try:
+                    from models.framework._pytorch import FER2013Dataset_pytorch, transform_pytorch
+                    from torch.utils.data import DataLoader
+                except ImportError as e:
+                    self.process_text.append(f"Failed to import PyTorch dataset: {e}\n")
+                    return
+
                 # 加载和划分数据集
                 train_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, mode='train', test_size=test_size)
                 test_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, mode='test', test_size=test_size)
-    
+
                 # 创建训练数据加载器
                 self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    
+
                 # 创建测试数据加载器
                 self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-            elif self.framework_group.checkedButton().text() == "Tensorflow":
+            elif framework == "Tensorflow":
+                try:
+                    from models.framework._tensorflow import FER2013Dataset_tf
+                except ImportError as e:
+                    self.process_text.append(f"Failed to import Tensorflow dataset: {e}\n")
+                    return
+
                 # 加载和划分数据集
                 self.train_loader = FER2013Dataset_tf(csv_file=csv_file, mode='train', batch_size=batch_size, test_size=test_size)
-                self.test_loader = FER2013Dataset_tf(csv_file=csv_file, mode='test', batch_size=batch_size, test_size=test_size)                
-            elif self.framework_group.checkedButton().text() == "Scikit-Learn":
+                self.test_loader = FER2013Dataset_tf(csv_file=csv_file, mode='test', batch_size=batch_size, test_size=test_size)
+            elif framework == "Scikit-Learn":
                 pass
-            #   TODO
-            elif self.framework_group.checkedButton().text() == "PaddlePaddle":
+                # TODO
+            elif framework == "PaddlePaddle":
+                try:
+                    from models.framework._paddlepaddle import FER2013Dataset_paddle, transform_paddle
+                    from paddle.io import DataLoader as pDataLoader
+                except ImportError as e:
+                    self.process_text.append(f"Failed to import PaddlePaddle dataset: {e}\n")
+                    return
+
                 train_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle, mode='train', test_size=test_size)
                 test_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle, mode='test', test_size=test_size)
 
@@ -254,7 +284,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if self.train_thread is None or not self.train_thread.isRunning():
             self.process_text.append("Training started...\n")
-            if self.framework_group.checkedButton().text() == "PyTorch":
+            framework = self.framework_group.checkedButton().text()
+            if framework == "PyTorch":
+                try:
+                    from models.framework._pytorch import TrainThread_pytorch
+                    import torch
+                except ImportError as e:
+                    self.process_text.append(f"Failed to import PyTorch training thread: {e}\n")
+                    return
+
                 self.train_thread = TrainThread_pytorch(
                     model=self.model,
                     train_loader=self.train_loader,
@@ -264,7 +302,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     learning_rate=float(self.lr_text.text())
                 )
                 self.gpu_true.setText(str(torch.cuda.is_available()))
-            elif self.framework_group.checkedButton().text() == "Tensorflow":
+            elif framework == "Tensorflow":
+                try:
+                    from models.framework._tensorflow import TrainThread_tensorflow
+                    import tensorflow as tf
+                except ImportError as e:
+                    self.process_text.append(f"Failed to import Tensorflow training thread: {e}\n")
+                    return
+
                 self.train_thread = TrainThread_tensorflow(
                     model=self.model,
                     train_dataset=self.train_loader,
@@ -274,10 +319,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     learning_rate=float(self.lr_text.text())
                 )
                 self.gpu_true.setText(str(tf.test.is_gpu_available()))
-            elif self.framework_group.checkedButton().text() == "Scikit-Learn":
+            elif framework == "Scikit-Learn":
                 pass
-            #   TODO
-            elif self.framework_group.checkedButton().text() == "PaddlePaddle":
+                # TODO
+            elif framework == "PaddlePaddle":
+                try:
+                    from models.framework._paddlepaddle import TrainThread_paddle
+                except ImportError as e:
+                    self.process_text.append(f"Failed to import PaddlePaddle training thread: {e}\n")
+                    return
+
                 self.train_thread = TrainThread_paddle(
                     model=self.model,
                     train_loader=self.train_loader,
@@ -309,8 +360,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.train_thread.stop()
             self.load.setEnabled(True)
             # 恢复框架按钮组中的所有按钮
-            # for button in self.framework_group.buttons():
-            #     button.setEnabled(True)
+            for button in self.framework_group.buttons():
+                button.setEnabled(True)
 
     @pyqtSlot()
     def enable_save_checkpoint(self):
@@ -329,7 +380,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.pause()
             self.process_text.append("Training paused for model testing...\n")
-    
+
         framework = self.framework_group.checkedButton().text()
         if framework == "PyTorch":
             best_model_path = 'models/result_pth/best_model.pth'
@@ -343,9 +394,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.process_text.append("Unsupported framework for testing.\n")
             return
-    
+
         model_path = None
-    
+
         if os.path.exists(best_model_path):
             model_path = best_model_path
             self.process_text.append(f"Using {best_model_path} for testing...\n")
@@ -355,22 +406,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.process_text.append("No model found for testing.\n")
             return
-    
+
         to_be_predicted_dir = 'to_be_predicted'
         if not os.path.exists(to_be_predicted_dir):
             os.makedirs(to_be_predicted_dir)
             self.process_text.append("Please put images to be predicted in the to_be_predicted folder.\n")
             return
-    
+
         emotion_labels = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"]
-    
+
         if framework == "PyTorch":
+            try:
+                import torch
+                from torchvision import transforms
+            except ImportError as e:
+                self.process_text.append(f"Failed to import PyTorch: {e}\n")
+                return
+
             if model_path == checkpoint_path:
                 checkpoint = torch.load(model_path)
                 self.model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 self.model.load_state_dict(torch.load(model_path))
-    
+
             transform = transforms.Compose([
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
@@ -379,7 +437,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             self.model.to(device)
             self.model.eval()
-    
+
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -391,14 +449,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     _, predicted = torch.max(outputs.data, 1)
                     emotion = emotion_labels[predicted.item()]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-    
+
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-    
+
         elif framework == "Tensorflow":
+            try:
+                import tensorflow as tf
+            except ImportError as e:
+                self.process_text.append(f"Failed to import Tensorflow: {e}\n")
+                return
+
             model = self.model
             model.load_weights(model_path)
-    
+
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -411,23 +475,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     predicted = np.argmax(predictions, axis=1)
                     emotion = emotion_labels[predicted[0]]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-    
+
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-    
+
         elif framework == "PaddlePaddle":
+            try:
+                import paddle
+                import paddle.vision.transforms as T
+            except ImportError as e:
+                self.process_text.append(f"Failed to import PaddlePaddle: {e}\n")
+                return
+
             model = self.model
             model.set_state_dict(paddle.load(model_path))
-    
-            transform = paddle.vision.transforms.Compose([
-                paddle.vision.transforms.Resize((224, 224)),
-                paddle.vision.transforms.ToTensor(),
-                paddle.vision.transforms.Normalize(mean=[0.5], std=[0.5])
+
+            transform = T.Compose([
+                T.Resize((224, 224)),
+                T.ToTensor(),
+                T.Normalize(mean=[0.5], std=[0.5])
             ])
             device = paddle.set_device('gpu' if paddle.is_compiled_with_cuda() else 'cpu')
             model.to(device)
             model.eval()
-    
+
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -439,10 +510,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     predicted = paddle.argmax(outputs, axis=1)
                     emotion = emotion_labels[predicted.item()]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-    
+
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-    
+
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.resume()
             self.process_text.append("Training resumed...\n")
