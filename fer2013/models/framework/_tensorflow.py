@@ -128,7 +128,6 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         y_true = []
         y_pred = []
-        print(f"Epoch {epoch + 1} - Confusion Matrix:")
 
         for i in range(len(self.test_dataset)):
             images, labels = self.test_dataset[i]
@@ -188,7 +187,7 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title(f'ROC Curve - Epoch {epoch + 1}')
+        plt.title("ROC Curve")
         plt.legend(loc='lower right')
         roc_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                '..',
@@ -196,7 +195,7 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
                                )
         if not os.path.exists(roc_dir):
             os.makedirs(roc_dir)
-        plt.savefig(os.path.join(roc_dir, f'roc_{epoch + 1}.png'))
+        plt.savefig(os.path.join(roc_dir, "roc_curve.png"))
         plt.close()
 
 
