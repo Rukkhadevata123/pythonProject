@@ -18,7 +18,8 @@ if gpus:
         for gpu in gpus:
             tf.config.experimental.set_virtual_device_configuration(
                 gpu,
-                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])  # 例如，设置为 4096MB
+                [tf.config.experimental.VirtualDeviceConfiguration(
+                    memory_limit=4096)])  # 例如，设置为 4096MB
     except RuntimeError as e:
         print(e)
 
@@ -28,16 +29,27 @@ if gpus:
 # 启动实验性NumPy功能
 tf.experimental.numpy.experimental_enable_numpy_behavior()
 
+
 # 自定义数据集类
 class FER2013Dataset_tf(tf.keras.utils.Sequence):
-    def __init__(self, csv_file, mode='train', batch_size=32, test_size=0.1, **kwargs):
+    def __init__(self,
+                 csv_file,
+                 mode='train',
+                 batch_size=32,
+                 test_size=0.2,
+                 shuffle=True,
+                 **kwargs
+                 ):
         super().__init__(**kwargs)
         self.data = pd.read_csv(csv_file)
         self.mode = mode
         self.batch_size = batch_size
+        self.shuffle = shuffle
 
         # 将数据划分为训练集和测试集
-        train_data, test_data = train_test_split(self.data, test_size=test_size, shuffle=True)
+        train_data, test_data = train_test_split(self.data,
+                                                 test_size=test_size,
+                                                 shuffle=True)
         self.train_data = train_data.reset_index(drop=True)
         self.test_data = test_data.reset_index(drop=True)
 
@@ -51,6 +63,9 @@ class FER2013Dataset_tf(tf.keras.utils.Sequence):
         else:
             self.datagen = ImageDataGenerator(rescale=1./255)
 
+        if self.shuffle:
+            self.on_epoch_end()
+
     def __len__(self):
         if self.mode == 'train':
             return int(np.ceil(len(self.train_data) / self.batch_size))
@@ -61,16 +76,20 @@ class FER2013Dataset_tf(tf.keras.utils.Sequence):
 
     def __getitem__(self, idx):
         if self.mode == 'train':
-            batch_data = self.train_data.iloc[idx * self.batch_size:(idx + 1) * self.batch_size]
+            batch_data = self.train_data.iloc[
+                idx * self.batch_size:(idx + 1) * self.batch_size]
         elif self.mode == 'test':
-            batch_data = self.test_data.iloc[idx * self.batch_size:(idx + 1) * self.batch_size]
+            batch_data = self.test_data.iloc[
+                idx * self.batch_size:(idx + 1) * self.batch_size]
         else:
             raise ValueError("Invalid mode. Must be 'train' or 'test'.")
 
         images = []
         labels = []
         for _, row in batch_data.iterrows():
-            img = np.fromstring(row['pixels'], sep=' ').reshape(48, 48).astype(np.uint8)
+            pixels = row['pixels']
+            img = np.fromstring(pixels, sep=' ')
+            img = img.reshape(48, 48).astype(np.uint8)
             img = np.expand_dims(img, axis=-1)  # 保持单通道
             img = tf.image.resize(img, [224, 224])  # 调整图像尺寸为 224x224
             images.append(img)
@@ -79,19 +98,25 @@ class FER2013Dataset_tf(tf.keras.utils.Sequence):
         images = np.array(images)
         labels = np.array(labels)
         if images.size == 0 or labels.size == 0:
-            return self.__getitem__((idx + 1) % self.__len__())  # 跳过空批次，继续处理下一个批次
-        labels = tf.keras.utils.to_categorical(labels, num_classes=7)  # 转换为 one-hot 编码
-        return next(self.datagen.flow(images, labels, batch_size=self.batch_size))
+            return self.__getitem__(
+                (idx + 1) % self.__len__()
+                )  # 跳过空批次，继续处理下一个批次
+        labels = tf.keras.utils.to_categorical(labels,
+                                               num_classes=7
+                                               )  # 转换为 one-hot 编码
+        return next(self.datagen.flow(images,
+                                      labels,
+                                      batch_size=self.batch_size
+                                      )
+                    )
 
-# 定义 MLP 模型
-def MLP_tf_1(input_shape=(224, 224, 1), num_classes=7):
-    model = models.Sequential()
-    model.add(layers.Input(shape=input_shape))
-    model.add(layers.Flatten(input_shape=input_shape))
-    model.add(layers.Dense(512, activation='relu'))
-    model.add(layers.Dense(128, activation='relu'))
-    model.add(layers.Dense(num_classes, activation='softmax'))
-    return model
+    def on_epoch_end(self):
+        if self.shuffle:
+            if self.mode == 'train':
+                self.train_data = self.train_data.sample(frac=1).reset_index(drop=True)
+            elif self.mode == 'test':
+                self.test_data = self.test_data.sample(frac=1).reset_index(drop=True)
+
 
 # 自定义回调函数
 class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
@@ -103,6 +128,7 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         y_true = []
         y_pred = []
+        print(f"Epoch {epoch + 1} - Confusion Matrix:")
 
         for i in range(len(self.test_dataset)):
             images, labels = self.test_dataset[i]
@@ -121,14 +147,29 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
 
         # 计算准确率、精确率、召回率和F1值
         accuracy = (TP + TN) / (TP + FP + TN + FN)
-        precision = np.divide(TP, (TP + FP), out=np.zeros_like(TP, dtype=float), where=(TP + FP) != 0)
-        recall = np.divide(TP, (TP + FN), out=np.zeros_like(TP, dtype=float), where=(TP + FN) != 0)
-        f1_score = np.divide(2 * (precision * recall), (precision + recall), out=np.zeros_like(precision, dtype=float), where=(precision + recall) != 0)
+        precision = np.divide(TP,
+                              (TP + FP),
+                              out=np.zeros_like(TP, dtype=float),
+                              where=(TP + FP) != 0
+                              )
+        recall = np.divide(TP,
+                           (TP + FN),
+                           out=np.zeros_like(TP, dtype=float),
+                           where=(TP + FN) != 0
+                           )
+        f1_score = np.divide(2 * (precision * recall),
+                             (precision + recall),
+                             out=np.zeros_like(precision, dtype=float),
+                             where=(precision + recall) != 0
+                             )
 
         # 输出每种情绪的TP, FP, TN, FN以及准确率、精确率、召回率和F1值
         for i in range(7):
-            class_info = (f"Class {i} - TP: {TP[i]}, FP: {FP[i]}, TN: {TN[i]}, FN: {FN[i]}, "
-                          f"Accuracy: {accuracy[i]:.4f}, Precision: {precision[i]:.4f}, Recall: {recall[i]:.4f}, F1 Score: {f1_score[i]:.4f}")
+            class_info = (
+                f"Class {i} - TP: {TP[i]}, FP: {FP[i]}, TN: {TN[i]}, FN: {FN[i]}, "
+                f"Accuracy: {accuracy[i]:.4f}, Precision: {precision[i]:.4f}, "
+                f"Recall: {recall[i]:.4f}, F1 Score: {f1_score[i]:.4f}"
+            )
             print(class_info)
             self.update_text_signal.emit(class_info + "\n")
 
@@ -149,11 +190,15 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
         plt.ylabel('True Positive Rate')
         plt.title(f'ROC Curve - Epoch {epoch + 1}')
         plt.legend(loc='lower right')
-        roc_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ROC')
+        roc_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               '..',
+                               'ROC'
+                               )
         if not os.path.exists(roc_dir):
             os.makedirs(roc_dir)
         plt.savefig(os.path.join(roc_dir, f'roc_{epoch + 1}.png'))
         plt.close()
+
 
 # 训练线程类
 class TrainThread_tensorflow(QThread):
@@ -189,7 +234,11 @@ class TrainThread_tensorflow(QThread):
         elif self.optimizer == 'Adamax':
             optimizer = optimizers.Adamax(learning_rate=self.learning_rate)
         elif self.optimizer == 'SGD':
-            optimizer = optimizers.SGD(learning_rate=self.learning_rate, momentum=0.9)
+            optimizer = optimizers.SGD(learning_rate=self.learning_rate,
+                                       momentum=0.9
+                                       )
+        else:
+            optimizer = None
 
         self.model.compile(optimizer=optimizer,
                            loss=losses.CategoricalCrossentropy(),
@@ -197,33 +246,45 @@ class TrainThread_tensorflow(QThread):
 
     def run(self):
         self.compile_model()
-    
         best_accuracy = 0.0
-    
         # 定义模型检查点回调函数
-        checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_h5', 'checkpoint.weights.h5')
-        best_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_h5', 'best_model.keras')
-    
+        checkpoint_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..',
+            'result_h5',
+            'checkpoint.weights.h5'
+        )
+        best_model_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..',
+            'result_h5',
+            'best_model.keras'
+        )
+
         cp_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=checkpoint_path,
             save_weights_only=True,
             verbose=1,
             save_freq='epoch')  # 每个 epoch 保存一次
-    
+
         best_model_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=best_model_path,
             save_best_only=True,
             monitor='val_accuracy',
             mode='max',
             verbose=1)
-    
+
         class ProgressCallback(tf.keras.callbacks.Callback):
-            def __init__(self, total_batches, update_progress_signal, train_thread):
+            def __init__(self,
+                         total_batches,
+                         update_progress_signal,
+                         train_thread
+                         ):
                 super().__init__()
                 self.total_batches = total_batches
                 self.update_progress_signal = update_progress_signal
                 self.train_thread = train_thread
-    
+
             def on_batch_end(self, batch, logs=None):
                 while self.train_thread.paused:
                     self.train_thread.msleep(100)
@@ -231,44 +292,65 @@ class TrainThread_tensorflow(QThread):
                     self.model.stop_training = True
                 progress = int((batch + 1) / self.total_batches * 100)
                 self.update_progress_signal.emit(progress)
-    
+
         total_batches = len(self.train_dataset)
-        progress_callback = ProgressCallback(total_batches, self.update_progress, self)
-    
+        progress_callback = ProgressCallback(
+            total_batches,
+            self.update_progress,
+            self
+            )
+
         # 添加 ConfusionMatrixCallback 回调
-        confusion_matrix_callback = ConfusionMatrixCallback(self.test_dataset, self.update_text)
-    
+        confusion_matrix_callback = ConfusionMatrixCallback(
+            self.test_dataset,
+            self.update_text
+            )
+
         for epoch in range(self.num_epochs):
             if self.stop_training:
                 break
             self.update_text.emit(f"正在训练第 {epoch + 1} 轮...\n")
-    
+
             # 训练一个 epoch
             history = self.model.fit(self.train_dataset,
                                      epochs=1,
                                      validation_data=self.test_dataset,
-                                     callbacks=[cp_callback, best_model_callback, progress_callback, confusion_matrix_callback])
-    
+                                     callbacks=[cp_callback,
+                                                best_model_callback,
+                                                progress_callback,
+                                                confusion_matrix_callback
+                                                ]
+                                     )
+
             # 更新最佳准确率
             val_accuracy = history.history['val_accuracy'][-1]
             if val_accuracy > best_accuracy:
                 best_accuracy = val_accuracy
-    
+
             # 保存断点
             if self.save_checkpoint_flag:
                 self.model.save_weights(checkpoint_path)
-                self.update_text.emit(f"Checkpoint saved at epoch {epoch + 1}.\n")
+                self.update_text.emit(
+                    f"Checkpoint saved at epoch {epoch + 1}.\n"
+                    )
                 self.save_checkpoint_flag = False  # 重置标志
-    
+
             # 测试准确率
-            test_loss, test_accuracy = self.model.evaluate(self.test_dataset, verbose=0)
-            self.update_text.emit(f"Test Accuracy: {test_accuracy * 100:.4f}%\n")
-    
+            test_loss, test_accuracy = self.model.evaluate(
+                self.test_dataset,
+                verbose=0
+                )
+            self.update_text.emit(
+                f"Test Accuracy: {test_accuracy * 100:.4f}%\n"
+                )
+
             # 保存最优模型
             if self.save_best_model_flag and test_accuracy > best_accuracy:
                 best_accuracy = test_accuracy
                 self.model.save(best_model_path)
-                self.update_text.emit(f"Best model saved with accuracy: {best_accuracy * 100:.4f}%\n")
+                self.update_text.emit(
+                    f"Best model saved with accuracy: {best_accuracy * 100:.4f}%\n"
+                    )
 
     def pause(self):
         self.paused = True

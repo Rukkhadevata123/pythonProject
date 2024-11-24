@@ -33,7 +33,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.framework_group = QtWidgets.QButtonGroup(self)
         self.framework_group.addButton(self.pytorch)
         self.framework_group.addButton(self.tensorflow)
-        self.framework_group.addButton(self.sklearn)
         self.framework_group.addButton(self.paddlepaddle)
         self.framework_group.setExclusive(True)
         self.pytorch.setChecked(True)  # 默认选中 PyTorch
@@ -191,35 +190,51 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             try:
                 test_size = float(self.test_text.text())
+                self.test_text.setReadOnly(True)
                 if not (0 < test_size < 1):
                     raise ValueError
             except ValueError:
-                self.process_text.append("Invalid test size. Please enter a float between 0 and 1.\n")
+                self.process_text.append(
+                    "Invalid test size. Please enter a float between 0 and 1.\n")
+                self.test_text.setText("0.2")
+                self.test_text.setReadOnly(False)
                 return
             self.train_text.setText(f"{1 - test_size:.2f}")
 
             try:
                 batch_size = int(self.batch_text.text())
+                self.batch_text.setReadOnly(True)
                 if batch_size <= 0:
                     raise ValueError
             except ValueError:
-                self.process_text.append("Invalid batch size. Please enter a valid positive integer.\n")
+                self.process_text.append(
+                    "Invalid batch size. Please enter a valid positive integer.\n")
+                self.batch_text.setText("32")
+                self.batch_text.setReadOnly(False)
                 return
 
             try:
                 num_epochs = int(self.epoch_text.text())
+                self.epoch_text.setReadOnly(True)
                 if num_epochs <= 1:
                     raise ValueError
             except ValueError:
-                self.process_text.append("Invalid number of epochs. Please enter an integer greater than 1.\n")
+                self.process_text.append(
+                    "Invalid number of epochs. Please enter an integer greater than 1.\n")
+                self.epoch_text.setText("25")
+                self.epoch_text.setReadOnly(False)
                 return
 
             try:
                 learning_rate = float(self.lr_text.text())
+                self.lr_text.setReadOnly(True)
                 if learning_rate <= 0:
                     raise ValueError
             except ValueError:
-                self.process_text.append("Invalid learning rate. Please enter a float greater than 0.\n")
+                self.process_text.append(
+                    "Invalid learning rate. Please enter a float greater than 0.\n")
+                self.lr_text.setText("0.001")
+                self.lr_text.setReadOnly(False)
                 return
 
             framework = self.framework_group.checkedButton().text()
@@ -246,13 +261,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 except ImportError as e:
                     self.process_text.append(f"Failed to import Tensorflow dataset: {e}\n")
                     return
-
+            
                 # 加载和划分数据集
-                self.train_loader = FER2013Dataset_tf(csv_file=csv_file, mode='train', batch_size=batch_size, test_size=test_size)
-                self.test_loader = FER2013Dataset_tf(csv_file=csv_file, mode='test', batch_size=batch_size, test_size=test_size)
-            elif framework == "Scikit-Learn":
-                pass
-                # TODO
+                self.train_loader = FER2013Dataset_tf(csv_file=csv_file, mode='train', batch_size=batch_size, test_size=test_size, shuffle=True)
+                self.test_loader = FER2013Dataset_tf(csv_file=csv_file, mode='test', batch_size=batch_size, test_size=test_size, shuffle=False)
+
             elif framework == "PaddlePaddle":
                 try:
                     from models.framework._paddlepaddle import FER2013Dataset_paddle, transform_paddle
@@ -319,11 +332,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     learning_rate=float(self.lr_text.text())
                 )
                 self.gpu_true.setText(str(tf.test.is_gpu_available()))
-            elif framework == "Scikit-Learn":
-                pass
-                # TODO
+
             elif framework == "PaddlePaddle":
                 try:
+                    import paddle
                     from models.framework._paddlepaddle import TrainThread_paddle
                 except ImportError as e:
                     self.process_text.append(f"Failed to import PaddlePaddle training thread: {e}\n")
@@ -337,6 +349,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     num_epochs=int(self.epoch_text.text()),
                     learning_rate=float(self.lr_text.text())
                 )
+                self.gpu_true.setText(str(paddle.is_compiled_with_cuda()))
             self.train_thread.update_text.connect(self.append_text)
             self.train_thread.update_progress.connect(self.update_progress)
             self.train_thread.start()
@@ -362,6 +375,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # 恢复框架按钮组中的所有按钮
             for button in self.framework_group.buttons():
                 button.setEnabled(True)
+            self.test_text.setReadOnly(False)
+            self.batch_text.setReadOnly(False)
+            self.epoch_text.setReadOnly(False)
+            self.lr_text.setReadOnly(False)
 
     @pyqtSlot()
     def enable_save_checkpoint(self):

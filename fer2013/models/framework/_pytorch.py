@@ -14,15 +14,25 @@ from sklearn.metrics import roc_curve, auc
 from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
 
+
 # 自定义数据集类
 class FER2013Dataset_pytorch(Dataset):
-    def __init__(self, csv_file, self_transform=None, mode='train', test_size=0.1):
+    def __init__(self,
+                 csv_file,
+                 self_transform=None,
+                 mode='train',
+                 test_size=0.2
+                 ):
         self.data = pd.read_csv(csv_file)
         self.transform = self_transform
         self.mode = mode  # 根据传入的 mode 参数设置模式
 
         # 将数据划分为训练集和测试集
-        train_data, test_data = train_test_split(self.data, test_size=test_size, random_state=42, shuffle=True)
+        train_data, test_data = train_test_split(self.data,
+                                                 test_size=test_size,
+                                                 random_state=42,
+                                                 shuffle=True
+                                                 )
         self.train_data = train_data.reset_index(drop=True)
         self.test_data = test_data.reset_index(drop=True)
 
@@ -46,21 +56,24 @@ class FER2013Dataset_pytorch(Dataset):
         img = data.iloc[idx, 1]
         img = np.fromstring(img, sep=' ').reshape(48, 48).astype(np.uint8)
         img = Image.fromarray(img).convert('L')
-        img = img.resize((224, 224)) # 调整图像尺寸为 224x224
+        img = img.resize((224, 224))  # 调整图像尺寸为 224x224
         label = int(data.iloc[idx, 0])  # 标签通常位于 CSV 文件的第一列
 
         if self.transform:
             img = self.transform(img)
 
         return {'image': img, 'label': label}
-    
+
+
 # 数据增强和预处理
 transform_pytorch = transforms.Compose([
+    transforms.Resize((224, 224), interpolation=Image.BILINEAR),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5], std=[0.5])
 ])
+
 
 class TrainThread_pytorch(QThread):
     update_text = pyqtSignal(str)
@@ -72,8 +85,8 @@ class TrainThread_pytorch(QThread):
         train_loader,
         test_loader,
         optimizer,
-        num_epochs = 25,
-        learning_rate = 0.001,
+        num_epochs=25,
+        learning_rate=0.001,
     ):
         super(TrainThread_pytorch, self).__init__()
         self.model = model
@@ -93,18 +106,30 @@ class TrainThread_pytorch(QThread):
         criterion = nn.CrossEntropyLoss()
 
         if self.optimizer == 'Adam':
-            optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            optimizer = optim.Adam(self.model.parameters(),
+                                   lr=self.learning_rate)
         elif self.optimizer == 'AdamW':
-            optimizer = optim.AdamW(self.model.parameters(), lr=self.learning_rate)
+            optimizer = optim.AdamW(self.model.parameters(),
+                                    lr=self.learning_rate)
         elif self.optimizer == 'Adamax':
-            optimizer = optim.Adamax(self.model.parameters(), lr=self.learning_rate)
+            optimizer = optim.Adamax(self.model.parameters(),
+                                     lr=self.learning_rate)
         elif self.optimizer == 'SGD':
-            optimizer = optim.SGD(self.model.parameters(), lr=self.learning_rate, momentum=0.9)
+            optimizer = optim.SGD(self.model.parameters(),
+                                  lr=self.learning_rate, momentum=0.9)
         
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+        scheduler = optim.lr_scheduler.StepLR(optimizer,
+                                              step_size=7,
+                                              gamma=0.1)
         best_accuracy = 0.0
 
-        emotion_labels = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"]
+        emotion_labels = ["Angry",
+                          "Disgust",
+                          "Fear",
+                          "Happy",
+                          "Sad",
+                          "Surprise",
+                          "Neutral"]
 
         for epoch in range(self.num_epochs):
             if self.stop_training:
@@ -116,7 +141,10 @@ class TrainThread_pytorch(QThread):
             running_loss = 0.0
             correct = 0
             total = 0
-            for i, data in enumerate(tqdm(self.train_loader, desc=f'Epoch {epoch+1}/{self.num_epochs}', unit='batch')):
+            for i, data in enumerate(tqdm(self.train_loader,
+                                          desc=f'Epoch {epoch+1}/{self.num_epochs}',
+                                          unit='batch')
+                                     ):
                 if self.stop_training:
                     break
                 while self.paused:
@@ -131,14 +159,21 @@ class TrainThread_pytorch(QThread):
                 _, predicted = torch.max(outputs.data, 1)
                 total += y.size(0)
                 correct += (predicted == y).sum().item()
-                self.update_progress.emit(int((i + 1) / len(self.train_loader) * 100))
+                self.update_progress.emit(
+                    int((i + 1) / len(self.train_loader) * 100)
+                    )
             scheduler.step()
             epoch_info = f"Epoch {epoch + 1}/{self.num_epochs}, Loss: {running_loss / len(self.train_loader):.4f}, Accuracy: {100 * correct / total:.4f}%\n"
             self.update_text.emit(epoch_info)
 
             # 保存断点
             if self.save_checkpoint_flag:
-                checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_pth', 'checkpoint.pth')
+                checkpoint_path = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    '..',
+                    'result_pth',
+                    'checkpoint.pth'
+                    )
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),
@@ -147,7 +182,9 @@ class TrainThread_pytorch(QThread):
                     'loss': running_loss / len(self.train_loader),
                     'accuracy': 100 * correct / total
                 }, checkpoint_path)
-                self.update_text.emit(f"Checkpoint saved at epoch {epoch + 1}.\n")
+                self.update_text.emit(
+                    f"Checkpoint saved at epoch {epoch + 1}.\n"
+                    )
                 self.save_checkpoint_flag = False  # 重置标志
 
             # 测试准确率和混淆矩阵
@@ -175,9 +212,15 @@ class TrainThread_pytorch(QThread):
                 # 保存最优模型
                 if self.save_best_model_flag and accuracy > best_accuracy:
                     best_accuracy = accuracy
-                    best_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_pth', 'best_model.pth')
+                    best_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                   '..',
+                                                   'result_pth',
+                                                   'best_model.pth'
+                                                   )
                     torch.save(self.model.state_dict(), best_model_path)
-                    self.update_text.emit(f"Best model saved with accuracy: {best_accuracy:.4f}%\n")
+                    self.update_text.emit(
+                        f"Best model saved with accuracy: {best_accuracy:.4f}%\n"
+                        )
 
                 # 计算每个类别的 TP、FP、TN、FN
                 for i in range(7):
@@ -209,7 +252,10 @@ class TrainThread_pytorch(QThread):
 
                 plt.figure()
                 for i in range(7):
-                    plt.plot(fpr[i], tpr[i], label=f'Class {i} ({emotion_labels[i]}) (AUC = {roc_auc[i]:.2f})')
+                    plt.plot(fpr[i],
+                             tpr[i],
+                             label=f'Class {i} ({emotion_labels[i]}) (AUC = {roc_auc[i]:.2f})'
+                             )
                 plt.plot([0, 1], [0, 1], 'k--')
                 plt.xlim([0.0, 1.0])
                 plt.ylim([0.0, 1.05])

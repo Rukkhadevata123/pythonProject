@@ -13,9 +13,10 @@ from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
 from PyQt6.QtCore import QThread, pyqtSignal
 
+
 # 自定义数据集类
 class FER2013Dataset_paddle(Dataset):
-    def __init__(self, csv_file, transform=None, mode='train', test_size=0.1):
+    def __init__(self, csv_file, transform=None, mode='train', test_size=0.2):
         self.data = pd.read_csv(csv_file)
         self.transform = transform
         self.mode = mode  # 根据传入的 mode 参数设置模式
@@ -45,7 +46,7 @@ class FER2013Dataset_paddle(Dataset):
         img = data.iloc[idx, 1]
         img = np.fromstring(img, sep=' ').reshape(48, 48).astype(np.uint8)
         img = Image.fromarray(img).convert('L')
-        img = img.resize((224, 224)) # 调整图像尺寸为 224x224
+        img = img.resize((224, 224))  # 调整图像尺寸为 224x224
         label = int(data.iloc[idx, 0])  # 标签通常位于 CSV 文件的第一列
 
         if self.transform:
@@ -53,13 +54,16 @@ class FER2013Dataset_paddle(Dataset):
 
         return img, label
 
+
 # 数据增强和预处理
 transform_paddle = paddle.vision.transforms.Compose([
+    paddle.vision.transforms.Resize((224, 224), interpolation='bilinear'),  # 调整图像尺寸为 224x224，使用线性插值
     paddle.vision.transforms.RandomHorizontalFlip(),
     paddle.vision.transforms.RandomRotation(10, fill=(0,)),  # 添加 fill 参数
     paddle.vision.transforms.ToTensor(),
     paddle.vision.transforms.Normalize(mean=[0.5], std=[0.5])
 ])
+
 
 class TrainThread_paddle(QThread):
     update_text = pyqtSignal(str)
@@ -133,12 +137,21 @@ class TrainThread_paddle(QThread):
                 correct += (predicted == y).numpy().sum()
                 self.update_progress.emit(int((i + 1) / len(self.train_loader) * 100))
             scheduler.step()
-            epoch_info = f"Epoch {epoch + 1}/{self.num_epochs}, Loss: {running_loss / len(self.train_loader):.4f}, Accuracy: {100 * correct / total:.4f}%\n"
+            epoch_info = (
+                f"Epoch {epoch + 1}/{self.num_epochs}, "
+                f"Loss: {running_loss / len(self.train_loader):.4f}, "
+                f"Accuracy: {100 * correct / total:.4f}%\n"
+            )
             self.update_text.emit(epoch_info)
 
             # 保存断点
             if self.save_checkpoint_flag:
-                checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_paddle', 'checkpoint.pdparams')
+                checkpoint_path = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    '..',
+                    'result_paddle',
+                    'checkpoint.pdparams'
+                )
                 paddle.save({
                     'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),
@@ -176,7 +189,12 @@ class TrainThread_paddle(QThread):
                 # 保存最优模型
                 if self.save_best_model_flag and accuracy > best_accuracy:
                     best_accuracy = accuracy
-                    best_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result_paddle', 'best_model.pdparams')
+                    best_model_path = os.path.join(
+                        os.path.dirname(os.path.abspath(__file__)),
+                        '..',
+                        'result_paddle',
+                        'best_model.pdparams'
+                    )
                     paddle.save(self.model.state_dict(), best_model_path)
                     self.update_text.emit(f"Best model saved with accuracy: {best_accuracy:.4f}%\n")
 
@@ -189,9 +207,11 @@ class TrainThread_paddle(QThread):
                     precision = TP / (TP + FP) if (TP + FP) > 0 else 0
                     recall = TP / (TP + FN) if (TP + FN) > 0 else 0
                     f1_score = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-                    class_info = (f"Class {i} ({emotion_labels[i]}): TP={TP}, FP={FP}, TN={TN}, FN={FN}, "
-                                  f"Accuracy={(TP + TN) / (TP + FP + TN + FN):.4f}, Precision={precision:.4f}, "
-                                  f"Recall={recall:.4f}, F1 Score={f1_score:.4f}\n")
+                    class_info = (
+                        f"Class {i} ({emotion_labels[i]}): TP={TP}, FP={FP}, TN={TN}, FN={FN}, "
+                        f"Accuracy={(TP + TN) / (TP + FP + TN + FN):.4f}, Precision={precision:.4f}, "
+                        f"Recall={recall:.4f}, F1 Score={f1_score:.4f}\n"
+                    )
                     self.update_text.emit(class_info)
 
                 # 创建保存 ROC 曲线的目录
@@ -219,8 +239,8 @@ class TrainThread_paddle(QThread):
                 plt.title('Receiver Operating Characteristic (ROC) Curve')
                 plt.legend(loc='lower right')
                 plt.savefig(os.path.join(roc_dir, f'roc_curve_{epoch + 1}.png'))
-                plt.close()                   
-    
+                plt.close()
+
     def pause(self):
         self.paused = True
 
@@ -229,7 +249,7 @@ class TrainThread_paddle(QThread):
 
     def stop(self):
         self.stop_training = True
-        self.paused = False # 防止线程被暂停
+        self.paused = False  # 防止线程被暂停
 
     def enable_save_checkpoint(self):
         self.save_checkpoint_flag = True

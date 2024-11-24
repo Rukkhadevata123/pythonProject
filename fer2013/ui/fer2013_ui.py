@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1250, 728)
-        MainWindow.setUnifiedTitleAndToolBarOnMac(True)
+        MainWindow.setUnifiedTitleAndToolBarOnMac(False)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.cur_model_box = QtWidgets.QGroupBox(parent=self.centralwidget)
@@ -51,12 +51,12 @@ class Ui_MainWindow(object):
         self.tensorflow = QtWidgets.QRadioButton(parent=self.framework)
         self.tensorflow.setGeometry(QtCore.QRect(10, 70, 111, 25))
         self.tensorflow.setObjectName("tensorflow")
-        self.sklearn = QtWidgets.QRadioButton(parent=self.framework)
-        self.sklearn.setGeometry(QtCore.QRect(10, 100, 111, 25))
-        self.sklearn.setObjectName("sklearn")
         self.paddlepaddle = QtWidgets.QRadioButton(parent=self.framework)
-        self.paddlepaddle.setGeometry(QtCore.QRect(10, 130, 111, 25))
+        self.paddlepaddle.setGeometry(QtCore.QRect(10, 100, 111, 25))
         self.paddlepaddle.setObjectName("paddlepaddle")
+        self.label = QtWidgets.QLabel(parent=self.framework)
+        self.label.setGeometry(QtCore.QRect(30, 130, 101, 21))
+        self.label.setObjectName("label")
         self.optimizer = QtWidgets.QGroupBox(parent=self.centralwidget)
         self.optimizer.setGeometry(QtCore.QRect(60, 490, 151, 201))
         self.optimizer.setObjectName("optimizer")
@@ -202,13 +202,16 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "FER2013 Practice"))
         self.cur_model_box.setTitle(_translate("MainWindow", "当前模型"))
         self.cur_model.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">输出层 输出=7 激活=Softmax</p></body></html>"))
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
+"</style></head><body style=\" font-family:\'ComicShannsMono Nerd Font Mono\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">隐含层 输出=64 激活=ReLU</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">隐含层 输出=64 激活=ReLU</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">隐含层 输出=64 激活=ReLU</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">输出层 输出=7 激活=Softmax</span></p></body></html>"))
         self.model_box.setTitle(_translate("MainWindow", "模型选择"))
         self.comboBox.setItemText(0, _translate("MainWindow", "MLP_1"))
         self.comboBox.setItemText(1, _translate("MainWindow", "MLP_2"))
@@ -219,19 +222,22 @@ class Ui_MainWindow(object):
         self.comboBox.setItemText(6, _translate("MainWindow", "CNN_3"))
         self.comboBox.setItemText(7, _translate("MainWindow", "CNN_4"))
         self.textEdit.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">多层感知器</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">(Multilayer Perceptron, MLP)</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">卷积神经网络</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">(Convolutional Neural Network, CNN)</p></body></html>"))
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
+"</style></head><body style=\" font-family:\'ComicShannsMono Nerd Font Mono\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">多层感知器</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">(Multilayer Perceptron, MLP)</span></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Ubuntu Sans\'; font-size:11pt;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">卷积神经网络</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Ubuntu Sans\'; font-size:11pt;\">(Convolutional Neural Network, CNN)</span></p></body></html>"))
         self.framework.setTitle(_translate("MainWindow", "开发框架"))
         self.pytorch.setText(_translate("MainWindow", "PyTorch"))
         self.tensorflow.setText(_translate("MainWindow", "Tensorflow"))
-        self.sklearn.setText(_translate("MainWindow", "Scikit-Learn"))
         self.paddlepaddle.setText(_translate("MainWindow", "PaddlePaddle"))
+        self.label.setText(_translate("MainWindow", "Scikit-Learn"))
         self.optimizer.setTitle(_translate("MainWindow", "优化器"))
         self.adam.setText(_translate("MainWindow", "Adam"))
         self.adam8.setText(_translate("MainWindow", "AdamW"))
@@ -249,16 +255,16 @@ class Ui_MainWindow(object):
         self.epoch_text.setText(_translate("MainWindow", "25"))
         self.resume_epoch.setText(_translate("MainWindow", "C"))
         self.settings.setTitle(_translate("MainWindow", "系统设置"))
-        self.result_text.setText(_translate("MainWindow", "models/ROC/ models/result_pth/"))
+        self.result_text.setText(_translate("MainWindow", "models/ROC/ models/result_*/"))
         self.result_path.setText(_translate("MainWindow", "结果路径"))
         self.data_path.setText(_translate("MainWindow", "数据集路径"))
         self.data_text.setText(_translate("MainWindow", "csvs/fer2013.csv"))
         self.gpu.setText(_translate("MainWindow", "启用GPU"))
         self.gpu_true.setText(_translate("MainWindow", "False"))
         self.train.setText(_translate("MainWindow", "训练集比例"))
-        self.train_text.setText(_translate("MainWindow", "0.9"))
+        self.train_text.setText(_translate("MainWindow", "0.8"))
         self.test.setText(_translate("MainWindow", "测试集比例"))
-        self.test_text.setText(_translate("MainWindow", "0.1"))
+        self.test_text.setText(_translate("MainWindow", "0.2"))
         self.data_path_2.setText(_translate("MainWindow", "测试路径"))
         self.test_path.setText(_translate("MainWindow", "to_be_predicted/"))
         self.functions.setTitle(_translate("MainWindow", "功能区"))
