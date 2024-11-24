@@ -46,7 +46,7 @@ class FER2013Dataset_paddle(Dataset):
         img = data.iloc[idx, 1]
         img = np.fromstring(img, sep=' ').reshape(48, 48).astype(np.uint8)
         img = Image.fromarray(img).convert('L')
-        img = img.resize((224, 224))  # 调整图像尺寸为 224x224
+        img = img.resize((48, 48))
         label = int(data.iloc[idx, 0])  # 标签通常位于 CSV 文件的第一列
 
         if self.transform:
@@ -57,9 +57,10 @@ class FER2013Dataset_paddle(Dataset):
 
 # 数据增强和预处理
 transform_paddle = paddle.vision.transforms.Compose([
-    paddle.vision.transforms.Resize((224, 224), interpolation='bilinear'),  # 调整图像尺寸为 224x224，使用线性插值
+    # paddle.vision.transforms.Resize((224, 224), interpolation='bilinear'),  # 调整图像尺寸为 224x224，使用线性插值
     paddle.vision.transforms.RandomHorizontalFlip(),
     paddle.vision.transforms.RandomRotation(10, fill=(0,)),  # 添加 fill 参数
+    # paddle.vision.transforms.ColorJitter(0.2, 0.2, 0.2),  # 添加 ColorJitter
     paddle.vision.transforms.ToTensor(),
     paddle.vision.transforms.Normalize(mean=[0.5], std=[0.5])
 ])

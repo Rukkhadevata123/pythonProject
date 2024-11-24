@@ -56,7 +56,7 @@ class FER2013Dataset_pytorch(Dataset):
         img = data.iloc[idx, 1]
         img = np.fromstring(img, sep=' ').reshape(48, 48).astype(np.uint8)
         img = Image.fromarray(img).convert('L')
-        img = img.resize((224, 224))  # 调整图像尺寸为 224x224
+        img = img.resize((48, 48))
         label = int(data.iloc[idx, 0])  # 标签通常位于 CSV 文件的第一列
 
         if self.transform:
@@ -67,9 +67,10 @@ class FER2013Dataset_pytorch(Dataset):
 
 # 数据增强和预处理
 transform_pytorch = transforms.Compose([
-    transforms.Resize((224, 224), interpolation=Image.BILINEAR),
+    # transforms.Resize((224, 224), interpolation=Image.BILINEAR),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
+    # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5], std=[0.5])
 ])

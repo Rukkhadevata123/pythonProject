@@ -13,7 +13,7 @@ if pytorch_available:
             super(MLP_1, self).__init__()
             self.net = nn.Sequential(
                 nn.Flatten(),
-                nn.Linear(224 * 224 * 1, 512),  # 修改输入尺寸
+                nn.Linear(48 * 48 * 1, 512),  # 修改输入尺寸
                 nn.ReLU(),
                 nn.Linear(512, 128),
                 nn.ReLU(),
@@ -28,7 +28,7 @@ if pytorch_available:
             super(MLP_2, self).__init__()
             self.net = nn.Sequential(
                 nn.Flatten(),
-                nn.Linear(224 * 224 * 1, 1024),  # 修改输入尺寸
+                nn.Linear(48 * 48 * 1, 1024),  # 修改输入尺寸
                 nn.ReLU(),
                 nn.Dropout(0.5),
                 nn.Linear(1024, 512),
@@ -47,7 +47,7 @@ if pytorch_available:
             super(MLP_3, self).__init__()
             self.net = nn.Sequential(
                 nn.Flatten(),
-                nn.Linear(224 * 224 * 1, 2048),  # 修改输入尺寸
+                nn.Linear(48 * 48 * 1, 2048),  # 修改输入尺寸
                 nn.ReLU(),
                 nn.Dropout(0.5),
                 nn.Linear(2048, 1024),
@@ -68,7 +68,7 @@ if pytorch_available:
             super(MLP_4, self).__init__()
             self.net = nn.Sequential(
                 nn.Flatten(),
-                nn.Linear(224 * 224 * 1, 256),  # 修改输入尺寸
+                nn.Linear(48 * 48 * 1, 256),  # 修改输入尺寸
                 nn.ReLU(),
                 nn.Linear(256, 128),
                 nn.ReLU(),
@@ -90,7 +90,7 @@ except ImportError as e:
 
 if tensorflow_available:
     # 定义 TensorFlow MLP 模型
-    def MLP_tf_1(input_shape=(224, 224, 1), num_classes=7):
+    def MLP_tf_1(input_shape=(48, 48, 1), num_classes=7):
         model = models.Sequential()
         model.add(layers.Input(shape=input_shape))
         model.add(layers.Flatten(input_shape=input_shape))
@@ -99,7 +99,7 @@ if tensorflow_available:
         model.add(layers.Dense(num_classes, activation='softmax'))
         return model
 
-    def MLP_tf_2(input_shape=(224, 224, 1), num_classes=7):
+    def MLP_tf_2(input_shape=(48, 48, 1), num_classes=7):
         model = models.Sequential()
         model.add(layers.Input(shape=input_shape))
         model.add(layers.Flatten(input_shape=input_shape))
@@ -111,7 +111,7 @@ if tensorflow_available:
         model.add(layers.Dense(num_classes, activation='softmax'))
         return model
 
-    def MLP_tf_3(input_shape=(224, 224, 1), num_classes=7):
+    def MLP_tf_3(input_shape=(48, 48, 1), num_classes=7):
         model = models.Sequential()
         model.add(layers.Input(shape=input_shape))
         model.add(layers.Flatten(input_shape=input_shape))
@@ -124,7 +124,7 @@ if tensorflow_available:
         model.add(layers.Dense(num_classes, activation='softmax'))
         return model
 
-    def MLP_tf_4(input_shape=(224, 224, 1), num_classes=7):
+    def MLP_tf_4(input_shape=(48, 48, 1), num_classes=7):
         model = models.Sequential()
         model.add(layers.Input(shape=input_shape))
         model.add(layers.Flatten(input_shape=input_shape))
@@ -150,7 +150,7 @@ if paddle_available:
             super(MLP_1_pp, self).__init__()
             self.net = pnn.Sequential(
                 pnn.Flatten(),
-                pnn.Linear(224 * 224 * 1, 512),
+                pnn.Linear(48 * 48 * 1, 512),
                 pnn.ReLU(),
                 pnn.Linear(512, 128),
                 pnn.ReLU(),
@@ -165,7 +165,7 @@ if paddle_available:
             super(MLP_2_pp, self).__init__()
             self.net = pnn.Sequential(
                 pnn.Flatten(),
-                pnn.Linear(224 * 224 * 1, 1024),
+                pnn.Linear(48 * 48 * 1, 1024),
                 pnn.ReLU(),
                 pnn.Dropout(0.5),
                 pnn.Linear(1024, 512),
@@ -184,7 +184,7 @@ if paddle_available:
             super(MLP_3_pp, self).__init__()
             self.net = pnn.Sequential(
                 pnn.Flatten(),
-                pnn.Linear(224 * 224 * 1, 2048),
+                pnn.Linear(48 * 48 * 1, 2048),
                 pnn.ReLU(),
                 pnn.Dropout(0.5),
                 pnn.Linear(2048, 1024),
@@ -205,7 +205,7 @@ if paddle_available:
             super(MLP_4_pp, self).__init__()
             self.net = pnn.Sequential(
                 pnn.Flatten(),
-                pnn.Linear(224 * 224 * 1, 256),
+                pnn.Linear(48 * 48 * 1, 256),
                 pnn.ReLU(),
                 pnn.Linear(256, 128),
                 pnn.ReLU(),

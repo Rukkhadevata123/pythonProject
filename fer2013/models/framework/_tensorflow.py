@@ -91,7 +91,7 @@ class FER2013Dataset_tf(tf.keras.utils.Sequence):
             img = np.fromstring(pixels, sep=' ')
             img = img.reshape(48, 48).astype(np.uint8)
             img = np.expand_dims(img, axis=-1)  # 保持单通道
-            img = tf.image.resize(img, [224, 224])  # 调整图像尺寸为 224x224
+            img = tf.image.resize(img, [48, 48])  # 调整图像尺寸为 48x48
             images.append(img)
             labels.append(row['emotion'])
 
@@ -133,10 +133,11 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
             images, labels = self.test_dataset[i]
             predictions = self.model.predict(images)
             y_true.extend(np.argmax(labels, axis=1))
-            y_pred.extend(np.argmax(predictions, axis=1))
+            y_pred.extend(predictions)  # 使用概率输出
 
         # 计算混淆矩阵
-        conf_matrix = confusion_matrix(y_true, y_pred)
+        y_pred_classes = np.argmax(y_pred, axis=1)
+        conf_matrix = confusion_matrix(y_true, y_pred_classes)
 
         # 提取TP, FP, TN, FN
         TP = np.diag(conf_matrix)
@@ -174,11 +175,9 @@ class ConfusionMatrixCallback(tf.keras.callbacks.Callback):
 
         # 绘制并保存ROC曲线
         y_true_bin = label_binarize(y_true, classes=[0, 1, 2, 3, 4, 5, 6])
-        y_pred_bin = label_binarize(y_pred, classes=[0, 1, 2, 3, 4, 5, 6])
-
         plt.figure()
         for i in range(7):
-            fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_pred_bin[:, i])
+            fpr, tpr, _ = roc_curve(y_true_bin[:, i], np.array(y_pred)[:, i])  # 使用概率输出
             roc_auc = auc(fpr, tpr)
             plt.plot(fpr, tpr, label=f'Class {i} (area = {roc_auc:.2f})')
 
