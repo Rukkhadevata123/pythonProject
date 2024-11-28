@@ -57,10 +57,16 @@ class FER2013Dataset_paddle(Dataset):
 
 # 数据增强和预处理
 transform_paddle = paddle.vision.transforms.Compose([
-    # paddle.vision.transforms.Resize((224, 224), interpolation='bilinear'),  # 调整图像尺寸为 224x224，使用线性插值
+    paddle.vision.transforms.Resize((48, 48)),  # 调整图像尺寸为 224x224，使用线性插值
     paddle.vision.transforms.RandomHorizontalFlip(),
     paddle.vision.transforms.RandomRotation(10, fill=(0,)),  # 添加 fill 参数
-    # paddle.vision.transforms.ColorJitter(0.2, 0.2, 0.2),  # 添加 ColorJitter
+    paddle.vision.transforms.ColorJitter(0.1, 0.1, 0.1),  # 添加 ColorJitter
+    paddle.vision.transforms.ToTensor(),
+    paddle.vision.transforms.Normalize(mean=[0.5], std=[0.5])
+])
+
+transform_paddle_test = paddle.vision.transforms.Compose([
+    paddle.vision.transforms.Resize((48, 48)),
     paddle.vision.transforms.ToTensor(),
     paddle.vision.transforms.Normalize(mean=[0.5], std=[0.5])
 ])

@@ -82,24 +82,230 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                               "li.unchecked::marker { content: \"\\2610\"; }\n"
                                               "li.checked::marker { content: \"\\2612\"; }\n"
                                               "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin右:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin左:0px; margin右:0px; -qt-block-indent:0; text-indent:0px;\">隐含层 输出=64 激活=ReLU</p>\n"
-                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin左:0px; margin右:0px; -qt-block-indent:0; text-indent:0px;\">输出层 输出=7 激活=Softmax</p></body></html>"))
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "模型名称: MLP_1</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输入层: 输入尺寸=48x48x1</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层1: 输出=512, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层2: 输出=128, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输出层: 输出=7, 激活=Softmax</p>\n"
+                                              "</body></html>"))
         elif model_name == "MLP_2":
-            self.cur_model.setHtml("# TODO")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                              "p, li { white-space: pre-wrap; }\n"
+                                              "hr { height: 1px; border-width: 0; }\n"
+                                              "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                              "li.checked::marker { content: \"\\2612\"; }\n"
+                                              "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "模型名称: MLP_2</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输入层: 输入尺寸=48x48x1</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层1: 输出=1024, 激活=ReLU, Dropout=0.5</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层2: 输出=512, 激活=ReLU, Dropout=0.5</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层3: 输出=128, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输出层: 输出=7, 激活=Softmax</p>\n"
+                                              "</body></html>"))
         elif model_name == "MLP_3":
-            self.cur_model.setHtml("# TODO3")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                              "p, li { white-space: pre-wrap; }\n"
+                                              "hr { height: 1px; border-width: 0; }\n"
+                                              "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                              "li.checked::marker { content: \"\\2612\"; }\n"
+                                              "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "模型名称: MLP_3</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输入层: 输入尺寸=48x48x1</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层1: 输出=2048, 激活=ReLU, Dropout=0.5</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层2: 输出=1024, 激活=ReLU, Dropout=0.5</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层3: 输出=512, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层4: 输出=128, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输出层: 输出=7, 激活=Softmax</p>\n"
+                                              "</body></html>"))
         elif model_name == "MLP_4":
-            self.cur_model.setHtml("# TODO4")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                              "p, li { white-space: pre-wrap; }\n"
+                                              "hr { height: 1px; border-width: 0; }\n"
+                                              "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                              "li.checked::marker { content: \"\\2612\"; }\n"
+                                              "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "模型名称: MLP_4</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输入层: 输入尺寸=48x48x1</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层1: 输出=256, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层2: 输出=128, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "隐含层3: 输出=64, 激活=ReLU</p>\n"
+                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                              "输出层: 输出=7, 激活=Softmax</p>\n"
+                                              "</body></html>"))
         elif model_name == "CNN_1":
-            self.cur_model.setHtml("# TODO5")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "hr { height: 1px; border-width: 0; }\n"
+                                            "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                            "li.checked::marker { content: \"\\2612\"; }\n"
+                                            "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "模型名称: CNN_1</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输入层: 输入尺寸=48x48x1</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层1: 输出通道=32, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层1: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层2: 输出通道=64, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层2: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层3: 输出通道=128, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层3: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层1: 输出=512, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层2: 输出=128, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输出层: 输出=7, 激活=Softmax</p>\n"
+                                            "</body></html>"))
         elif model_name == "CNN_2":
-            self.cur_model.setHtml("# TODO6")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "hr { height: 1px; border-width: 0; }\n"
+                                            "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                            "li.checked::marker { content: \"\\2612\"; }\n"
+                                            "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "模型名称: CNN_2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输入层: 输入尺寸=48x48x1</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层1: 输出通道=32, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层2: 输出通道=32, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层1: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层3: 输出通道=64, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层4: 输出通道=64, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层2: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层5: 输出通道=128, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层6: 输出通道=128, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层3: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层1: 输出=512, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层2: 输出=128, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输出层: 输出=7, 激活=Softmax</p>\n"
+                                            "</body></html>"))
         elif model_name == "CNN_3":
-            self.cur_model.setHtml("# TODO7")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "hr { height: 1px; border-width: 0; }\n"
+                                            "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                            "li.checked::marker { content: \"\\2612\"; }\n"
+                                            "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "模型名称: CNN_3</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输入层: 输入尺寸=48x48x1</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层1: 输出通道=64, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层2: 输出通道=64, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层1: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层3: 输出通道=128, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层4: 输出通道=128, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层2: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层5: 输出通道=256, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层6: 输出通道=256, 卷积核=3x3, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层3: 池化核=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层1: 输出=512, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层2: 输出=128, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输出层: 输出=7, 激活=Softmax</p>\n"
+                                            "</body></html>"))
         elif model_name == "CNN_4":
-            self.cur_model.setHtml("# TODO8")
+            self.cur_model.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "hr { height: 1px; border-width: 0; }\n"
+                                            "li.unchecked::marker { content: \"\\2610\"; }\n"
+                                            "li.checked::marker { content: \"\\2612\"; }\n"
+                                            "</style></head><body style=\" font-family:\'Ubuntu Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "模型名称: CNN_4</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输入层: 输入尺寸=48x48x1</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层1: 输出通道=32, 核大小=3x3, 填充=1, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层1: 核大小=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层2: 输出通道=64, 核大小=3x3, 填充=1, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层2: 核大小=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层3: 输出通道=128, 核大小=3x3, 填充=1, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层3: 核大小=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "卷积层4: 输出通道=256, 核大小=3x3, 填充=1, 激活=ReLU</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "池化层4: 核大小=2x2, 步幅=2</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层1: 输出=512, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "全连接层2: 输出=128, 激活=ReLU, Dropout</p>\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                            "输出层: 输出=7, 激活=Softmax</p>\n"
+                                            "</body></html>"))
+
 
     def setupModel(self):
         model_name = self.comboBox.currentText()
@@ -240,7 +446,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             framework = self.framework_group.checkedButton().text()
             if framework == "PyTorch":
                 try:
-                    from models.framework._pytorch import FER2013Dataset_pytorch, transform_pytorch
+                    from models.framework._pytorch import FER2013Dataset_pytorch, transform_pytorch, transform_pytorch_test
                     from torch.utils.data import DataLoader
                 except ImportError as e:
                     self.process_text.append(f"Failed to import PyTorch dataset: {e}\n")
@@ -248,7 +454,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 # 加载和划分数据集
                 train_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, mode='train', test_size=test_size)
-                test_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch, mode='test', test_size=test_size)
+                test_dataset = FER2013Dataset_pytorch(csv_file=csv_file, self_transform=transform_pytorch_test, mode='test', test_size=test_size)
 
                 # 创建训练数据加载器
                 self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -268,14 +474,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             elif framework == "PaddlePaddle":
                 try:
-                    from models.framework._paddlepaddle import FER2013Dataset_paddle, transform_paddle
+                    from models.framework._paddlepaddle import FER2013Dataset_paddle, transform_paddle, transform_paddle_test
                     from paddle.io import DataLoader as pDataLoader
                 except ImportError as e:
                     self.process_text.append(f"Failed to import PaddlePaddle dataset: {e}\n")
                     return
 
                 train_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle, mode='train', test_size=test_size)
-                test_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle, mode='test', test_size=test_size)
+                test_dataset = FER2013Dataset_paddle(csv_file=csv_file, transform=transform_paddle_test, mode='test', test_size=test_size)
 
                 self.train_loader = pDataLoader(train_dataset, batch_size=batch_size, shuffle=True)
                 self.test_loader = pDataLoader(test_dataset, batch_size=batch_size, shuffle=False)
@@ -397,7 +603,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.pause()
             self.process_text.append("Training paused for model testing...\n")
-
+    
         framework = self.framework_group.checkedButton().text()
         if framework == "PyTorch":
             best_model_path = 'models/result_pth/best_model.pth'
@@ -411,9 +617,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.process_text.append("Unsupported framework for testing.\n")
             return
-
+    
         model_path = None
-
+    
         if os.path.exists(best_model_path):
             model_path = best_model_path
             self.process_text.append(f"Using {best_model_path} for testing...\n")
@@ -423,15 +629,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.process_text.append("No model found for testing.\n")
             return
-
+    
         to_be_predicted_dir = 'to_be_predicted'
         if not os.path.exists(to_be_predicted_dir):
             os.makedirs(to_be_predicted_dir)
             self.process_text.append("Please put images to be predicted in the to_be_predicted folder.\n")
             return
-
+    
         emotion_labels = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"]
-
+    
         if framework == "PyTorch":
             try:
                 import torch
@@ -439,22 +645,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ImportError as e:
                 self.process_text.append(f"Failed to import PyTorch: {e}\n")
                 return
-
+    
             if model_path == checkpoint_path:
                 checkpoint = torch.load(model_path)
                 self.model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 self.model.load_state_dict(torch.load(model_path))
-
+    
             transform = transforms.Compose([
-                transforms.Resize((224, 224)),
+                transforms.Resize((48, 48)),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.5], std=[0.5])
             ])
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             self.model.to(device)
             self.model.eval()
-
+    
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -466,36 +672,36 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     _, predicted = torch.max(outputs.data, 1)
                     emotion = emotion_labels[predicted.item()]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-
+    
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-
+    
         elif framework == "Tensorflow":
             try:
                 import tensorflow as tf
             except ImportError as e:
                 self.process_text.append(f"Failed to import Tensorflow: {e}\n")
                 return
-
+    
             model = self.model
             model.load_weights(model_path)
-
+    
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
                     images_found = True
                     img_path = os.path.join(to_be_predicted_dir, img_name)
                     img = Image.open(img_path).convert('L')
-                    img = img.resize((224, 224))
-                    img = np.array(img).reshape((1, 224, 224, 1)) / 255.0
+                    img = img.resize((48, 48))
+                    img = np.array(img).reshape((1, 48, 48, 1)) / 255.0
                     predictions = model.predict(img)
                     predicted = np.argmax(predictions, axis=1)
                     emotion = emotion_labels[predicted[0]]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-
+    
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-
+    
         elif framework == "PaddlePaddle":
             try:
                 import paddle
@@ -503,19 +709,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except ImportError as e:
                 self.process_text.append(f"Failed to import PaddlePaddle: {e}\n")
                 return
-
+    
             model = self.model
             model.set_state_dict(paddle.load(model_path))
-
+    
             transform = T.Compose([
-                T.Resize((224, 224)),
+                T.Resize((48, 48)),
                 T.ToTensor(),
                 T.Normalize(mean=[0.5], std=[0.5])
             ])
             device = paddle.set_device('gpu' if paddle.is_compiled_with_cuda() else 'cpu')
             model.to(device)
             model.eval()
-
+    
             images_found = False
             for img_name in os.listdir(to_be_predicted_dir):
                 if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -527,10 +733,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     predicted = paddle.argmax(outputs, axis=1)
                     emotion = emotion_labels[predicted.item()]
                     self.process_text.append(f"Image: {img_name}, Predicted Emotion: {emotion}\n")
-
+    
             if not images_found:
                 self.process_text.append("No images found in the to_be_predicted folder.\n")
-
+    
         if self.train_thread and self.train_thread.isRunning():
             self.train_thread.resume()
             self.process_text.append("Training resumed...\n")

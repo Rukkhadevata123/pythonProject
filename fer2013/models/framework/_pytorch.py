@@ -67,13 +67,24 @@ class FER2013Dataset_pytorch(Dataset):
 
 # 数据增强和预处理
 transform_pytorch = transforms.Compose([
-    # transforms.Resize((224, 224), interpolation=Image.BILINEAR),
+    transforms.Resize((48, 48)),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
-    # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+    transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5], std=[0.5])
 ])
+
+transform_pytorch_test = transforms.Compose([
+    transforms.Resize((48, 48)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5], std=[0.5])
+])
+
+# 计算类别权重
+class_counts = torch.tensor([4953, 547, 5121, 8989, 6077, 4002, 6198], dtype=torch.float)
+class_weights = 1.0 / class_counts
+class_weights = class_weights / class_weights.sum() * len(class_counts)
 
 
 class TrainThread_pytorch(QThread):
@@ -104,6 +115,7 @@ class TrainThread_pytorch(QThread):
     def run(self):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
+        # criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
         criterion = nn.CrossEntropyLoss()
 
         if self.optimizer == 'Adam':

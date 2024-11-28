@@ -5,6 +5,7 @@ csvs/
 ROC/
 models/result_pth/
 models/result_h5/
+result_h5
 models/result_paddle
 qt_theme_test/build
 tmp_examples/
@@ -14,3 +15,4 @@ tmp_examples/
 */*/*/*/__pycache__/
 to_be_predicted/
 archive.zip
+
