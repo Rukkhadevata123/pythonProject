@@ -1,1 +1,3 @@
-shuffle tensorflow roc_{}
+
+类别不平衡
+pip install imbalanced-learn

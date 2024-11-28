@@ -1,0 +1,795 @@
+Epoch 1/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:52<00:00,  8.00batch/s]
+Epoch 1/100, Loss: 1.3852, Accuracy: 48.6189%
+Test Accuracy: 55.4611%
+Class 0 (Angry): TP=387, FP=315, TN=5878, FN=598
+Class 1 (Disgust): TP=58, FP=351, TN=6725, FN=44
+Class 2 (Fear): TP=203, FP=235, TN=5900, FN=840
+Class 3 (Happy): TP=1423, FP=353, TN=5060, FN=342
+Class 4 (Sad): TP=755, FP=1231, TN=4737, FN=455
+Class 5 (Surprise): TP=548, FP=243, TN=6140, FN=247
+Class 6 (Neutral): TP=607, FP=469, TN=5431, FN=671
+Overall: Accuracy=55.4611%, Precision=0.5641, Recall=0.4750, F1 Score=0.5157
+Epoch 2/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.10batch/s]
+Epoch 2/100, Loss: 1.1481, Accuracy: 57.3862%
+Test Accuracy: 57.3419%
+Class 0 (Angry): TP=586, FP=651, TN=5542, FN=399
+Class 1 (Disgust): TP=51, FP=167, TN=6909, FN=51
+Class 2 (Fear): TP=338, FP=430, TN=5705, FN=705
+Class 3 (Happy): TP=1212, FP=97, TN=5316, FN=553
+Class 4 (Sad): TP=438, FP=435, TN=5533, FN=772
+Class 5 (Surprise): TP=542, FP=195, TN=6188, FN=253
+Class 6 (Neutral): TP=949, FP=1087, TN=4813, FN=329
+Overall: Accuracy=57.3419%, Precision=0.4661, Recall=0.7426, F1 Score=0.5727
+Epoch 3/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.35batch/s]
+Epoch 3/100, Loss: 1.0318, Accuracy: 61.3431%
+Test Accuracy: 60.8526%
+Class 0 (Angry): TP=479, FP=355, TN=5838, FN=506
+Class 1 (Disgust): TP=78, FP=316, TN=6760, FN=24
+Class 2 (Fear): TP=346, FP=318, TN=5817, FN=697
+Class 3 (Happy): TP=1509, FP=383, TN=5030, FN=256
+Class 4 (Sad): TP=527, FP=460, TN=5508, FN=683
+Class 5 (Surprise): TP=643, FP=412, TN=5971, FN=152
+Class 6 (Neutral): TP=786, FP=566, TN=5334, FN=492
+Overall: Accuracy=60.8526%, Precision=0.5814, Recall=0.6150, F1 Score=0.5977
+Epoch 4/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.34batch/s]
+Epoch 4/100, Loss: 0.9504, Accuracy: 63.9869%
+Test Accuracy: 62.1761%
+Class 0 (Angry): TP=532, FP=461, TN=5732, FN=453
+Class 1 (Disgust): TP=73, FP=230, TN=6846, FN=29
+Class 2 (Fear): TP=317, FP=274, TN=5861, FN=726
+Class 3 (Happy): TP=1421, FP=201, TN=5212, FN=344
+Class 4 (Sad): TP=568, FP=493, TN=5475, FN=642
+Class 5 (Surprise): TP=668, FP=323, TN=6060, FN=127
+Class 6 (Neutral): TP=884, FP=733, TN=5167, FN=394
+Overall: Accuracy=62.1761%, Precision=0.5467, Recall=0.6917, F1 Score=0.6107
+Epoch 5/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:51<00:00,  8.03batch/s]
+Epoch 5/100, Loss: 0.8757, Accuracy: 65.9654%
+Test Accuracy: 62.4129%
+Class 0 (Angry): TP=586, FP=564, TN=5629, FN=399
+Class 1 (Disgust): TP=79, FP=195, TN=6881, FN=23
+Class 2 (Fear): TP=337, FP=278, TN=5857, FN=706
+Class 3 (Happy): TP=1342, FP=141, TN=5272, FN=423
+Class 4 (Sad): TP=617, FP=527, TN=5441, FN=593
+Class 5 (Surprise): TP=692, FP=431, TN=5952, FN=103
+Class 6 (Neutral): TP=827, FP=562, TN=5338, FN=451
+Overall: Accuracy=62.4129%, Precision=0.5954, Recall=0.6471, F1 Score=0.6202
+Epoch 6/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.37batch/s]
+Epoch 6/100, Loss: 0.8074, Accuracy: 68.2748%
+Test Accuracy: 62.7891%
+Class 0 (Angry): TP=622, FP=706, TN=5487, FN=363
+Class 1 (Disgust): TP=66, FP=90, TN=6986, FN=36
+Class 2 (Fear): TP=450, FP=393, TN=5742, FN=593
+Class 3 (Happy): TP=1453, FP=200, TN=5213, FN=312
+Class 4 (Sad): TP=712, FP=736, TN=5232, FN=498
+Class 5 (Surprise): TP=578, FP=219, TN=6164, FN=217
+Class 6 (Neutral): TP=626, FP=327, TN=5573, FN=652
+Overall: Accuracy=62.7891%, Precision=0.6569, Recall=0.4898, F1 Score=0.5612
+Epoch 7/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:52<00:00,  7.98batch/s]
+Epoch 7/100, Loss: 0.7585, Accuracy: 70.6016%
+Test Accuracy: 65.3107%
+Class 0 (Angry): TP=589, FP=434, TN=5759, FN=396
+Class 1 (Disgust): TP=71, FP=58, TN=7018, FN=31
+Class 2 (Fear): TP=431, FP=375, TN=5760, FN=612
+Class 3 (Happy): TP=1484, FP=225, TN=5188, FN=281
+Class 4 (Sad): TP=494, FP=296, TN=5672, FN=716
+Class 5 (Surprise): TP=644, FP=286, TN=6097, FN=151
+Class 6 (Neutral): TP=975, FP=816, TN=5084, FN=303
+Overall: Accuracy=65.3107%, Precision=0.5444, Recall=0.7629, F1 Score=0.6354
+Epoch 8/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.44batch/s]
+Epoch 8/100, Loss: 0.6109, Accuracy: 76.3524%
+Test Accuracy: 67.6372%
+Class 0 (Angry): TP=577, FP=379, TN=5814, FN=408
+Class 1 (Disgust): TP=78, FP=65, TN=7011, FN=24
+Class 2 (Fear): TP=467, FP=358, TN=5777, FN=576
+Class 3 (Happy): TP=1510, FP=217, TN=5196, FN=255
+Class 4 (Sad): TP=700, FP=557, TN=5411, FN=510
+Class 5 (Surprise): TP=665, FP=248, TN=6135, FN=130
+Class 6 (Neutral): TP=858, FP=499, TN=5401, FN=420
+Overall: Accuracy=67.6372%, Precision=0.6323, Recall=0.6714, F1 Score=0.6512
+Epoch 9/100: 100%|██████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.37batch/s]
+Epoch 9/100, Loss: 0.5486, Accuracy: 78.6826%
+Test Accuracy: 68.0830%
+Class 0 (Angry): TP=587, FP=341, TN=5852, FN=398
+Class 1 (Disgust): TP=76, FP=55, TN=7021, FN=26
+Class 2 (Fear): TP=565, FP=503, TN=5632, FN=478
+Class 3 (Happy): TP=1490, FP=182, TN=5231, FN=275
+Class 4 (Sad): TP=671, FP=516, TN=5452, FN=539
+Class 5 (Surprise): TP=624, FP=183, TN=6200, FN=171
+Class 6 (Neutral): TP=874, FP=511, TN=5389, FN=404
+Overall: Accuracy=68.0830%, Precision=0.6310, Recall=0.6839, F1 Score=0.6564
+Epoch 10/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.40batch/s]
+Epoch 10/100, Loss: 0.5103, Accuracy: 80.1456%
+Test Accuracy: 67.6930%
+Class 0 (Angry): TP=591, FP=369, TN=5824, FN=394
+Class 1 (Disgust): TP=76, FP=50, TN=7026, FN=26
+Class 2 (Fear): TP=557, FP=513, TN=5622, FN=486
+Class 3 (Happy): TP=1499, FP=200, TN=5213, FN=266
+Class 4 (Sad): TP=679, FP=577, TN=5391, FN=531
+Class 5 (Surprise): TP=621, FP=166, TN=6217, FN=174
+Class 6 (Neutral): TP=836, FP=444, TN=5456, FN=442
+Overall: Accuracy=67.6930%, Precision=0.6531, Recall=0.6541, F1 Score=0.6536
+Epoch 11/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.42batch/s]
+Epoch 11/100, Loss: 0.4745, Accuracy: 81.7235%
+Test Accuracy: 68.5567%
+Class 0 (Angry): TP=624, FP=451, TN=5742, FN=361
+Class 1 (Disgust): TP=77, FP=43, TN=7033, FN=25
+Class 2 (Fear): TP=538, FP=407, TN=5728, FN=505
+Class 3 (Happy): TP=1490, FP=195, TN=5218, FN=275
+Class 4 (Sad): TP=661, FP=494, TN=5474, FN=549
+Class 5 (Surprise): TP=627, FP=149, TN=6234, FN=168
+Class 6 (Neutral): TP=904, FP=518, TN=5382, FN=374
+Overall: Accuracy=68.5567%, Precision=0.6357, Recall=0.7074, F1 Score=0.6696
+Epoch 12/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:45<00:00,  8.50batch/s]
+Epoch 12/100, Loss: 0.4450, Accuracy: 82.8103%
+Test Accuracy: 68.3199%
+Class 0 (Angry): TP=597, FP=350, TN=5843, FN=388
+Class 1 (Disgust): TP=79, FP=40, TN=7036, FN=23
+Class 2 (Fear): TP=531, FP=435, TN=5700, FN=512
+Class 3 (Happy): TP=1455, FP=161, TN=5252, FN=310
+Class 4 (Sad): TP=716, FP=548, TN=5420, FN=494
+Class 5 (Surprise): TP=640, FP=222, TN=6161, FN=155
+Class 6 (Neutral): TP=886, FP=518, TN=5382, FN=392
+Overall: Accuracy=68.3199%, Precision=0.6311, Recall=0.6933, F1 Score=0.6607
+Epoch 13/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.39batch/s]
+Epoch 13/100, Loss: 0.4195, Accuracy: 83.7194%
+Test Accuracy: 68.5010%
+Class 0 (Angry): TP=580, FP=343, TN=5850, FN=405
+Class 1 (Disgust): TP=73, FP=35, TN=7041, FN=29
+Class 2 (Fear): TP=552, FP=463, TN=5672, FN=491
+Class 3 (Happy): TP=1488, FP=192, TN=5221, FN=277
+Class 4 (Sad): TP=708, FP=539, TN=5429, FN=502
+Class 5 (Surprise): TP=626, FP=173, TN=6210, FN=169
+Class 6 (Neutral): TP=890, FP=516, TN=5384, FN=388
+Overall: Accuracy=68.5010%, Precision=0.6330, Recall=0.6964, F1 Score=0.6632
+Epoch 14/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.32batch/s]
+Epoch 14/100, Loss: 0.3860, Accuracy: 85.0604%
+Test Accuracy: 68.1666%
+Class 0 (Angry): TP=611, FP=430, TN=5763, FN=374
+Class 1 (Disgust): TP=75, FP=51, TN=7025, FN=27
+Class 2 (Fear): TP=515, FP=374, TN=5761, FN=528
+Class 3 (Happy): TP=1515, FP=239, TN=5174, FN=250
+Class 4 (Sad): TP=674, FP=534, TN=5434, FN=536
+Class 5 (Surprise): TP=628, FP=170, TN=6213, FN=167
+Class 6 (Neutral): TP=875, FP=487, TN=5413, FN=403
+Overall: Accuracy=68.1666%, Precision=0.6424, Recall=0.6847, F1 Score=0.6629
+Epoch 15/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:48<00:00,  8.30batch/s]
+Epoch 15/100, Loss: 0.3525, Accuracy: 86.7010%
+Test Accuracy: 68.1109%
+Class 0 (Angry): TP=642, FP=478, TN=5715, FN=343
+Class 1 (Disgust): TP=76, FP=41, TN=7035, FN=26
+Class 2 (Fear): TP=539, FP=433, TN=5702, FN=504
+Class 3 (Happy): TP=1531, FP=255, TN=5158, FN=234
+Class 4 (Sad): TP=646, FP=464, TN=5504, FN=564
+Class 5 (Surprise): TP=627, FP=200, TN=6183, FN=168
+Class 6 (Neutral): TP=828, FP=418, TN=5482, FN=450
+Overall: Accuracy=68.1109%, Precision=0.6645, Recall=0.6479, F1 Score=0.6561
+Epoch 16/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:45<00:00,  8.49batch/s]
+Epoch 16/100, Loss: 0.3359, Accuracy: 87.2340%
+Test Accuracy: 67.9159%
+Class 0 (Angry): TP=591, FP=376, TN=5817, FN=394
+Class 1 (Disgust): TP=75, FP=36, TN=7040, FN=27
+Class 2 (Fear): TP=558, FP=492, TN=5643, FN=485
+Class 3 (Happy): TP=1495, FP=212, TN=5201, FN=270
+Class 4 (Sad): TP=669, FP=522, TN=5446, FN=541
+Class 5 (Surprise): TP=609, FP=153, TN=6230, FN=186
+Class 6 (Neutral): TP=878, FP=512, TN=5388, FN=400
+Overall: Accuracy=67.9159%, Precision=0.6317, Recall=0.6870, F1 Score=0.6582
+Epoch 17/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:42<00:00,  8.73batch/s]
+Epoch 17/100, Loss: 0.3355, Accuracy: 87.2723%
+Test Accuracy: 68.0273%
+Class 0 (Angry): TP=609, FP=432, TN=5761, FN=376
+Class 1 (Disgust): TP=73, FP=39, TN=7037, FN=29
+Class 2 (Fear): TP=559, FP=455, TN=5680, FN=484
+Class 3 (Happy): TP=1485, FP=188, TN=5225, FN=280
+Class 4 (Sad): TP=691, FP=558, TN=5410, FN=519
+Class 5 (Surprise): TP=621, FP=171, TN=6212, FN=174
+Class 6 (Neutral): TP=845, FP=452, TN=5448, FN=433
+Overall: Accuracy=68.0273%, Precision=0.6515, Recall=0.6612, F1 Score=0.6563
+Epoch 18/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.34batch/s]
+Epoch 18/100, Loss: 0.3293, Accuracy: 87.5753%
+Test Accuracy: 69.1558%
+Class 0 (Angry): TP=590, FP=336, TN=5857, FN=395
+Class 1 (Disgust): TP=76, FP=40, TN=7036, FN=26
+Class 2 (Fear): TP=542, FP=388, TN=5747, FN=501
+Class 3 (Happy): TP=1556, FP=262, TN=5151, FN=209
+Class 4 (Sad): TP=695, FP=504, TN=5464, FN=515
+Class 5 (Surprise): TP=628, FP=169, TN=6214, FN=167
+Class 6 (Neutral): TP=877, FP=515, TN=5385, FN=401
+Overall: Accuracy=69.1558%, Precision=0.6300, Recall=0.6862, F1 Score=0.6569
+Epoch 19/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:51<00:00,  8.07batch/s]
+Epoch 19/100, Loss: 0.3328, Accuracy: 87.5335%
+Test Accuracy: 68.0691%
+Class 0 (Angry): TP=569, FP=351, TN=5842, FN=416
+Class 1 (Disgust): TP=77, FP=37, TN=7039, FN=25
+Class 2 (Fear): TP=577, FP=486, TN=5649, FN=466
+Class 3 (Happy): TP=1483, FP=209, TN=5204, FN=282
+Class 4 (Sad): TP=726, FP=597, TN=5371, FN=484
+Class 5 (Surprise): TP=631, FP=175, TN=6208, FN=164
+Class 6 (Neutral): TP=823, FP=437, TN=5463, FN=455
+Overall: Accuracy=68.0691%, Precision=0.6532, Recall=0.6440, F1 Score=0.6485
+Epoch 20/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.42batch/s]
+Epoch 20/100, Loss: 0.3237, Accuracy: 87.8609%
+Test Accuracy: 68.5706%
+Class 0 (Angry): TP=595, FP=372, TN=5821, FN=390
+Class 1 (Disgust): TP=75, FP=28, TN=7048, FN=27
+Class 2 (Fear): TP=584, FP=492, TN=5643, FN=459
+Class 3 (Happy): TP=1531, FP=224, TN=5189, FN=234
+Class 4 (Sad): TP=646, FP=484, TN=5484, FN=564
+Class 5 (Surprise): TP=626, FP=177, TN=6206, FN=169
+Class 6 (Neutral): TP=865, FP=479, TN=5421, FN=413
+Overall: Accuracy=68.5706%, Precision=0.6436, Recall=0.6768, F1 Score=0.6598
+Epoch 21/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:49<00:00,  8.23batch/s]
+Epoch 21/100, Loss: 0.3252, Accuracy: 87.8435%
+Test Accuracy: 68.6264%
+Class 0 (Angry): TP=598, FP=353, TN=5840, FN=387
+Class 1 (Disgust): TP=76, FP=36, TN=7040, FN=26
+Class 2 (Fear): TP=537, FP=420, TN=5715, FN=506
+Class 3 (Happy): TP=1513, FP=208, TN=5205, FN=252
+Class 4 (Sad): TP=658, FP=493, TN=5475, FN=552
+Class 5 (Surprise): TP=646, FP=204, TN=6179, FN=149
+Class 6 (Neutral): TP=898, FP=538, TN=5362, FN=380
+Overall: Accuracy=68.6264%, Precision=0.6253, Recall=0.7027, F1 Score=0.6618
+Epoch 22/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:44<00:00,  8.58batch/s]
+Epoch 22/100, Loss: 0.3195, Accuracy: 87.7878%
+Test Accuracy: 68.4035%
+Class 0 (Angry): TP=576, FP=347, TN=5846, FN=409
+Class 1 (Disgust): TP=77, FP=39, TN=7037, FN=25
+Class 2 (Fear): TP=556, FP=453, TN=5682, FN=487
+Class 3 (Happy): TP=1512, FP=219, TN=5194, FN=253
+Class 4 (Sad): TP=694, FP=545, TN=5423, FN=516
+Class 5 (Surprise): TP=628, FP=174, TN=6209, FN=167
+Class 6 (Neutral): TP=867, FP=491, TN=5409, FN=411
+Overall: Accuracy=68.4035%, Precision=0.6384, Recall=0.6784, F1 Score=0.6578
+Epoch 23/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.42batch/s]
+Epoch 23/100, Loss: 0.3110, Accuracy: 88.2058%
+Test Accuracy: 68.4452%
+Class 0 (Angry): TP=603, FP=394, TN=5799, FN=382
+Class 1 (Disgust): TP=75, FP=27, TN=7049, FN=27
+Class 2 (Fear): TP=529, FP=410, TN=5725, FN=514
+Class 3 (Happy): TP=1527, FP=242, TN=5171, FN=238
+Class 4 (Sad): TP=691, FP=547, TN=5421, FN=519
+Class 5 (Surprise): TP=618, FP=175, TN=6208, FN=177
+Class 6 (Neutral): TP=870, FP=470, TN=5430, FN=408
+Overall: Accuracy=68.4452%, Precision=0.6493, Recall=0.6808, F1 Score=0.6646
+Epoch 24/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:43<00:00,  8.64batch/s]
+Epoch 24/100, Loss: 0.3174, Accuracy: 87.9341%
+Test Accuracy: 68.2363%
+Class 0 (Angry): TP=574, FP=358, TN=5835, FN=411
+Class 1 (Disgust): TP=73, FP=34, TN=7042, FN=29
+Class 2 (Fear): TP=522, FP=389, TN=5746, FN=521
+Class 3 (Happy): TP=1519, FP=247, TN=5166, FN=246
+Class 4 (Sad): TP=687, FP=524, TN=5444, FN=523
+Class 5 (Surprise): TP=639, FP=199, TN=6184, FN=156
+Class 6 (Neutral): TP=884, FP=529, TN=5371, FN=394
+Overall: Accuracy=68.2363%, Precision=0.6256, Recall=0.6917, F1 Score=0.6570
+Epoch 25/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:48<00:00,  8.28batch/s]
+Epoch 25/100, Loss: 0.3133, Accuracy: 88.2615%
+Test Accuracy: 68.1388%
+Class 0 (Angry): TP=614, FP=434, TN=5759, FN=371
+Class 1 (Disgust): TP=73, FP=41, TN=7035, FN=29
+Class 2 (Fear): TP=525, FP=378, TN=5757, FN=518
+Class 3 (Happy): TP=1530, FP=256, TN=5157, FN=235
+Class 4 (Sad): TP=673, FP=523, TN=5445, FN=537
+Class 5 (Surprise): TP=635, FP=203, TN=6180, FN=160
+Class 6 (Neutral): TP=841, FP=452, TN=5448, FN=437
+Overall: Accuracy=68.1388%, Precision=0.6504, Recall=0.6581, F1 Score=0.6542
+Epoch 26/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:49<00:00,  8.23batch/s]
+Epoch 26/100, Loss: 0.3123, Accuracy: 88.0734%
+Test Accuracy: 68.3059%
+Class 0 (Angry): TP=619, FP=427, TN=5766, FN=366
+Class 1 (Disgust): TP=73, FP=30, TN=7046, FN=29
+Class 2 (Fear): TP=538, FP=426, TN=5709, FN=505
+Class 3 (Happy): TP=1530, FP=230, TN=5183, FN=235
+Class 4 (Sad): TP=666, FP=474, TN=5494, FN=544
+Class 5 (Surprise): TP=626, FP=194, TN=6189, FN=169
+Class 6 (Neutral): TP=851, FP=494, TN=5406, FN=427
+Overall: Accuracy=68.3059%, Precision=0.6327, Recall=0.6659, F1 Score=0.6489
+Epoch 27/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.10batch/s]
+Epoch 27/100, Loss: 0.3106, Accuracy: 88.3800%
+Test Accuracy: 68.6682%
+Class 0 (Angry): TP=591, FP=355, TN=5838, FN=394
+Class 1 (Disgust): TP=70, FP=31, TN=7045, FN=32
+Class 2 (Fear): TP=518, FP=373, TN=5762, FN=525
+Class 3 (Happy): TP=1549, FP=289, TN=5124, FN=216
+Class 4 (Sad): TP=667, FP=498, TN=5470, FN=543
+Class 5 (Surprise): TP=651, FP=209, TN=6174, FN=144
+Class 6 (Neutral): TP=883, FP=494, TN=5406, FN=395
+Overall: Accuracy=68.6682%, Precision=0.6412, Recall=0.6909, F1 Score=0.6652
+Epoch 28/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:51<00:00,  8.09batch/s]
+Epoch 28/100, Loss: 0.3109, Accuracy: 88.4392%
+Test Accuracy: 68.0970%
+Class 0 (Angry): TP=594, FP=357, TN=5836, FN=391
+Class 1 (Disgust): TP=77, FP=42, TN=7034, FN=25
+Class 2 (Fear): TP=548, FP=467, TN=5668, FN=495
+Class 3 (Happy): TP=1525, FP=241, TN=5172, FN=240
+Class 4 (Sad): TP=653, FP=498, TN=5470, FN=557
+Class 5 (Surprise): TP=629, FP=197, TN=6186, FN=166
+Class 6 (Neutral): TP=862, FP=488, TN=5412, FN=416
+Overall: Accuracy=68.0970%, Precision=0.6385, Recall=0.6745, F1 Score=0.6560
+Epoch 29/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:45<00:00,  8.53batch/s]
+Epoch 29/100, Loss: 0.3153, Accuracy: 88.2267%
+Test Accuracy: 68.0970%
+Class 0 (Angry): TP=598, FP=394, TN=5799, FN=387
+Class 1 (Disgust): TP=77, FP=33, TN=7043, FN=25
+Class 2 (Fear): TP=556, FP=445, TN=5690, FN=487
+Class 3 (Happy): TP=1482, FP=195, TN=5218, FN=283
+Class 4 (Sad): TP=673, FP=533, TN=5435, FN=537
+Class 5 (Surprise): TP=644, FP=181, TN=6202, FN=151
+Class 6 (Neutral): TP=858, FP=509, TN=5391, FN=420
+Overall: Accuracy=68.0970%, Precision=0.6277, Recall=0.6714, F1 Score=0.6488
+Epoch 30/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.34batch/s]
+Epoch 30/100, Loss: 0.3173, Accuracy: 88.1117%
+Test Accuracy: 68.2223%
+Class 0 (Angry): TP=572, FP=348, TN=5845, FN=413
+Class 1 (Disgust): TP=77, FP=33, TN=7043, FN=25
+Class 2 (Fear): TP=557, FP=460, TN=5675, FN=486
+Class 3 (Happy): TP=1493, FP=201, TN=5212, FN=272
+Class 4 (Sad): TP=697, FP=556, TN=5412, FN=513
+Class 5 (Surprise): TP=635, FP=188, TN=6195, FN=160
+Class 6 (Neutral): TP=866, FP=495, TN=5405, FN=412
+Overall: Accuracy=68.2223%, Precision=0.6363, Recall=0.6776, F1 Score=0.6563
+Epoch 31/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:41<00:00,  8.81batch/s]
+Epoch 31/100, Loss: 0.3135, Accuracy: 88.2511%
+Test Accuracy: 68.4313%
+Class 0 (Angry): TP=554, FP=311, TN=5882, FN=431
+Class 1 (Disgust): TP=76, FP=39, TN=7037, FN=26
+Class 2 (Fear): TP=577, FP=500, TN=5635, FN=466
+Class 3 (Happy): TP=1525, FP=237, TN=5176, FN=240
+Class 4 (Sad): TP=685, FP=498, TN=5470, FN=525
+Class 5 (Surprise): TP=640, FP=215, TN=6168, FN=155
+Class 6 (Neutral): TP=855, FP=466, TN=5434, FN=423
+Overall: Accuracy=68.4313%, Precision=0.6472, Recall=0.6690, F1 Score=0.6579
+Epoch 32/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:43<00:00,  8.72batch/s]
+Epoch 32/100, Loss: 0.3126, Accuracy: 88.2615%
+Test Accuracy: 68.9329%
+Class 0 (Angry): TP=596, FP=344, TN=5849, FN=389
+Class 1 (Disgust): TP=76, FP=29, TN=7047, FN=26
+Class 2 (Fear): TP=552, FP=425, TN=5710, FN=491
+Class 3 (Happy): TP=1513, FP=229, TN=5184, FN=252
+Class 4 (Sad): TP=708, FP=533, TN=5435, FN=502
+Class 5 (Surprise): TP=621, FP=161, TN=6222, FN=174
+Class 6 (Neutral): TP=882, FP=509, TN=5391, FN=396
+Overall: Accuracy=68.9329%, Precision=0.6341, Recall=0.6901, F1 Score=0.6609
+Epoch 33/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.36batch/s]
+Epoch 33/100, Loss: 0.3097, Accuracy: 88.3556%
+Test Accuracy: 68.1806%
+Class 0 (Angry): TP=575, FP=365, TN=5828, FN=410
+Class 1 (Disgust): TP=74, FP=29, TN=7047, FN=28
+Class 2 (Fear): TP=564, FP=477, TN=5658, FN=479
+Class 3 (Happy): TP=1519, FP=235, TN=5178, FN=246
+Class 4 (Sad): TP=640, FP=456, TN=5512, FN=570
+Class 5 (Surprise): TP=631, FP=196, TN=6187, FN=164
+Class 6 (Neutral): TP=891, FP=526, TN=5374, FN=387
+Overall: Accuracy=68.1806%, Precision=0.6288, Recall=0.6972, F1 Score=0.6612
+Epoch 34/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:52<00:00,  8.01batch/s]
+Epoch 34/100, Loss: 0.3112, Accuracy: 88.3347%
+Test Accuracy: 68.7517%
+Class 0 (Angry): TP=565, FP=328, TN=5865, FN=420
+Class 1 (Disgust): TP=75, FP=35, TN=7041, FN=27
+Class 2 (Fear): TP=511, FP=361, TN=5774, FN=532
+Class 3 (Happy): TP=1540, FP=270, TN=5143, FN=225
+Class 4 (Sad): TP=698, FP=497, TN=5471, FN=512
+Class 5 (Surprise): TP=645, FP=209, TN=6174, FN=150
+Class 6 (Neutral): TP=901, FP=543, TN=5357, FN=377
+Overall: Accuracy=68.7517%, Precision=0.6240, Recall=0.7050, F1 Score=0.6620
+Epoch 35/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:49<00:00,  8.20batch/s]
+Epoch 35/100, Loss: 0.3131, Accuracy: 88.2859%
+Test Accuracy: 68.4313%
+Class 0 (Angry): TP=599, FP=395, TN=5798, FN=386
+Class 1 (Disgust): TP=72, FP=35, TN=7041, FN=30
+Class 2 (Fear): TP=577, FP=490, TN=5645, FN=466
+Class 3 (Happy): TP=1538, FP=247, TN=5166, FN=227
+Class 4 (Sad): TP=653, FP=477, TN=5491, FN=557
+Class 5 (Surprise): TP=619, FP=169, TN=6214, FN=176
+Class 6 (Neutral): TP=854, FP=453, TN=5447, FN=424
+Overall: Accuracy=68.4313%, Precision=0.6534, Recall=0.6682, F1 Score=0.6607
+Epoch 36/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:48<00:00,  8.28batch/s]
+Epoch 36/100, Loss: 0.3114, Accuracy: 88.2685%
+Test Accuracy: 68.0830%
+Class 0 (Angry): TP=607, FP=446, TN=5747, FN=378
+Class 1 (Disgust): TP=72, FP=32, TN=7044, FN=30
+Class 2 (Fear): TP=543, FP=414, TN=5721, FN=500
+Class 3 (Happy): TP=1529, FP=260, TN=5153, FN=236
+Class 4 (Sad): TP=663, FP=481, TN=5487, FN=547
+Class 5 (Surprise): TP=629, FP=190, TN=6193, FN=166
+Class 6 (Neutral): TP=844, FP=468, TN=5432, FN=434
+Overall: Accuracy=68.0830%, Precision=0.6433, Recall=0.6604, F1 Score=0.6517
+Epoch 37/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:48<00:00,  8.26batch/s]
+Epoch 37/100, Loss: 0.3117, Accuracy: 88.0351%
+Test Accuracy: 67.9576%
+Class 0 (Angry): TP=611, FP=435, TN=5758, FN=374
+Class 1 (Disgust): TP=71, FP=44, TN=7032, FN=31
+Class 2 (Fear): TP=537, FP=409, TN=5726, FN=506
+Class 3 (Happy): TP=1514, FP=227, TN=5186, FN=251
+Class 4 (Sad): TP=686, FP=537, TN=5431, FN=524
+Class 5 (Surprise): TP=616, FP=161, TN=6222, FN=179
+Class 6 (Neutral): TP=843, FP=487, TN=5413, FN=435
+Overall: Accuracy=67.9576%, Precision=0.6338, Recall=0.6596, F1 Score=0.6465
+Epoch 38/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.32batch/s]
+Epoch 38/100, Loss: 0.3097, Accuracy: 88.4008%
+Test Accuracy: 68.0691%
+Class 0 (Angry): TP=566, FP=316, TN=5877, FN=419
+Class 1 (Disgust): TP=78, FP=38, TN=7038, FN=24
+Class 2 (Fear): TP=558, FP=477, TN=5658, FN=485
+Class 3 (Happy): TP=1502, FP=228, TN=5185, FN=263
+Class 4 (Sad): TP=670, FP=542, TN=5426, FN=540
+Class 5 (Surprise): TP=646, FP=211, TN=6172, FN=149
+Class 6 (Neutral): TP=866, FP=480, TN=5420, FN=412
+Overall: Accuracy=68.0691%, Precision=0.6434, Recall=0.6776, F1 Score=0.6601
+Epoch 39/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.11batch/s]
+Epoch 39/100, Loss: 0.3138, Accuracy: 88.1013%
+Test Accuracy: 68.0134%
+Class 0 (Angry): TP=605, FP=413, TN=5780, FN=380
+Class 1 (Disgust): TP=73, FP=40, TN=7036, FN=29
+Class 2 (Fear): TP=521, FP=392, TN=5743, FN=522
+Class 3 (Happy): TP=1513, FP=227, TN=5186, FN=252
+Class 4 (Sad): TP=713, FP=593, TN=5375, FN=497
+Class 5 (Surprise): TP=625, FP=169, TN=6214, FN=170
+Class 6 (Neutral): TP=832, FP=462, TN=5438, FN=446
+Overall: Accuracy=68.0134%, Precision=0.6430, Recall=0.6510, F1 Score=0.6470
+Epoch 40/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.12batch/s]
+Epoch 40/100, Loss: 0.3153, Accuracy: 88.1466%
+Test Accuracy: 68.2781%
+Class 0 (Angry): TP=600, FP=386, TN=5807, FN=385
+Class 1 (Disgust): TP=71, FP=27, TN=7049, FN=31
+Class 2 (Fear): TP=546, FP=440, TN=5695, FN=497
+Class 3 (Happy): TP=1498, FP=182, TN=5231, FN=267
+Class 4 (Sad): TP=690, FP=567, TN=5401, FN=520
+Class 5 (Surprise): TP=622, FP=161, TN=6222, FN=173
+Class 6 (Neutral): TP=874, FP=514, TN=5386, FN=404
+Overall: Accuracy=68.2781%, Precision=0.6297, Recall=0.6839, F1 Score=0.6557
+Epoch 41/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.41batch/s]
+Epoch 41/100, Loss: 0.3109, Accuracy: 88.3416%
+Test Accuracy: 68.2920%
+Class 0 (Angry): TP=614, FP=417, TN=5776, FN=371
+Class 1 (Disgust): TP=76, FP=36, TN=7040, FN=26
+Class 2 (Fear): TP=550, FP=436, TN=5699, FN=493
+Class 3 (Happy): TP=1507, FP=222, TN=5191, FN=258
+Class 4 (Sad): TP=647, FP=469, TN=5499, FN=563
+Class 5 (Surprise): TP=608, FP=148, TN=6235, FN=187
+Class 6 (Neutral): TP=900, FP=548, TN=5352, FN=378
+Overall: Accuracy=68.2920%, Precision=0.6215, Recall=0.7042, F1 Score=0.6603
+Epoch 42/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.47batch/s]
+Epoch 42/100, Loss: 0.3126, Accuracy: 88.3416%
+Test Accuracy: 67.6233%
+Class 0 (Angry): TP=598, FP=436, TN=5757, FN=387
+Class 1 (Disgust): TP=72, FP=29, TN=7047, FN=30
+Class 2 (Fear): TP=555, FP=458, TN=5677, FN=488
+Class 3 (Happy): TP=1482, FP=192, TN=5221, FN=283
+Class 4 (Sad): TP=727, FP=592, TN=5376, FN=483
+Class 5 (Surprise): TP=616, FP=172, TN=6211, FN=179
+Class 6 (Neutral): TP=804, FP=445, TN=5455, FN=474
+Overall: Accuracy=67.6233%, Precision=0.6437, Recall=0.6291, F1 Score=0.6363
+Epoch 43/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.41batch/s]
+Epoch 43/100, Loss: 0.3158, Accuracy: 88.1048%
+Test Accuracy: 68.7657%
+Class 0 (Angry): TP=593, FP=357, TN=5836, FN=392
+Class 1 (Disgust): TP=75, FP=32, TN=7044, FN=27
+Class 2 (Fear): TP=560, FP=458, TN=5677, FN=483
+Class 3 (Happy): TP=1509, FP=226, TN=5187, FN=256
+Class 4 (Sad): TP=702, FP=499, TN=5469, FN=508
+Class 5 (Surprise): TP=636, FP=191, TN=6192, FN=159
+Class 6 (Neutral): TP=861, FP=479, TN=5421, FN=417
+Overall: Accuracy=68.7657%, Precision=0.6425, Recall=0.6737, F1 Score=0.6578
+Epoch 44/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.38batch/s]
+Epoch 44/100, Loss: 0.3164, Accuracy: 88.2162%
+Test Accuracy: 68.0691%
+Class 0 (Angry): TP=619, FP=469, TN=5724, FN=366
+Class 1 (Disgust): TP=76, FP=34, TN=7042, FN=26
+Class 2 (Fear): TP=517, FP=384, TN=5751, FN=526
+Class 3 (Happy): TP=1513, FP=214, TN=5199, FN=252
+Class 4 (Sad): TP=678, FP=526, TN=5442, FN=532
+Class 5 (Surprise): TP=630, FP=199, TN=6184, FN=165
+Class 6 (Neutral): TP=853, FP=466, TN=5434, FN=425
+Overall: Accuracy=68.0691%, Precision=0.6467, Recall=0.6674, F1 Score=0.6569
+Epoch 45/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.12batch/s]
+Epoch 45/100, Loss: 0.3076, Accuracy: 88.5158%
+Test Accuracy: 67.9855%
+Class 0 (Angry): TP=604, FP=401, TN=5792, FN=381
+Class 1 (Disgust): TP=78, FP=42, TN=7034, FN=24
+Class 2 (Fear): TP=525, FP=433, TN=5702, FN=518
+Class 3 (Happy): TP=1505, FP=191, TN=5222, FN=260
+Class 4 (Sad): TP=686, FP=571, TN=5397, FN=524
+Class 5 (Surprise): TP=617, FP=153, TN=6230, FN=178
+Class 6 (Neutral): TP=865, FP=507, TN=5393, FN=413
+Overall: Accuracy=67.9855%, Precision=0.6305, Recall=0.6768, F1 Score=0.6528
+Epoch 46/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:49<00:00,  8.18batch/s]
+Epoch 46/100, Loss: 0.3177, Accuracy: 88.0386%
+Test Accuracy: 68.4313%
+Class 0 (Angry): TP=583, FP=341, TN=5852, FN=402
+Class 1 (Disgust): TP=77, FP=25, TN=7051, FN=25
+Class 2 (Fear): TP=583, FP=510, TN=5625, FN=460
+Class 3 (Happy): TP=1531, FP=241, TN=5172, FN=234
+Class 4 (Sad): TP=642, FP=452, TN=5516, FN=568
+Class 5 (Surprise): TP=616, FP=154, TN=6229, FN=179
+Class 6 (Neutral): TP=880, FP=543, TN=5357, FN=398
+Overall: Accuracy=68.4313%, Precision=0.6184, Recall=0.6886, F1 Score=0.6516
+Epoch 47/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:51<00:00,  8.04batch/s]
+Epoch 47/100, Loss: 0.3077, Accuracy: 88.4775%
+Test Accuracy: 68.3895%
+Class 0 (Angry): TP=588, FP=364, TN=5829, FN=397
+Class 1 (Disgust): TP=70, FP=29, TN=7047, FN=32
+Class 2 (Fear): TP=522, FP=411, TN=5724, FN=521
+Class 3 (Happy): TP=1536, FP=238, TN=5175, FN=229
+Class 4 (Sad): TP=691, FP=529, TN=5439, FN=519
+Class 5 (Surprise): TP=617, FP=180, TN=6203, FN=178
+Class 6 (Neutral): TP=885, FP=518, TN=5382, FN=393
+Overall: Accuracy=68.3895%, Precision=0.6308, Recall=0.6925, F1 Score=0.6602
+Epoch 48/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.11batch/s]
+Epoch 48/100, Loss: 0.3110, Accuracy: 88.2929%
+Test Accuracy: 68.2641%
+Class 0 (Angry): TP=609, FP=415, TN=5778, FN=376
+Class 1 (Disgust): TP=73, FP=39, TN=7037, FN=29
+Class 2 (Fear): TP=551, FP=424, TN=5711, FN=492
+Class 3 (Happy): TP=1504, FP=218, TN=5195, FN=261
+Class 4 (Sad): TP=676, FP=520, TN=5448, FN=534
+Class 5 (Surprise): TP=632, FP=199, TN=6184, FN=163
+Class 6 (Neutral): TP=855, FP=463, TN=5437, FN=423
+Overall: Accuracy=68.2641%, Precision=0.6487, Recall=0.6690, F1 Score=0.6587
+Epoch 49/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.32batch/s]
+Epoch 49/100, Loss: 0.3126, Accuracy: 88.3033%
+Test Accuracy: 68.3338%
+Class 0 (Angry): TP=596, FP=371, TN=5822, FN=389
+Class 1 (Disgust): TP=74, FP=40, TN=7036, FN=28
+Class 2 (Fear): TP=566, FP=489, TN=5646, FN=477
+Class 3 (Happy): TP=1524, FP=221, TN=5192, FN=241
+Class 4 (Sad): TP=698, FP=539, TN=5429, FN=512
+Class 5 (Surprise): TP=631, FP=196, TN=6187, FN=164
+Class 6 (Neutral): TP=816, FP=417, TN=5483, FN=462
+Overall: Accuracy=68.3338%, Precision=0.6618, Recall=0.6385, F1 Score=0.6499
+Epoch 50/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:51<00:00,  8.07batch/s]
+Epoch 50/100, Loss: 0.3137, Accuracy: 88.3138%
+Test Accuracy: 68.3199%
+Class 0 (Angry): TP=580, FP=354, TN=5839, FN=405
+Class 1 (Disgust): TP=72, FP=36, TN=7040, FN=30
+Class 2 (Fear): TP=555, FP=430, TN=5705, FN=488
+Class 3 (Happy): TP=1519, FP=231, TN=5182, FN=246
+Class 4 (Sad): TP=638, FP=460, TN=5508, FN=572
+Class 5 (Surprise): TP=646, FP=201, TN=6182, FN=149
+Class 6 (Neutral): TP=894, FP=562, TN=5338, FN=384
+Overall: Accuracy=68.3199%, Precision=0.6140, Recall=0.6995, F1 Score=0.6540
+Epoch 51/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.40batch/s]
+Epoch 51/100, Loss: 0.3110, Accuracy: 88.1744%
+Test Accuracy: 68.3059%
+Class 0 (Angry): TP=586, FP=396, TN=5797, FN=399
+Class 1 (Disgust): TP=75, FP=43, TN=7033, FN=27
+Class 2 (Fear): TP=511, FP=359, TN=5776, FN=532
+Class 3 (Happy): TP=1532, FP=239, TN=5174, FN=233
+Class 4 (Sad): TP=712, FP=595, TN=5373, FN=498
+Class 5 (Surprise): TP=625, FP=160, TN=6223, FN=170
+Class 6 (Neutral): TP=862, FP=483, TN=5417, FN=416
+Overall: Accuracy=68.3059%, Precision=0.6409, Recall=0.6745, F1 Score=0.6573
+Epoch 52/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:54<00:00,  7.87batch/s]
+Epoch 52/100, Loss: 0.3099, Accuracy: 88.2964%
+Test Accuracy: 68.5149%
+Class 0 (Angry): TP=621, FP=460, TN=5733, FN=364
+Class 1 (Disgust): TP=72, FP=21, TN=7055, FN=30
+Class 2 (Fear): TP=547, FP=410, TN=5725, FN=496
+Class 3 (Happy): TP=1539, FP=260, TN=5153, FN=226
+Class 4 (Sad): TP=669, FP=487, TN=5481, FN=541
+Class 5 (Surprise): TP=619, FP=177, TN=6206, FN=176
+Class 6 (Neutral): TP=851, FP=445, TN=5455, FN=427
+Overall: Accuracy=68.5149%, Precision=0.6566, Recall=0.6659, F1 Score=0.6612
+Epoch 53/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:44<00:00,  8.60batch/s]
+Epoch 53/100, Loss: 0.3131, Accuracy: 88.1222%
+Test Accuracy: 68.7378%
+Class 0 (Angry): TP=586, FP=318, TN=5875, FN=399
+Class 1 (Disgust): TP=74, FP=28, TN=7048, FN=28
+Class 2 (Fear): TP=499, FP=353, TN=5782, FN=544
+Class 3 (Happy): TP=1533, FP=239, TN=5174, FN=232
+Class 4 (Sad): TP=694, FP=521, TN=5447, FN=516
+Class 5 (Surprise): TP=636, FP=194, TN=6189, FN=159
+Class 6 (Neutral): TP=912, FP=591, TN=5309, FN=366
+Overall: Accuracy=68.7378%, Precision=0.6068, Recall=0.7136, F1 Score=0.6559
+Epoch 54/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.43batch/s]
+Epoch 54/100, Loss: 0.3113, Accuracy: 88.2964%
+Test Accuracy: 68.0970%
+Class 0 (Angry): TP=597, FP=415, TN=5778, FN=388
+Class 1 (Disgust): TP=74, FP=29, TN=7047, FN=28
+Class 2 (Fear): TP=574, FP=504, TN=5631, FN=469
+Class 3 (Happy): TP=1472, FP=168, TN=5245, FN=293
+Class 4 (Sad): TP=666, FP=501, TN=5467, FN=544
+Class 5 (Surprise): TP=626, FP=191, TN=6192, FN=169
+Class 6 (Neutral): TP=879, FP=482, TN=5418, FN=399
+Overall: Accuracy=68.0970%, Precision=0.6458, Recall=0.6878, F1 Score=0.6662
+Epoch 55/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:44<00:00,  8.59batch/s]
+Epoch 55/100, Loss: 0.3119, Accuracy: 88.2998%
+Test Accuracy: 67.9437%
+Class 0 (Angry): TP=573, FP=369, TN=5824, FN=412
+Class 1 (Disgust): TP=75, FP=34, TN=7042, FN=27
+Class 2 (Fear): TP=544, FP=487, TN=5648, FN=499
+Class 3 (Happy): TP=1511, FP=216, TN=5197, FN=254
+Class 4 (Sad): TP=716, FP=603, TN=5365, FN=494
+Class 5 (Surprise): TP=628, FP=170, TN=6213, FN=167
+Class 6 (Neutral): TP=830, FP=422, TN=5478, FN=448
+Overall: Accuracy=67.9437%, Precision=0.6629, Recall=0.6495, F1 Score=0.6561
+Epoch 56/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:49<00:00,  8.23batch/s]
+Epoch 56/100, Loss: 0.3090, Accuracy: 88.2580%
+Test Accuracy: 68.4174%
+Class 0 (Angry): TP=588, FP=359, TN=5834, FN=397
+Class 1 (Disgust): TP=75, FP=38, TN=7038, FN=27
+Class 2 (Fear): TP=548, FP=430, TN=5705, FN=495
+Class 3 (Happy): TP=1511, FP=238, TN=5175, FN=254
+Class 4 (Sad): TP=690, FP=525, TN=5443, FN=520
+Class 5 (Surprise): TP=638, FP=195, TN=6188, FN=157
+Class 6 (Neutral): TP=861, FP=482, TN=5418, FN=417
+Overall: Accuracy=68.4174%, Precision=0.6411, Recall=0.6737, F1 Score=0.6570
+Epoch 57/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:51<00:00,  8.08batch/s]
+Epoch 57/100, Loss: 0.3100, Accuracy: 88.4043%
+Test Accuracy: 68.4870%
+Class 0 (Angry): TP=589, FP=363, TN=5830, FN=396
+Class 1 (Disgust): TP=75, FP=44, TN=7032, FN=27
+Class 2 (Fear): TP=568, FP=473, TN=5662, FN=475
+Class 3 (Happy): TP=1526, FP=244, TN=5169, FN=239
+Class 4 (Sad): TP=698, FP=535, TN=5433, FN=512
+Class 5 (Surprise): TP=618, FP=163, TN=6220, FN=177
+Class 6 (Neutral): TP=842, FP=440, TN=5460, FN=436
+Overall: Accuracy=68.4870%, Precision=0.6568, Recall=0.6588, F1 Score=0.6578
+Epoch 58/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.33batch/s]
+Epoch 58/100, Loss: 0.3123, Accuracy: 88.3625%
+Test Accuracy: 68.8353%
+Class 0 (Angry): TP=612, FP=397, TN=5796, FN=373
+Class 1 (Disgust): TP=75, FP=38, TN=7038, FN=27
+Class 2 (Fear): TP=558, FP=434, TN=5701, FN=485
+Class 3 (Happy): TP=1522, FP=248, TN=5165, FN=243
+Class 4 (Sad): TP=667, FP=460, TN=5508, FN=543
+Class 5 (Surprise): TP=632, FP=172, TN=6211, FN=163
+Class 6 (Neutral): TP=875, FP=488, TN=5412, FN=403
+Overall: Accuracy=68.8353%, Precision=0.6420, Recall=0.6847, F1 Score=0.6626
+Epoch 59/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.32batch/s]
+Epoch 59/100, Loss: 0.3192, Accuracy: 88.1953%
+Test Accuracy: 68.0830%
+Class 0 (Angry): TP=595, FP=416, TN=5777, FN=390
+Class 1 (Disgust): TP=71, FP=22, TN=7054, FN=31
+Class 2 (Fear): TP=563, FP=468, TN=5667, FN=480
+Class 3 (Happy): TP=1525, FP=248, TN=5165, FN=240
+Class 4 (Sad): TP=669, FP=494, TN=5474, FN=541
+Class 5 (Surprise): TP=633, FP=190, TN=6193, FN=162
+Class 6 (Neutral): TP=831, FP=453, TN=5447, FN=447
+Overall: Accuracy=68.0830%, Precision=0.6472, Recall=0.6502, F1 Score=0.6487
+Epoch 60/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:54<00:00,  7.87batch/s]
+Epoch 60/100, Loss: 0.3125, Accuracy: 88.0839%
+Test Accuracy: 68.1666%
+Class 0 (Angry): TP=601, FP=406, TN=5787, FN=384
+Class 1 (Disgust): TP=72, FP=29, TN=7047, FN=30
+Class 2 (Fear): TP=546, FP=459, TN=5676, FN=497
+Class 3 (Happy): TP=1499, FP=206, TN=5207, FN=266
+Class 4 (Sad): TP=677, FP=513, TN=5455, FN=533
+Class 5 (Surprise): TP=604, FP=146, TN=6237, FN=191
+Class 6 (Neutral): TP=894, FP=526, TN=5374, FN=384
+Overall: Accuracy=68.1666%, Precision=0.6296, Recall=0.6995, F1 Score=0.6627
+Epoch 61/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:52<00:00,  7.98batch/s]
+Epoch 61/100, Loss: 0.3121, Accuracy: 88.0421%
+Test Accuracy: 68.4870%
+Class 0 (Angry): TP=577, FP=346, TN=5847, FN=408
+Class 1 (Disgust): TP=74, FP=34, TN=7042, FN=28
+Class 2 (Fear): TP=569, FP=453, TN=5682, FN=474
+Class 3 (Happy): TP=1514, FP=219, TN=5194, FN=251
+Class 4 (Sad): TP=657, FP=465, TN=5503, FN=553
+Class 5 (Surprise): TP=635, FP=211, TN=6172, FN=160
+Class 6 (Neutral): TP=890, FP=534, TN=5366, FN=388
+Overall: Accuracy=68.4870%, Precision=0.6250, Recall=0.6964, F1 Score=0.6588
+Epoch 62/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:49<00:00,  8.22batch/s]
+Epoch 62/100, Loss: 0.3099, Accuracy: 88.1605%
+Test Accuracy: 68.3617%
+Class 0 (Angry): TP=597, FP=357, TN=5836, FN=388
+Class 1 (Disgust): TP=74, FP=37, TN=7039, FN=28
+Class 2 (Fear): TP=537, FP=437, TN=5698, FN=506
+Class 3 (Happy): TP=1529, FP=229, TN=5184, FN=236
+Class 4 (Sad): TP=707, FP=593, TN=5375, FN=503
+Class 5 (Surprise): TP=635, FP=187, TN=6196, FN=160
+Class 6 (Neutral): TP=828, FP=431, TN=5469, FN=450
+Overall: Accuracy=68.3617%, Precision=0.6577, Recall=0.6479, F1 Score=0.6527
+Epoch 63/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:48<00:00,  8.30batch/s]
+Epoch 63/100, Loss: 0.3180, Accuracy: 87.8679%
+Test Accuracy: 67.8880%
+Class 0 (Angry): TP=565, FP=333, TN=5860, FN=420
+Class 1 (Disgust): TP=78, FP=48, TN=7028, FN=24
+Class 2 (Fear): TP=518, FP=402, TN=5733, FN=525
+Class 3 (Happy): TP=1538, FP=268, TN=5145, FN=227
+Class 4 (Sad): TP=669, FP=543, TN=5425, FN=541
+Class 5 (Surprise): TP=643, FP=202, TN=6181, FN=152
+Class 6 (Neutral): TP=862, FP=509, TN=5391, FN=416
+Overall: Accuracy=67.8880%, Precision=0.6287, Recall=0.6745, F1 Score=0.6508
+Epoch 64/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.33batch/s]
+Epoch 64/100, Loss: 0.3140, Accuracy: 88.3660%
+Test Accuracy: 68.0134%
+Class 0 (Angry): TP=593, FP=368, TN=5825, FN=392
+Class 1 (Disgust): TP=78, FP=45, TN=7031, FN=24
+Class 2 (Fear): TP=559, FP=494, TN=5641, FN=484
+Class 3 (Happy): TP=1515, FP=230, TN=5183, FN=250
+Class 4 (Sad): TP=668, FP=517, TN=5451, FN=542
+Class 5 (Surprise): TP=632, FP=189, TN=6194, FN=163
+Class 6 (Neutral): TP=837, FP=453, TN=5447, FN=441
+Overall: Accuracy=68.0134%, Precision=0.6488, Recall=0.6549, F1 Score=0.6519
+Epoch 65/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.39batch/s]
+Epoch 65/100, Loss: 0.3105, Accuracy: 88.2650%
+Test Accuracy: 68.5567%
+Class 0 (Angry): TP=600, FP=411, TN=5782, FN=385
+Class 1 (Disgust): TP=71, FP=29, TN=7047, FN=31
+Class 2 (Fear): TP=504, FP=358, TN=5777, FN=539
+Class 3 (Happy): TP=1549, FP=262, TN=5151, FN=216
+Class 4 (Sad): TP=708, FP=558, TN=5410, FN=502
+Class 5 (Surprise): TP=631, FP=178, TN=6205, FN=164
+Class 6 (Neutral): TP=858, FP=461, TN=5439, FN=420
+Overall: Accuracy=68.5567%, Precision=0.6505, Recall=0.6714, F1 Score=0.6608
+Epoch 66/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:50<00:00,  8.16batch/s]
+Epoch 66/100, Loss: 0.3134, Accuracy: 88.3765%
+Test Accuracy: 68.4035%
+Class 0 (Angry): TP=601, FP=389, TN=5804, FN=384
+Class 1 (Disgust): TP=72, FP=39, TN=7037, FN=30
+Class 2 (Fear): TP=525, FP=417, TN=5718, FN=518
+Class 3 (Happy): TP=1525, FP=235, TN=5178, FN=240
+Class 4 (Sad): TP=682, FP=528, TN=5440, FN=528
+Class 5 (Surprise): TP=646, FP=218, TN=6165, FN=149
+Class 6 (Neutral): TP=859, FP=442, TN=5458, FN=419
+Overall: Accuracy=68.4035%, Precision=0.6603, Recall=0.6721, F1 Score=0.6661
+Epoch 67/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:44<00:00,  8.58batch/s]
+Epoch 67/100, Loss: 0.3117, Accuracy: 88.5088%
+Test Accuracy: 68.5010%
+Class 0 (Angry): TP=553, FP=297, TN=5896, FN=432
+Class 1 (Disgust): TP=78, FP=43, TN=7033, FN=24
+Class 2 (Fear): TP=535, FP=417, TN=5718, FN=508
+Class 3 (Happy): TP=1537, FP=234, TN=5179, FN=228
+Class 4 (Sad): TP=720, FP=614, TN=5354, FN=490
+Class 5 (Surprise): TP=630, FP=160, TN=6223, FN=165
+Class 6 (Neutral): TP=864, FP=496, TN=5404, FN=414
+Overall: Accuracy=68.5010%, Precision=0.6353, Recall=0.6761, F1 Score=0.6550
+Epoch 68/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:53<00:00,  7.94batch/s]
+Epoch 68/100, Loss: 0.3119, Accuracy: 88.2302%
+Test Accuracy: 68.0552%
+Class 0 (Angry): TP=610, FP=402, TN=5791, FN=375
+Class 1 (Disgust): TP=78, FP=39, TN=7037, FN=24
+Class 2 (Fear): TP=538, FP=410, TN=5725, FN=505
+Class 3 (Happy): TP=1505, FP=210, TN=5203, FN=260
+Class 4 (Sad): TP=682, FP=563, TN=5405, FN=528
+Class 5 (Surprise): TP=629, FP=196, TN=6187, FN=166
+Class 6 (Neutral): TP=843, FP=473, TN=5427, FN=435
+Overall: Accuracy=68.0552%, Precision=0.6406, Recall=0.6596, F1 Score=0.6500
+Epoch 69/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:44<00:00,  8.56batch/s]
+Epoch 69/100, Loss: 0.3167, Accuracy: 88.3103%
+Test Accuracy: 68.9189%
+Class 0 (Angry): TP=632, FP=423, TN=5770, FN=353
+Class 1 (Disgust): TP=75, FP=43, TN=7033, FN=27
+Class 2 (Fear): TP=514, FP=351, TN=5784, FN=529
+Class 3 (Happy): TP=1521, FP=219, TN=5194, FN=244
+Class 4 (Sad): TP=668, FP=489, TN=5479, FN=542
+Class 5 (Surprise): TP=638, FP=176, TN=6207, FN=157
+Class 6 (Neutral): TP=899, FP=530, TN=5370, FN=379
+Overall: Accuracy=68.9189%, Precision=0.6291, Recall=0.7034, F1 Score=0.6642
+Epoch 70/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:46<00:00,  8.40batch/s]
+Epoch 70/100, Loss: 0.3106, Accuracy: 88.2615%
+Test Accuracy: 68.4731%
+Class 0 (Angry): TP=578, FP=379, TN=5814, FN=407
+Class 1 (Disgust): TP=76, FP=36, TN=7040, FN=26
+Class 2 (Fear): TP=572, FP=457, TN=5678, FN=471
+Class 3 (Happy): TP=1524, FP=217, TN=5196, FN=241
+Class 4 (Sad): TP=694, FP=541, TN=5427, FN=516
+Class 5 (Surprise): TP=641, FP=191, TN=6192, FN=154
+Class 6 (Neutral): TP=830, FP=442, TN=5458, FN=448
+Overall: Accuracy=68.4731%, Precision=0.6525, Recall=0.6495, F1 Score=0.6510
+Epoch 71/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.32batch/s]
+Epoch 71/100, Loss: 0.3112, Accuracy: 88.4496%
+Test Accuracy: 67.8323%
+Class 0 (Angry): TP=593, FP=395, TN=5798, FN=392
+Class 1 (Disgust): TP=77, FP=35, TN=7041, FN=25
+Class 2 (Fear): TP=547, FP=442, TN=5693, FN=496
+Class 3 (Happy): TP=1487, FP=194, TN=5219, FN=278
+Class 4 (Sad): TP=710, FP=589, TN=5379, FN=500
+Class 5 (Surprise): TP=628, FP=197, TN=6186, FN=167
+Class 6 (Neutral): TP=827, FP=457, TN=5443, FN=451
+Overall: Accuracy=67.8323%, Precision=0.6441, Recall=0.6471, F1 Score=0.6456
+Epoch 72/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:47<00:00,  8.36batch/s]
+Epoch 72/100, Loss: 0.3110, Accuracy: 88.2755%
+Test Accuracy: 68.3756%
+Class 0 (Angry): TP=607, FP=414, TN=5779, FN=378
+Class 1 (Disgust): TP=76, FP=39, TN=7037, FN=26
+Class 2 (Fear): TP=501, FP=358, TN=5777, FN=542
+Class 3 (Happy): TP=1510, FP=219, TN=5194, FN=255
+Class 4 (Sad): TP=716, FP=558, TN=5410, FN=494
+Class 5 (Surprise): TP=636, FP=220, TN=6163, FN=159
+Class 6 (Neutral): TP=862, FP=462, TN=5438, FN=416
+Overall: Accuracy=68.3756%, Precision=0.6511, Recall=0.6745, F1 Score=0.6626
+Epoch 73/100: 100%|█████████████████████████████████████████████████████████████████| 898/898 [01:45<00:00,  8.47batch/s]
+Epoch 73/100, Loss: 0.3173, Accuracy: 87.9933%
+Test Accuracy: 68.8075%
