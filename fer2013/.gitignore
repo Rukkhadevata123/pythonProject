@@ -1,8 +1,12 @@
 archive/
 __pycache__/
 csvs/
+todo.txt
 *.pth
+.vscode
 ROC/
+no_weight.txt
+weight.txt
 models/result_pth/
 models/result_h5/
 result_h5
