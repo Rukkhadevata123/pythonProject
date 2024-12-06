@@ -150,7 +150,7 @@ def train_model(model, train_loader_, test_loader_, num_epochs=10, learning_rate
             print(f"Overall: Accuracy={accuracy:.4f}%, Precision={precision:.4f}, Recall={recall:.4f}, F1 Score={f1_score:.4f}")
 
             # 创建保存 ROC 曲线的目录
-            roc_dir = os.path.join(current_dir, '..', 'ROC')
+            roc_dir = os.path.join(current_dir, '.', 'ROC')
             if not os.path.exists(roc_dir):
                 os.makedirs(roc_dir)
 
