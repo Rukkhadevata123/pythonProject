@@ -344,4 +344,287 @@ Image: PrivateTest_709416.jpg, Predicted Emotion: Happy
 
 > 以下的模型我们直接上结果，需要时再详细说明
 
-#### MLP_2模型
+#### MLP_2/3/4模型
+
+直接说结果，后面的MLP模型比最简单的`MLP_1`模型还差了点，收敛也很快，准确率只有40%出头，我们如果要训练fer2013数据集，还是需要更复杂的模型，比如接下来的`CNN_1/2/3/4`这些模型。
+
+- MLP_2
+
+```bash
+正在训练第 42 轮...
+
+Epoch 42/100, Loss: 1.5194, Accuracy: 40.6806%
+
+Test Accuracy: 41.4182%
+
+Class 0 (Angry): TP=163, FP=286, TN=5907, FN=822, Accuracy=0.8456, Precision=0.3630, Recall=0.1655, F1 Score=0.2273
+
+Class 1 (Disgust): TP=0, FP=0, TN=7076, FN=102, Accuracy=0.9858, Precision=0.0000, Recall=0.0000, F1 Score=0.0000
+
+Class 2 (Fear): TP=70, FP=196, TN=5939, FN=973, Accuracy=0.8371, Precision=0.2632, Recall=0.0671, F1 Score=0.1070
+
+Class 3 (Happy): TP=1328, FP=1466, TN=3947, FN=437, Accuracy=0.7349, Precision=0.4753, Recall=0.7524, F1 Score=0.5826
+
+Class 4 (Sad): TP=510, FP=1139, TN=4829, FN=700, Accuracy=0.7438, Precision=0.3093, Recall=0.4215, F1 Score=0.3568
+
+Class 5 (Surprise): TP=418, FP=357, TN=6026, FN=377, Accuracy=0.8977, Precision=0.5394, Recall=0.5258, F1 Score=0.5325
+
+Class 6 (Neutral): TP=484, FP=761, TN=5139, FN=794, Accuracy=0.7834, Precision=0.3888, Recall=0.3787, F1 Score=0.3837
+```
+
+模型参数如下
+
+![](imgs/9.png)
+
+以及对应的ROC曲线
+
+![](imgs/10.png)
+
+第二个类别样本数量少，模型也并未在这个类别上表现出色，F1值为零。
+
+- MLP_3
+
+```bash
+正在训练第 30 轮...
+
+Epoch 30/100, Loss: 1.5019, Accuracy: 41.7674%
+
+Test Accuracy: 41.2510%
+
+Class 0 (Angry): TP=127, FP=246, TN=5947, FN=858, Accuracy=0.8462, Precision=0.3405, Recall=0.1289, F1 Score=0.1870
+
+Class 1 (Disgust): TP=0, FP=0, TN=7076, FN=102, Accuracy=0.9858, Precision=0.0000, Recall=0.0000, F1 Score=0.0000
+
+Class 2 (Fear): TP=108, FP=318, TN=5817, FN=935, Accuracy=0.8254, Precision=0.2535, Recall=0.1035, F1 Score=0.1470
+
+Class 3 (Happy): TP=1298, FP=1349, TN=4064, FN=467, Accuracy=0.7470, Precision=0.4904, Recall=0.7354, F1 Score=0.5884
+
+Class 4 (Sad): TP=515, FP=1193, TN=4775, FN=695, Accuracy=0.7370, Precision=0.3015, Recall=0.4256, F1 Score=0.3530
+
+Class 5 (Surprise): TP=431, FP=366, TN=6017, FN=364, Accuracy=0.8983, Precision=0.5408, Recall=0.5421, F1 Score=0.5415
+
+Class 6 (Neutral): TP=482, FP=745, TN=5155, FN=796, Accuracy=0.7853, Precision=0.3928, Recall=0.3772, F1 Score=0.3848
+```
+
+模型参数如下
+
+![](imgs/12.png)
+
+对应ROC曲线
+
+![](imgs/11.png)
+
+- MLP_4
+
+```bash
+正在训练第 25 轮...
+
+Epoch 25/100, Loss: 1.3302, Accuracy: 48.5736%
+
+Test Accuracy: 44.1906%
+
+Class 0 (Angry): TP=260, FP=445, TN=5748, FN=725, Accuracy=0.8370, Precision=0.3688, Recall=0.2640, F1 Score=0.3077
+
+Class 1 (Disgust): TP=6, FP=7, TN=7069, FN=96, Accuracy=0.9857, Precision=0.4615, Recall=0.0588, F1 Score=0.1043
+
+Class 2 (Fear): TP=214, FP=388, TN=5747, FN=829, Accuracy=0.8305, Precision=0.3555, Recall=0.2052, F1 Score=0.2602
+
+Class 3 (Happy): TP=1227, FP=1062, TN=4351, FN=538, Accuracy=0.7771, Precision=0.5360, Recall=0.6952, F1 Score=0.6053
+
+Class 4 (Sad): TP=488, FP=1022, TN=4946, FN=722, Accuracy=0.7570, Precision=0.3232, Recall=0.4033, F1 Score=0.3588
+
+Class 5 (Surprise): TP=434, FP=350, TN=6033, FN=361, Accuracy=0.9009, Precision=0.5536, Recall=0.5459, F1 Score=0.5497
+
+Class 6 (Neutral): TP=543, FP=732, TN=5168, FN=735, Accuracy=0.7956, Precision=0.4259, Recall=0.4249, F1 Score=0.4254
+```
+
+这个模型也比较简单，在25轮即收敛，跟我们的MLP_1不相上下。
+
+模型参数如下
+
+![](imgs/13.png)
+
+对应ROC曲线
+
+![](imgs/14.png)
+
+这个模型比2和3简单，并在收敛时“艰难地”训练到了第二个类别。
+
+#### CNN模型
+
+对于这些CNN模型，我们的预测准确率能有55%到60%，这是比较大的提升，说明了卷积神经网络在图像识别上的优势。
+
+- CNN_1
+
+模型参数
+
+```bash
+模型名称: CNN_1
+输入层: 输入尺寸=48x48x1
+卷积层1: 输出通道=32, 卷积核=3x3, 激活=ReLU
+池化层1: 池化核=2x2, 步幅=2
+卷积层2: 输出通道=64, 卷积核=3x3, 激活=ReLU
+池化层2: 池化核=2x2, 步幅=2
+卷积层3: 输出通道=128, 卷积核=3x3, 激活=ReLU
+池化层3: 池化核=2x2, 步幅=2
+全连接层1: 输出=512, 激活=ReLU, Dropout
+全连接层2: 输出=128, 激活=ReLU, Dropout
+输出层: 输出=7, 激活=Softmax
+```
+
+模型在第25轮收敛
+
+```bash
+正在训练第 25 轮...
+
+Epoch 25/100, Loss: 1.1931, Accuracy: 54.4429%
+
+Test Accuracy: 56.0463%
+
+Class 0 (Angry): TP=394, FP=380, TN=5813, FN=591, Accuracy=0.8647, Precision=0.5090, Recall=0.4000, F1 Score=0.4480
+
+Class 1 (Disgust): TP=19, FP=14, TN=7062, FN=83, Accuracy=0.9865, Precision=0.5758, Recall=0.1863, F1 Score=0.2815
+
+Class 2 (Fear): TP=213, FP=223, TN=5912, FN=830, Accuracy=0.8533, Precision=0.4885, Recall=0.2042, F1 Score=0.2880
+
+Class 3 (Happy): TP=1425, FP=457, TN=4956, FN=340, Accuracy=0.8890, Precision=0.7572, Recall=0.8074, F1 Score=0.7815
+
+Class 4 (Sad): TP=663, FP=1059, TN=4909, FN=547, Accuracy=0.7763, Precision=0.3850, Recall=0.5479, F1 Score=0.4523
+
+Class 5 (Surprise): TP=575, FP=279, TN=6104, FN=220, Accuracy=0.9305, Precision=0.6733, Recall=0.7233, F1 Score=0.6974
+
+Class 6 (Neutral): TP=734, FP=743, TN=5157, FN=544, Accuracy=0.8207, Precision=0.4970, Recall=0.5743, F1 Score=0.5328
+```
+
+第二个类别的`F1 Score`为`0.2815`，比之前的模型好了很多。（虽然TP和FP都不是很高）
+
+ROC曲线更好了一点，`Happy`类别的AUC几乎总是最高的，第二个和第三个类别几乎都相对最低，但还是有所提升。
+
+![](imgs/15.png)
+
+- CNN_2
+
+模型参数
+
+```bash
+模型名称: CNN_2
+输入层: 输入尺寸=48x48x1
+卷积层1: 输出通道=32, 卷积核=3x3, 激活=ReLU
+卷积层2: 输出通道=32, 卷积核=3x3, 激活=ReLU
+池化层1: 池化核=2x2, 步幅=2
+卷积层3: 输出通道=64, 卷积核=3x3, 激活=ReLU
+卷积层4: 输出通道=64, 卷积核=3x3, 激活=ReLU
+池化层2: 池化核=2x2, 步幅=2
+卷积层5: 输出通道=128, 卷积核=3x3, 激活=ReLU
+卷积层6: 输出通道=128, 卷积核=3x3, 激活=ReLU
+池化层3: 池化核=2x2, 步幅=2
+全连接层1: 输出=512, 激活=ReLU, Dropout
+全连接层2: 输出=128, 激活=ReLU, Dropout
+输出层: 输出=7, 激活=Softmax
+```
+
+在模型1的基础上各个部分都加了一个卷积层
+
+模型在第25轮收敛
+
+```bash
+正在训练第 25 轮...
+
+Epoch 25/100, Loss: 1.1345, Accuracy: 56.3377%
+
+Test Accuracy: 58.3310%
+
+Class 0 (Angry): TP=472, FP=443, TN=5750, FN=513, Accuracy=0.8668, Precision=0.5158, Recall=0.4792, F1 Score=0.4968
+
+Class 1 (Disgust): TP=2, FP=1, TN=7075, FN=100, Accuracy=0.9859, Precision=0.6667, Recall=0.0196, F1 Score=0.0381
+
+Class 2 (Fear): TP=214, FP=219, TN=5916, FN=829, Accuracy=0.8540, Precision=0.4942, Recall=0.2052, F1 Score=0.2900
+
+Class 3 (Happy): TP=1502, FP=455, TN=4958, FN=263, Accuracy=0.9000, Precision=0.7675, Recall=0.8510, F1 Score=0.8071
+
+Class 4 (Sad): TP=648, FP=906, TN=5062, FN=562, Accuracy=0.7955, Precision=0.4170, Recall=0.5355, F1 Score=0.4689
+
+Class 5 (Surprise): TP=586, FP=247, TN=6136, FN=209, Accuracy=0.9365, Precision=0.7035, Recall=0.7371, F1 Score=0.7199
+
+Class 6 (Neutral): TP=763, FP=720, TN=5180, FN=515, Accuracy=0.8279, Precision=0.5145, Recall=0.5970, F1 Score=0.5527
+```
+
+这里可以大致看出准确率快接近60%了，不过第二个类别依然受了很大的类别不平衡的影响。
+
+对应ROC曲线，第二个类别有点波动，其他跟第一个差不多
+
+![](imgs/16.png)
+
+- CNN_3
+
+模型参数
+
+```bash
+模型名称: CNN_3
+输入层: 输入尺寸=48x48x1
+卷积层1: 输出通道=64, 卷积核=3x3, 激活=ReLU
+卷积层2: 输出通道=64, 卷积核=3x3, 激活=ReLU
+池化层1: 池化核=2x2, 步幅=2
+卷积层3: 输出通道=128, 卷积核=3x3, 激活=ReLU
+卷积层4: 输出通道=128, 卷积核=3x3, 激活=ReLU
+池化层2: 池化核=2x2, 步幅=2
+卷积层5: 输出通道=256, 卷积核=3x3, 激活=ReLU
+卷积层6: 输出通道=256, 卷积核=3x3, 激活=ReLU
+池化层3: 池化核=2x2, 步幅=2
+全连接层1: 输出=512, 激活=ReLU, Dropout
+全连接层2: 输出=128, 激活=ReLU, Dropout
+输出层: 输出=7, 激活=Softmax
+```
+
+跟第二个的区别在于各个卷积层的输出通道数增加了一倍
+
+结果更加接近60%了
+
+```bash
+正在训练第 26 轮...
+
+Epoch 26/50, Loss: 1.0706, Accuracy: 58.9989%
+
+Test Accuracy: 59.3898%
+
+Class 0 (Angry): TP=477, FP=411, TN=5782, FN=508, Accuracy=0.8720, Precision=0.5372, Recall=0.4843, F1 Score=0.5093
+
+Class 1 (Disgust): TP=10, FP=9, TN=7067, FN=92, Accuracy=0.9859, Precision=0.5263, Recall=0.0980, F1 Score=0.1653
+
+Class 2 (Fear): TP=192, FP=237, TN=5898, FN=851, Accuracy=0.8484, Precision=0.4476, Recall=0.1841, F1 Score=0.2609
+
+Class 3 (Happy): TP=1501, FP=390, TN=5023, FN=264, Accuracy=0.9089, Precision=0.7938, Recall=0.8504, F1 Score=0.8211
+
+Class 4 (Sad): TP=673, FP=860, TN=5108, FN=537, Accuracy=0.8054, Precision=0.4390, Recall=0.5562, F1 Score=0.4907
+
+Class 5 (Surprise): TP=604, FP=260, TN=6123, FN=191, Accuracy=0.9372, Precision=0.6991, Recall=0.7597, F1 Score=0.7281
+
+Class 6 (Neutral): TP=806, FP=748, TN=5152, FN=472, Accuracy=0.8300, Precision=0.5187, Recall=0.6307, F1 Score=0.5692
+
+```
+
+对应ROC曲线
+
+![](imgs/17.png)
+
+- CNN_4_original
+
+模型参数
+
+```bash
+模型名称: CNN_4
+输入层: 输入尺寸=48x48x1
+卷积层1: 输出通道=32, 核大小=3x3, 填充=1, 激活=ReLU
+池化层1: 核大小=2x2, 步幅=2
+卷积层2: 输出通道=64, 核大小=3x3, 填充=1, 激活=ReLU
+池化层2: 核大小=2x2, 步幅=2
+卷积层3: 输出通道=128, 核大小=3x3, 填充=1, 激活=ReLU
+池化层3: 核大小=2x2, 步幅=2
+卷积层4: 输出通道=256, 核大小=3x3, 填充=1, 激活=ReLU
+池化层4: 核大小=2x2, 步幅=2
+全连接层1: 输出=512, 激活=ReLU, Dropout
+全连接层2: 输出=128, 激活=ReLU, Dropout
+输出层: 输出=7, 激活=Softmax
+```
+
+这个`CNN_4`模型我们用来随时修改实验。第一次设计时，我们相对于第一个模型增加了填充，这样可以保证卷积层的输出尺寸不变，同时增加了卷积层的输出通道数。
