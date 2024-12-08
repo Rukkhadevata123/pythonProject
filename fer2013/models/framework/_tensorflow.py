@@ -235,6 +235,8 @@ class TrainThread_tensorflow(QThread):
             optimizer = optimizers.SGD(learning_rate=self.learning_rate,
                                        momentum=0.9
                                        )
+        elif self.optimizer == 'Adagrad':
+            optimizer = optimizers.Adagrad(learning_rate=self.learning_rate)
         else:
             optimizer = None
 

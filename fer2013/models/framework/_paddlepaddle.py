@@ -110,6 +110,8 @@ class TrainThread_paddle(QThread):
             optimizer = optim.Adamax(parameters=self.model.parameters(), learning_rate=self.learning_rate)
         elif self.optimizer == 'SGD':
             optimizer = optim.SGD(parameters=self.model.parameters(), learning_rate=self.learning_rate, momentum=0.9)
+        elif self.optimizer == 'Adagrad':
+            optimizer = optim.Adagrad(parameters=self.model.parameters(), learning_rate=self.learning_rate)
         
         scheduler = optim.lr.StepDecay(learning_rate=self.learning_rate, step_size=7, gamma=0.1)
         best_accuracy = 0.0

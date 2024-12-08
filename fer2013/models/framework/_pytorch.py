@@ -130,6 +130,9 @@ class TrainThread_pytorch(QThread):
         elif self.optimizer == 'SGD':
             optimizer = optim.SGD(self.model.parameters(),
                                   lr=self.learning_rate, momentum=0.9)
+        elif self.optimizer == 'Adagrad':
+            optimizer = optim.Adagrad(self.model.parameters(),
+                                      lr=self.learning_rate)
         
         scheduler = optim.lr_scheduler.StepLR(optimizer,
                                               step_size=7,
