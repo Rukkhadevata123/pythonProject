@@ -627,7 +627,7 @@ Class 6 (Neutral): TP=806, FP=748, TN=5152, FN=472, Accuracy=0.8300, Precision=0
 输出层: 输出=7, 激活=Softmax
 ```
 
-这个`CNN_4`模型我们用来随时修改实验。第一次设计时,我们相对于第一个模型增加了填充,这样可以保证卷积层的输出尺寸不变,同时增加了卷积层的输出通道数。
+这个`CNN_4`模型我们用来随时修改实验。第一次设计时,我们相对于第一个模型只是添加了第四层，稍后的实验将进行修改。
 
 结果是在第25轮收敛,比第一个模型稍微好一点
 
@@ -942,3 +942,119 @@ class CNN_3(nn.Module):
 卷积神经网络在图像识别领域有着广泛的应用，我们的实验也粗略证明了卷积神经网络在处理图像数据时的优势。
 
 在以后的学习中，我们将更多关注卷积神经网络的结构和应用，以便更好地处理图像数据。
+
+## 后续实验
+
+我们修改了CNN_4_original模型，增加了批量规范化和`LeakyReLU`激活函数，`Adam`优化器使用了L2正则化，下面是模型参数
+
+```python
+    # 定义 CNN_4 模型
+    class CNN_4(nn.Module):
+        def __init__(self, num_classes=7):
+            super(CNN_4, self).__init__()
+            self.features = nn.Sequential(
+                nn.Conv2d(1, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
+                nn.LeakyReLU(0.1),
+                nn.Conv2d(64, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
+                nn.LeakyReLU(0.1),
+                nn.MaxPool2d(kernel_size=2, stride=2),
+                nn.Conv2d(64, 128, kernel_size=3, padding=1),
+                nn.BatchNorm2d(128),
+                nn.LeakyReLU(0.1),
+                nn.Conv2d(128, 128, kernel_size=3, padding=1),
+                nn.BatchNorm2d(128),
+                nn.LeakyReLU(0.1),
+                nn.MaxPool2d(kernel_size=2, stride=2),
+                nn.Conv2d(128, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.LeakyReLU(0.1),
+                nn.Conv2d(256, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.LeakyReLU(0.1),
+                nn.MaxPool2d(kernel_size=2, stride=2)
+            )
+            self.classifier = nn.Sequential(
+                nn.Dropout(),
+                nn.Linear(256 * 6 * 6, 512),
+                nn.BatchNorm1d(512),
+                nn.LeakyReLU(0.1),
+                nn.Dropout(),
+                nn.Linear(512, 128),
+                nn.BatchNorm1d(128),
+                nn.LeakyReLU(0.1),
+                nn.Linear(128, num_classes)
+            )
+            self._initialize_weights()
+    
+        def forward(self, x):
+            x = self.features(x)
+            x = x.view(x.size(0), -1)
+            x = self.classifier(x)
+            return x
+    
+        def _initialize_weights(self):
+            for m in self.modules():
+                if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                    nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='leaky_relu')
+                    if m.bias is not None:
+                        nn.init.constant_(m.bias, 0)
+```
+
+文字说明如下
+
+```bash
+模型名称: CNN_4
+输入层: 输入尺寸=48x48x1
+卷积层1: 输出通道=64, 核大小=3x3, 填充=1, 激活=LeakyReLU(0.1), 批量规范化
+卷积层2: 输出通道=64, 核大小=3x3, 填充=1, 激活=LeakyReLU(0.1), 批量规范化
+池化层1: 核大小=2x2, 步幅=2
+卷积层3: 输出通道=128, 核大小=3x3, 填充=1, 激活=LeakyReLU(0.1), 批量规范化
+卷积层4: 输出通道=128, 核大小=3x3, 填充=1, 激活=LeakyReLU(0.1), 批量规范化
+池化层2: 核大小=2x2, 步幅=2
+卷积层5: 输出通道=256, 核大小=3x3, 填充=1, 激活=LeakyReLU(0.1), 批量规范化
+卷积层6: 输出通道=256, 核大小=3x3, 填充=1, 激活=LeakyReLU(0.1), 批量规范化
+池化层3: 核大小=2x2, 步幅=2
+全连接层1: 输出=512, 激活=LeakyReLU(0.1), 批量规范化, Dropout
+全连接层2: 输出=128, 激活=LeakyReLU(0.1), 批量规范化, Dropout
+输出层: 输出=7, 激活=Softmax
+```
+
+我们使用80%的训练集，20%的测试集，使用`Adam`优化器，学习率为0.004，训练100轮，模型在30多轮就收敛了，下面是第32轮的结果
+
+```bash
+正在训练第 32 轮...
+
+Epoch 32/100, Loss: 0.8952, Accuracy: 66.2754%
+
+Test Accuracy: 65.5196%
+
+Class 0 (Angry): TP=547, FP=377, TN=5816, FN=438, Accuracy=0.8865, Precision=0.5920, Recall=0.5553, F1 Score=0.5731
+
+Class 1 (Disgust): TP=43, FP=22, TN=7054, FN=59, Accuracy=0.9887, Precision=0.6615, Recall=0.4216, F1 Score=0.5150
+
+Class 2 (Fear): TP=452, FP=443, TN=5692, FN=591, Accuracy=0.8559, Precision=0.5050, Recall=0.4334, F1 Score=0.4665
+
+Class 3 (Happy): TP=1550, FP=322, TN=5091, FN=215, Accuracy=0.9252, Precision=0.8280, Recall=0.8782, F1 Score=0.8524
+
+Class 4 (Sad): TP=661, FP=606, TN=5362, FN=549, Accuracy=0.8391, Precision=0.5217, Recall=0.5463, F1 Score=0.5337
+
+Class 5 (Surprise): TP=619, FP=191, TN=6192, FN=176, Accuracy=0.9489, Precision=0.7642, Recall=0.7786, F1 Score=0.7713
+
+Class 6 (Neutral): TP=831, FP=514, TN=5386, FN=447, Accuracy=0.8661, Precision=0.6178, Recall=0.6502, F1 Score=0.6336
+```
+
+我们这次的模型跟其他CNN相比，损失降到了1以下，准确率也达到了65.5%，效果相对非常不错了，多数MLP无法训练的第二个类别，这次的模型也有了不错的效果，可以看到F1 Score超过了0.5。这是我们这次调整模型的一个亮点。
+
+下面是我们的ROC曲线
+
+![](imgs/21.png)
+
+曲线的基本趋势和之前类似，但是相对来看曲线更平滑，这次训练比较稳定。
+
+顺便放一张训练过程`nvtop`的截图
+
+![](imgs/20.png)
+
+> 随着后续的更深入学习，我们将持续优化模型，提高模型的训练效果，同时也会更多地关注卷积神经网络的结构和应用，以便更好地处理图像数据。

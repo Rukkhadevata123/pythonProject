@@ -117,34 +117,54 @@ if pytorch_available:
         def __init__(self, num_classes=7):
             super(CNN_4, self).__init__()
             self.features = nn.Sequential(
-                nn.Conv2d(1, 32, kernel_size=3, padding=1),
-                nn.ReLU(),
-                nn.MaxPool2d(kernel_size=2, stride=2),
-                nn.Conv2d(32, 64, kernel_size=3, padding=1),
-                nn.ReLU(),
+                nn.Conv2d(1, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
+                nn.LeakyReLU(0.1),
+                nn.Conv2d(64, 64, kernel_size=3, padding=1),
+                nn.BatchNorm2d(64),
+                nn.LeakyReLU(0.1),
                 nn.MaxPool2d(kernel_size=2, stride=2),
                 nn.Conv2d(64, 128, kernel_size=3, padding=1),
-                nn.ReLU(),
+                nn.BatchNorm2d(128),
+                nn.LeakyReLU(0.1),
+                nn.Conv2d(128, 128, kernel_size=3, padding=1),
+                nn.BatchNorm2d(128),
+                nn.LeakyReLU(0.1),
                 nn.MaxPool2d(kernel_size=2, stride=2),
                 nn.Conv2d(128, 256, kernel_size=3, padding=1),
-                nn.ReLU(),
+                nn.BatchNorm2d(256),
+                nn.LeakyReLU(0.1),
+                nn.Conv2d(256, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.LeakyReLU(0.1),
                 nn.MaxPool2d(kernel_size=2, stride=2)
             )
             self.classifier = nn.Sequential(
                 nn.Dropout(),
-                nn.Linear(256 * 3 * 3, 512),
-                nn.ReLU(),
+                nn.Linear(256 * 6 * 6, 512),
+                nn.BatchNorm1d(512),
+                nn.LeakyReLU(0.1),
                 nn.Dropout(),
                 nn.Linear(512, 128),
-                nn.ReLU(),
+                nn.BatchNorm1d(128),
+                nn.LeakyReLU(0.1),
                 nn.Linear(128, num_classes)
             )
-
+            self._initialize_weights()
+    
         def forward(self, x):
             x = self.features(x)
             x = x.view(x.size(0), -1)
             x = self.classifier(x)
             return x
+    
+        def _initialize_weights(self):
+            for m in self.modules():
+                if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                    nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='leaky_relu')
+                    if m.bias is not None:
+                        nn.init.constant_(m.bias, 0)
+    
 
 # 尝试导入 TensorFlow
 try:

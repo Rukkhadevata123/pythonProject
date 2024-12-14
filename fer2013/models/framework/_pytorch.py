@@ -120,7 +120,7 @@ class TrainThread_pytorch(QThread):
 
         if self.optimizer == 'Adam':
             optimizer = optim.Adam(self.model.parameters(),
-                                   lr=self.learning_rate)
+                                   lr=self.learning_rate, weight_decay=1e-4)
         elif self.optimizer == 'AdamW':
             optimizer = optim.AdamW(self.model.parameters(),
                                     lr=self.learning_rate)
