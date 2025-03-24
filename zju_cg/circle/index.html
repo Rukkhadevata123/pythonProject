@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>同心圆控制</title>
+    <style>
+        canvas {
+            border: 1px solid #ccc;
+            margin: 20px;
+        }
+        .controls {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label for="circleCount">圆的数量 (1-20): </label>
+        <input type="range" id="circleCount" min="1" max="20" value="5">
+        <span id="countValue">5</span>
+    </div>
+    <canvas id="myCanvas" width="600" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('circleCount');
+        const countDisplay = document.getElementById('countValue');
+
+        // 画布中心点
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const maxRadius = Math.min(canvas.width, canvas.height) / 2 - 10;
+
+        function drawCircles(count) {
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 计算每个圆之间的半径间隔
+            const radiusStep = maxRadius / count;
+
+            // 绘制同心圆
+            for (let i = 1; i <= count; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radiusStep * i, 0, Math.PI * 2);
+                ctx.strokeStyle = `hsl(${i * 360 / count}, 70%, 50%)`; // 不同颜色
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        // 初始绘制
+        drawCircles(parseInt(slider.value));
+
+        // 滑动条事件监听
+        slider.addEventListener('input', function() {
+            const count = parseInt(this.value);
+            countDisplay.textContent = count;
+            drawCircles(count);
+        });
+    </script>
+</body>
+</html>

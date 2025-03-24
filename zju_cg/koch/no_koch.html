@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koch Snowflake Animation</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 定义线段结构
+        class Segment {
+            constructor(x1, y1, x2, y2, depth) {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+                this.depth = depth;
+            }
+        }
+
+        // 迭代绘制科克曲线
+        function drawKochIterative(x1, y1, x2, y2, depth) {
+            const stack = [];
+            stack.push(new Segment(x1, y1, x2, y2, depth));
+
+            while (stack.length > 0) {
+                const segment = stack.pop();
+                const { x1, y1, x2, y2, depth } = segment;
+
+                if (depth === 0) {
+                    // 绘制线段
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                } else {
+                    // 计算三等分点和等边三角形顶点
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const x3 = x1 + dx / 3;
+                    const y3 = y1 + dy / 3;
+                    const x4 = x1 + dx / 2 - dy * Math.sqrt(3) / 6;
+                    const y4 = y1 + dy / 2 + dx * Math.sqrt(3) / 6;
+                    const x5 = x1 + 2 * dx / 3;
+                    const y5 = y1 + 2 * dy / 3;
+
+                    // 将新的线段压入栈中
+                    stack.push(new Segment(x5, y5, x2, y2, depth - 1));
+                    stack.push(new Segment(x4, y4, x5, y5, depth - 1));
+                    stack.push(new Segment(x3, y3, x4, y4, depth - 1));
+                    stack.push(new Segment(x1, y1, x3, y3, depth - 1));
+                }
+            }
+        }
+
+        // 绘制科克雪花
+        function drawKochSnowflake(x, y, size, depth) {
+            // 计算等边三角形的三个顶点，使底边朝下
+            const height = size * Math.sqrt(3) / 2;
+            const x1 = x;
+            const y1 = y - height / 2; // 顶部点
+            const x2 = x + size / 2;
+            const y2 = y + height / 2; // 底部右点
+            const x3 = x - size / 2;
+            const y3 = y + height / 2; // 底部左点
+
+            // 绘制三条科克曲线
+            drawKochIterative(x1, y1, x2, y2, depth);
+            drawKochIterative(x2, y2, x3, y3, depth);
+            drawKochIterative(x3, y3, x1, y1, depth);
+        }
+
+
+        // 动画参数
+        let depth = 0;
+        const maxDepth = 10;
+        const animationSpeed = 1000; // 1秒
+
+        // 清空画布
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 动画循环
+        function animate() {
+            clearCanvas(); // 清空画布
+            drawKochSnowflake(300, 300, 400, depth); // 绘制科克雪花
+            depth = (depth + 1) % (maxDepth + 1); // 更新递归深度
+            setTimeout(() => requestAnimationFrame(animate), animationSpeed); // 1秒后继续动画
+        }
+
+        // 启动动画
+        animate();
+    </script>
+ 
+</body>
+</html>
