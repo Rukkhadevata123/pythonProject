@@ -1,5 +1,6 @@
 import numpy as np
 import lu_decomposition
+from qr import qr_solve
 
 
 def create_special_matrix(__n=84):
@@ -42,8 +43,15 @@ error3 = np.linalg.norm(x3 - x_exp)
 print(f"误差 ||x - x_expected|| = {error3}")
 print(f"残差 ||Ax - b|| = {np.linalg.norm(A @ x3 - b)}")
 
+print("\nQR 分解")
+x4 = qr_solve(A, b)
+error4 = np.linalg.norm(x4 - x_exp)
+print(f"误差 ||x - x_expected|| = {error4}")
+print(f"残差 ||Ax - b|| = {np.linalg.norm(A @ x4 - b)}")
+
 print("\n解的所有元素")
 print("预期解:", x_exp[:])
 print("普通LU:", x1[:])
 print("列主元:", x2[:])
 print("全主元:", x3[:])
+print("QR分解:", x4[:])

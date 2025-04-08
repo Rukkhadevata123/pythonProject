@@ -3,6 +3,7 @@ import time
 from better_square import solve_with_ldl
 from cholesky import solve_with_cholesky
 from lu_decomposition import solve_linear_system, solve_with_partial_pivoting
+from qr import qr_solve
 
 
 def create_tridiagonal_matrix(n):
@@ -64,6 +65,12 @@ def main():
     ldlt_error = np.linalg.norm(x_ldlt - x_expected)
     ldlt_residual = np.linalg.norm(A @ x_ldlt - b)
 
+    start_time = time.time()
+    x_qr = qr_solve(A, b)
+    qr_time = time.time() - start_time
+    qr_error = np.linalg.norm(x_qr - x_expected)
+    qr_residual = np.linalg.norm(A @ x_qr - b)
+
     # 打印结果
     print("\n=== 结果比较 ===")
     print(f"{'方法':<20}{'用时(秒)':<15}{'误差':<20}{'残差':<20}")
@@ -79,6 +86,7 @@ def main():
     print(
         f"{'LDLT分解':<20}{ldlt_time:<15.6f}{ldlt_error:<20.6e}{ldlt_residual:<20.6e}"
     )
+    print(f"{'QR分解':<20}{qr_time:<15.6f}{qr_error:<20.6e}{qr_residual:<20.6e}")
 
     # 比较前5个和后5个元素
     print("\n=== 解向量的前5个和后5个元素 ===")
@@ -101,6 +109,11 @@ def main():
     print("\nLDLT分解:")
     print(f"前5个: {x_ldlt[:5]}")
     print(f"后5个: {x_ldlt[-5:]}")
+
+    # 在比较元素部分添加
+    print("\nQR分解:")
+    print(f"前5个: {x_qr[:5]}")
+    print(f"后5个: {x_qr[-5:]}")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import time
 from cholesky import solve_with_cholesky, is_positive_definite
 from better_square import solve_with_ldl
 from lu_decomposition import solve_linear_system, solve_with_partial_pivoting
+from qr import qr_solve
 
 
 def create_hilbert_matrix(n):
@@ -103,6 +104,20 @@ def main():
         ldlt_residual = float("nan")
         x_ldlt = np.full(n, float("nan"))
 
+    print("使用QR分解求解中...")
+    try:
+        start_time = time.time()
+        x_qr = qr_solve(A, b)
+        qr_time = time.time() - start_time
+        qr_error = np.linalg.norm(x_qr - x_expected)
+        qr_residual = np.linalg.norm(A @ x_qr - b)
+    except Exception as e:
+        print(f"QR分解失败: {e}")
+        qr_time = float("nan")
+        qr_error = float("nan")
+        qr_residual = float("nan")
+        x_qr = np.full(n, float("nan"))
+
     # 打印结果
     print("\n=== 结果比较 ===")
     print(f"{'方法':<20}{'用时(秒)':<15}{'误差':<20}{'残差':<20}")
@@ -118,6 +133,7 @@ def main():
     print(
         f"{'LDLT分解':<20}{ldlt_time:<15.6f}{ldlt_error:<20.6e}{ldlt_residual:<20.6e}"
     )
+    print(f"{'QR分解':<20}{qr_time:<15.6f}{qr_error:<20.6e}{qr_residual:<20.6e}")
 
     # 比较前5个元素
     print("\n=== 解向量的前5个元素 ===")
@@ -135,6 +151,9 @@ def main():
 
     print("\nLDLT分解:")
     print(f"前5个: {x_ldlt[:5]}")
+
+    print("\nQR分解:")
+    print(f"前5个: {x_qr[:5]}")
 
 
 if __name__ == "__main__":
