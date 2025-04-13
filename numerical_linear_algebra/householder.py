@@ -22,33 +22,20 @@ import numpy as np
 
 
 def householder(x):
-    """
-    计算 Householder 变换的反射向量 v 和系数 beta
+    # 计算 Householder 变换的反射向量 v 和系数 beta
+    # v: Householder 反射向量 beta: Householder 反射系数，满足 H = I - beta * v * v^T
 
-    参数:
-        x: 输入向量
-
-    返回:
-        v: Householder 反射向量
-        beta: Householder 反射系数，满足 H = I - beta * v * v^T
-    """
     n = len(x)
-    # 计算无穷范数并归一化
     ita = np.max(np.abs(x))
-    if ita > 0:  # 防止零向量
+    if ita > 0:
         x = x / ita
 
-    # 初始化 v
     v = np.zeros(n)
-
-    # 计算剩余部分的平方和
     sigma = np.sum(x[1:n] ** 2)
-    v[1:n] = x[1:n]  # 节省空间
-
+    v[1:n] = x[1:n]
     if sigma == 0:
         beta = 0
     else:
-        # 计算 2-范数
         alpha = np.sqrt(x[0] ** 2 + sigma)
 
         if x[0] <= 0:
@@ -56,26 +43,15 @@ def householder(x):
         else:
             v[0] = -sigma / (x[0] + alpha)
 
-        # 计算 beta = 2 / (v' * v)
+        # 提前归一化
         beta = 2 * v[0] ** 2 / (sigma + v[0] ** 2)
-
-        # 归一化
         v = v / v[0]
 
     return v, beta
 
 
 def householder_matrix(v, beta):
-    """
-    根据 Householder 向量和系数构造 Householder 矩阵
-
-    参数:
-        v: Householder 向量
-        beta: Householder 系数
-
-    返回:
-        H: Householder 矩阵 H = I - beta * v * v^T
-    """
+    # 计算变换矩阵，直接带入公式
     n = len(v)
     H = np.eye(n) - beta * np.outer(v, v)
     return H

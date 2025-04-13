@@ -10,27 +10,19 @@ Rx=c1
 
 import numpy as np
 from substitution import back_substitution
-from qr import householder_qr, givens_qr, compact_householder_qr
+from qr import householder_qr, givens_qr
+from lu_decomposition import solve_with_partial_pivoting
 
 
 def ls_solve_qr(A, b, method="householder"):
-    """
-    使用 QR 分解求解最小二乘问题 min ||Ax - b||_2
-
-    参数:
-        A: 系数矩阵 (m x n), 通常 m > n
-        b: 右侧向量 (m)
-        method: QR分解方法，可选 "householder", "compact_householder", "givens"
-
-    返回:
-        x: 最小二乘解 (n)
-        residual: 残差 ||Ax - b||_2
-    """
-    # 选择QR分解方法
+    # 使用 QR 分解求解最小二乘问题 min ||Ax - b||_2
+    # A: 系数矩阵 (m x n), 通常 m > n
+    # b: 右侧向量 (m)
+    # x: 最小二乘解 (n)
+    # residual: 残差 ||Ax - b||_2
+    # 这里选择QR分解方法
     if method == "householder":
         Q, R = householder_qr(A)
-    elif method == "compact_householder":
-        Q, R = compact_householder_qr(A)
     elif method == "givens":
         Q, R = givens_qr(A)
     else:
@@ -69,7 +61,7 @@ def normal_equations_solve(A, b):
     ATb = A.T @ b
 
     # 求解正规方程
-    x = np.linalg.solve(ATA, ATb)
+    x = solve_with_partial_pivoting(ATA, ATb)
 
     # 计算残差
     residual = np.linalg.norm(A @ x - b)

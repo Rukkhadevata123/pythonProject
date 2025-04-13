@@ -12,88 +12,15 @@ end
 
 import numpy as np
 from householder import householder
+from givens import givens, givens_matrix
+from substitution import back_substitution
 
 
 def householder_qr(A):
-    """
-    使用 Householder 变换计算 QR 分解
-
-    参数:
-        A: 输入矩阵 (m x n)
-
-    返回:
-        Q: 正交矩阵 (m x m)
-        R: 上三角矩阵 (m x n)
-    """
-    m, n = A.shape
-    A_copy = A.copy()
-    d = np.zeros(min(m, n))
-
-    # 存储 Householder 向量
-    vs = []
-
-    # 使用 Householder 变换将 A 转换为上三角形式
-    for j in range(min(m - 1, n)):
-        # 对当前列的子向量应用 Householder 变换
-        v, beta = householder(A_copy[j:m, j])
-
-        # 存储用于构造 Q 矩阵的信息
-        vs.append(v)
-        d[j] = beta
-
-        # 应用 Householder 变换到 A 的子矩阵
-        # (I - beta * v * v') * A[j:m, j:n]
-        for k in range(j, n):
-            # 计算 v' * A[j:m, k]
-            v_dot_A = np.dot(v, A_copy[j:m, k])
-
-            # 更新 A[j:m, k]
-            A_copy[j:m, k] = A_copy[j:m, k] - beta * v_dot_A * v
-
-        # 存储 Householder 向量（除了第一个元素）
-        if j + 1 < m:
-            A_copy[j + 1 : m, j] = v[1:]
-
-    # 提取上三角矩阵 R
-    R = np.zeros((m, n))
-    for i in range(m):
-        for j in range(n):
-            if i <= j:
-                R[i, j] = A_copy[i, j]
-
-    # 构造正交矩阵 Q
-    Q = np.eye(m)
-
-    # 从右到左应用 Householder 变换以构造 Q
-    for j in range(min(m - 1, n) - 1, -1, -1):
-        v = np.zeros(m)
-        v[j] = 1
-        v[j + 1 : m] = A_copy[j + 1 : m, j]
-
-        beta = d[j]
-
-        # Q = Q * (I - beta * v * v')
-        v_dot_Q = np.zeros(m)
-        for i in range(m):
-            v_dot_Q[i] = np.dot(v, Q[:, i])
-
-        for i in range(m):
-            Q[:, i] = Q[:, i] - beta * v_dot_Q[i] * v
-
-    return Q, R
-
-
-def compact_householder_qr(A):
-    """
-    使用 Householder 变换计算 QR 分解（紧凑形式实现）
-
-    参数:
-        A: 输入矩阵 (m x n)
-
-    返回:
-        Q: 正交矩阵 (m x m)
-        R: 上三角矩阵 (m x n)
-    """
+    # A: 输入矩阵 (m x n)
+    # Q: 正交矩阵 (m x m)
+    # R: 上三角矩阵 (m x n)
+    # 这里就是课本上的空间节约版
     m, n = A.shape
     R = A.copy()
     Q = np.eye(m)
@@ -115,22 +42,16 @@ def compact_householder_qr(A):
 
 
 def givens_qr(A):
-    """
-    使用 Givens 旋转计算 QR 分解
-
-    参数:
-        A: 输入矩阵 (m x n)
-
-    返回:
-        Q: 正交矩阵 (m x m)
-        R: 上三角矩阵 (m x n)
-    """
-    from givens import givens, givens_matrix
-
+    # 使用 Givens 旋转计算 QR 分解
+    # A: 输入矩阵 (m x n)
+    # Q: 正交矩阵 (m x m)
+    # R: 上三角矩阵 (m x n)
     m, n = A.shape
     R = A.copy()
     Q = np.eye(m)
 
+    # 为什么这里是两个for循环？因为每一列消元过程，givens变换只能对两行旋转操作
+    # 一层循环是列，另一层循环是行
     for j in range(n):  # 对每一列
         for i in range(m - 1, j, -1):  # 从下往上消元
             if R[i, j] != 0:  # 如果元素不为零
@@ -150,16 +71,7 @@ def givens_qr(A):
 
 
 def qr_solve(A, b):
-    """
-    使用 QR 分解求解线性方程组 Ax = b
-
-    参数:
-        A: 系数矩阵 (m x n)
-        b: 右侧向量 (m)
-
-    返回:
-        x: 解向量 (n)
-    """
+    # 这是用来求解方程组的方法
     Q, R = householder_qr(A)
 
     # 计算 Q^T * b
@@ -173,43 +85,6 @@ def qr_solve(A, b):
     # 仅取上三角部分
     R_square = R[:n, :n]
     y_square = y[:n]
-
-    # 使用导入的回代法求解上三角系统
-    from substitution import back_substitution
-
     x = back_substitution(R_square, y_square)
 
     return x
-
-
-def qr_least_squares(A, b):
-    """
-    使用 QR 分解求解最小二乘问题 min ||Ax - b||_2
-
-    参数:
-        A: 系数矩阵 (m x n), 通常 m > n
-        b: 右侧向量 (m)
-
-    返回:
-        x: 最小二乘解 (n)
-        residual: 残差 ||Ax - b||_2
-    """
-    Q, R = householder_qr(A)
-
-    # 计算 Q^T * b
-    y = Q.T @ b
-
-    # 求解上三角系统 Rx = y (仅前 n 行)
-    n = A.shape[1]
-    R_square = R[:n, :n]
-    y_square = y[:n]
-
-    # 使用导入的回代法求解上三角系统
-    from substitution import back_substitution
-
-    x = back_substitution(R_square, y_square)
-
-    # 计算残差
-    residual = np.linalg.norm(A @ x - b)
-
-    return x, residual

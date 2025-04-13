@@ -20,16 +20,8 @@ import numpy as np
 
 
 def givens(a, b):
-    """
-    计算 Givens 旋转系数 c 和 s
-
-    参数:
-        a, b: 输入值
-
-    返回:
-        c, s: Givens 旋转系数，满足 [c s; -s c] 是一个正交矩阵
-              并且 [c s; -s c] * [a; b] = [r; 0]，其中 r = sqrt(a^2 + b^2)
-    """
+    # c, s是Givens 旋转系数，满足 [c s; -s c] 是一个正交矩阵
+    # 并且 [c s; -s c] * [a; b] = [r; 0]，其中 r = sqrt(a^2 + b^2)
     if b == 0:
         c = 1
         s = 0
@@ -47,17 +39,7 @@ def givens(a, b):
 
 
 def givens_matrix(n, i, j, c, s):
-    """
-    构造 Givens 旋转矩阵
-
-    参数:
-        n: 矩阵大小
-        i, j: 需要旋转的行索引 (i < j)
-        c, s: Givens 旋转系数
-
-    返回:
-        G: Givens 旋转矩阵，是一个正交矩阵
-    """
+    # 构造旋转矩阵 G
     G = np.eye(n)
     G[i, i] = c
     G[j, j] = c
@@ -67,17 +49,7 @@ def givens_matrix(n, i, j, c, s):
 
 
 def givens_rotation(x, i, k):
-    """
-    计算 Givens 旋转系数并应用旋转到向量
-
-    参数:
-        x: 输入向量
-        i, k: 需要旋转的索引 (i < k)
-
-    返回:
-        y: 旋转后的向量，y[k] = 0
-        c, s: Givens 旋转系数
-    """
+    # 对向量 x 的第 i 和 k 个元素进行 Givens 旋转
     a = x[i]
     b = x[k]
     c, s = givens(a, b)
