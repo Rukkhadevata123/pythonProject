@@ -1,15 +1,3 @@
-"""
-householder qr
-for j = 1:n
-    if j<m
-        [v,beta] = house(A(j:m,j))
-        A(j:m,j:n) = (I_(m-j+1) - beta*v*v')*A(j:m,j:n) 节省空间
-        d(j) = beta
-        A(j+1:m,j) = v(2:m-j+1)
-    end
-end
-"""
-
 import numpy as np
 from householder import householder
 from givens import givens, givens_matrix
@@ -17,74 +5,105 @@ from substitution import back_substitution
 
 
 def householder_qr(A):
-    # A: 输入矩阵 (m x n)
-    # Q: 正交矩阵 (m x m)
-    # R: 上三角矩阵 (m x n)
-    # 这里就是课本上的空间节约版
-    m, n = A.shape
-    R = A.copy()
-    Q = np.eye(m)
+    """
+    使用Householder变换进行QR分解（空间优化版本）
 
-    for j in range(min(m - 1, n)):
-        # 对当前列的子向量应用 Householder 变换
+    参数:
+        A: 输入矩阵 (m x n), m >= n
+
+    返回:
+        Q: 正交矩阵 (m x m)
+        R: 上三角矩阵 (m x n)
+
+    数学原理:
+        1. 对每一列j，计算Householder向量v和系数beta，使得:
+           (I - beta*v*v') * A[j:m,j] = [r_jj, 0, ..., 0]^T
+        2. 将变换应用到子矩阵A[j:m,j:n]
+        3. 隐式存储v在下三角部分，显式计算Q和R
+    """
+    m, n = A.shape
+    R = A.copy().astype(float)  # 确保浮点运算
+    Q = np.eye(m)  # 初始化正交矩阵
+
+    for j in range(min(m - 1, n)):  # 每列处理
+        # 计算当前列的Householder变换
         v, beta = householder(R[j:m, j])
 
-        # 应用 Householder 变换到 R 的子矩阵
-        H_sub = np.eye(m - j) - beta * np.outer(v, v)
-        R[j:m, j:n] = H_sub @ R[j:m, j:n]
+        # 应用变换到子矩阵 (高效实现)
+        # 数学等价于: R[j:m,j:n] = (I - beta*v*v') @ R[j:m,j:n]
+        w = beta * np.dot(v, R[j:m, j:n])
+        R[j:m, j:n] -= np.outer(v, w)
 
-        # 应用 Householder 变换到 Q
-        H = np.eye(m)
-        H[j:m, j:m] = H_sub
-        Q = Q @ H
+        # 累积变换到Q (注意是左乘)
+        # 数学等价于: Q = Q @ H，其中H = [I 0; 0 (I-beta*v*v')]
+        Q_j = np.eye(m)
+        Q_j[j:m, j:m] -= beta * np.outer(v, v)
+        Q = Q @ Q_j
 
     return Q, R
 
 
 def givens_qr(A):
-    # 使用 Givens 旋转计算 QR 分解
-    # A: 输入矩阵 (m x n)
-    # Q: 正交矩阵 (m x m)
-    # R: 上三角矩阵 (m x n)
+    """
+    使用Givens旋转进行QR分解
+
+    参数:
+        A: 输入矩阵 (m x n)
+
+    返回:
+        Q: 正交矩阵 (m x m)
+        R: 上三角矩阵 (m x n)
+
+    算法特点:
+        1. 通过平面旋转逐步消元
+        2. 适合稀疏矩阵或特定结构矩阵
+        3. 数值稳定性与Householder相当
+    """
     m, n = A.shape
-    R = A.copy()
+    R = A.copy().astype(float)
     Q = np.eye(m)
 
-    # 为什么这里是两个for循环？因为每一列消元过程，givens变换只能对两行旋转操作
-    # 一层循环是列，另一层循环是行
-    for j in range(n):  # 对每一列
-        for i in range(m - 1, j, -1):  # 从下往上消元
-            if R[i, j] != 0:  # 如果元素不为零
-                # 计算 Givens 旋转参数
+    for j in range(n):  # 列优先处理
+        for i in range(m - 1, j, -1):  # 从底部向上消元
+            if abs(R[i, j]) > 1e-12:  # 避免数值误差
+                # 计算Givens旋转参数
                 c, s = givens(R[i - 1, j], R[i, j])
 
-                # 构造 Givens 矩阵
+                # 构造旋转矩阵
                 G = givens_matrix(m, i - 1, i, c, s)
 
-                # 应用 Givens 旋转到 R
+                # 应用旋转
                 R = G @ R
-
-                # 更新 Q (注意这里是 G.T 而不是 G)
-                Q = Q @ G.T
+                Q = Q @ G.T  # 累积正交变换
 
     return Q, R
 
 
 def qr_solve(A, b):
-    # 这是用来求解方程组的方法
-    Q, R = householder_qr(A)
+    """
+    基于QR分解的线性方程组求解器
 
-    # 计算 Q^T * b
-    y = Q.T @ b
+    参数:
+        A: 系数矩阵 (m x n)
+        b: 右侧向量 (m)
 
-    # 求解上三角系统 Rx = y
+    返回:
+        x: 最小二乘解 (n)
+
+    异常处理:
+        当m < n时抛出ValueError
+
+    数学保证:
+        返回的解x最小化||Ax - b||_2
+    """
     m, n = A.shape
     if m < n:
-        raise ValueError("方程组没有唯一解")
+        raise ValueError("欠定系统: m < n")
 
-    # 仅取上三角部分
-    R_square = R[:n, :n]
-    y_square = y[:n]
-    x = back_substitution(R_square, y_square)
+    Q, R = householder_qr(A)
+    y = Q.T @ b  # 计算投影
+
+    # 解上三角系统
+    x = back_substitution(R[:n, :n], y[:n])
 
     return x

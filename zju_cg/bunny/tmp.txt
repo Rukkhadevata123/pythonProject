@@ -1,0 +1,2438 @@
+Okay, let's break down this large Python script into a more manageable multi-file project structure. This improves organization, readability, and maintainability. We'll also look at potential optimizations along the way, keeping the Taichi constraints in mind.
+
+**Proposed File Structure:**
+
+```
+your_project_directory/
+├── main.py                 # Main script: Entry point, argument parsing, orchestration
+├── renderer.py             # TriangleRenderer class, Taichi kernels, Taichi helpers
+├── loaders.py              # OBJ/MTL loading, default normal/texcoord generation
+├── texture_utils.py        # Texture loading and procedural generation
+├── transformations.py      # 3D transformations and projections (rotate, project, ndc_to_pixel)
+├── color_utils.py          # Color generation, depth colormap application
+├── lighting.py             # Lighting calculations (light position animation)
+├── args_setup.py           # Argument parser setup functions
+├── bunny/                  # Example model directory
+│   └── bunny2k_f.obj
+├── output_bunny2k_f/       # Example output directory (created by Makefile)
+│   ├── color/
+│   └── depth/
+└── Makefile                # Build/render automation script (updated)
+```
+
+**Refactored Code:**
+
+**1. `args_setup.py` (Argument Parsing Logic)**
+
+```python
+# args_setup.py
+import argparse
+
+def add_basic_options(parser):
+    """添加基础渲染选项"""
+    parser.add_argument("--obj", type=str, required=True, help="OBJ文件路径")
+    parser.add_argument(
+        "--output", type=str, required=True, help="输出文件名 (不含扩展名)"
+    )
+    parser.add_argument("--width", type=int, default=800, help="输出图像宽度")
+    parser.add_argument("--height", type=int, default=800, help="输出图像高度")
+    parser.add_argument(
+        "--projection",
+        type=str,
+        default="perspective",
+        choices=["perspective", "orthographic"],
+        help="投影类型",
+    )
+    parser.add_argument("--focal", type=float, default=2.0, help="透视投影焦距")
+    parser.add_argument(
+        "--angle", type=float, default=0, help="绕Y轴旋转角度 (用于单帧或模型动画)"
+    )
+    parser.add_argument("--output-dir", type=str, default="output", help="输出目录")
+    parser.add_argument("--no-zbuffer", action="store_true", help="禁用Z-buffer")
+    parser.add_argument(
+        "--colorize", action="store_true", help="为每个面启用随机颜色 (覆盖材质)"
+    )
+
+
+def add_texture_options(parser):
+    """添加纹理相关选项"""
+    parser.add_argument("--texture", type=str, help="纹理图像路径 (优先于程序化纹理)")
+    parser.add_argument("--no-texture", action="store_true", help="完全禁用纹理")
+    parser.add_argument(
+        "--texture-type",
+        type=str,
+        default="checkerboard",
+        choices=["checkerboard", "gradient", "noise"],
+        help="程序化纹理类型 (若未提供--texture)",
+    )
+    parser.add_argument("--texture-size", type=int, default=512, help="程序化纹理大小")
+    parser.add_argument(
+        "--no-materials", action="store_true", help="禁用材质文件 (.mtl) 加载"
+    )
+
+
+def add_lighting_options(parser):
+    """添加光照相关选项"""
+    parser.add_argument("--no-lighting", action="store_true", help="禁用光照计算")
+    parser.add_argument(
+        "--light-model",
+        type=str,
+        default="blinn-phong",
+        choices=["phong", "blinn-phong"],
+        help="光照模型",
+    )
+    parser.add_argument("--ambient", type=float, default=0.2, help="环境光强度")
+    parser.add_argument("--diffuse", type=float, default=0.6, help="漫反射强度")
+    parser.add_argument("--specular", type=float, default=0.2, help="高光强度")
+    parser.add_argument("--shininess", type=float, default=32.0, help="高光锐度")
+    parser.add_argument(
+        "--light-type",
+        type=str,
+        default="directional",
+        choices=["directional", "point"],
+        help="光源类型",
+    )
+    parser.add_argument(
+        "--light-dir", type=str, default="1,-1,1", help="方向光方向 (x,y,z)"
+    )
+    parser.add_argument(
+        "--light-pos", type=str, default="0,0,3", help="点光源初始位置 (x,y,z)"
+    )
+    parser.add_argument(
+        "--light-atten",
+        type=str,
+        default="1.0,0.09,0.032",
+        help="点光源衰减系数 (常量,线性,平方)",
+    )
+
+
+def add_animation_options(parser):
+    """添加动画相关选项"""
+    parser.add_argument(
+        "--light-animation",
+        type=str,
+        default="none",
+        choices=[
+            "none",
+            "vertical",
+            "horizontal",
+            "circular",
+            "pulse",
+            "figure8",
+            "spiral",
+            "custom",
+        ],
+        help="光源动画类型",
+    )
+    parser.add_argument(
+        "--light-range", type=float, default=1.0, help="光源动画移动范围/幅度"
+    )
+    parser.add_argument(
+        "--light-frame", type=int, default=0, help="当前动画帧号 (用于生成序列)"
+    )
+    parser.add_argument(
+        "--total-frames", type=int, default=1, help="动画总帧数 (大于1时启用动画)"
+    )
+    parser.add_argument(
+        "--custom-x-expr",
+        type=str,
+        default="sin(2*pi*t)",
+        help="光源X坐标自定义表达式 (t=0..1)",
+    )
+    parser.add_argument(
+        "--custom-y-expr",
+        type=str,
+        default="cos(2*pi*t)",
+        help="光源Y坐标自定义表达式 (t=0..1)",
+    )
+    parser.add_argument(
+        "--custom-z-expr", type=str, default="0", help="光源Z坐标自定义表达式 (t=0..1)"
+    )
+
+
+def add_depth_options(parser):
+    """添加深度图相关选项"""
+    parser.add_argument("--no-depth", action="store_true", help="不生成深度图")
+    parser.add_argument("--depth-min", type=int, default=1, help="深度归一化最小百分位")
+    parser.add_argument(
+        "--depth-max", type=int, default=99, help="深度归一化最大百分位"
+    )
+
+def setup_parser():
+    """创建并配置 ArgumentParser"""
+    parser = argparse.ArgumentParser(description="Taichi GPU加速三角形渲染器")
+    add_basic_options(parser)
+    add_texture_options(parser)
+    add_lighting_options(parser)
+    add_animation_options(parser)
+    add_depth_options(parser)
+    return parser
+```
+
+**2. `color_utils.py` (Color and Depth Map Utilities)**
+
+```python
+# color_utils.py
+import numpy as np
+
+def get_face_color(face_index, colorize=False):
+    """获取面片的基础颜色"""
+    if not colorize:
+        # 默认灰色
+        return np.array([0.7, 0.7, 0.7], dtype=np.float32)
+    # 根据面片索引生成伪随机颜色
+    np.random.seed(face_index) # 确保颜色对于同一面片是固定的
+    return np.array(
+        [
+            0.3 + np.random.random() * 0.4, # R
+            0.3 + np.random.random() * 0.4, # G
+            0.3 + np.random.random() * 0.4, # B
+        ],
+        dtype=np.float32,
+    )
+
+def apply_colormap_jet(depth_image):
+    """对深度图应用jet颜色映射（向量化操作）"""
+    # 确保输入是浮点数
+    depth_image = depth_image.astype(np.float32)
+    result = np.zeros((*depth_image.shape, 3), dtype=np.uint8)
+
+    # 创建掩码处理无效值 (NaN or Inf)
+    mask_invalid = np.logical_or(np.isnan(depth_image), np.isinf(depth_image))
+    # 有效值掩码
+    mask_valid = ~mask_invalid
+
+    # 获取有效的深度值用于处理
+    valid_depths = depth_image[mask_valid]
+
+    # 定义颜色节点和对应的深度值 (0 -> blue, 0.25 -> cyan, 0.5 -> yellow, 0.75 -> red, 1 -> dark red)
+    # 调整节点以匹配常见的 Jet colormap
+    # node_values = [0.0,   0.125, 0.375, 0.625, 0.875, 1.0]
+    # node_colors = [[0,0,128], [0,0,255], [0,255,255], [255,255,0], [255,0,0], [128,0,0]] # BGR for OpenCV style, switch for PIL
+
+    # 简化版 Jet (4段线性插值)
+    # 区间1: 0.0 - 0.25 (Blue -> Cyan)
+    mask_1 = np.logical_and(mask_valid, valid_depths <= 0.25)
+    t = valid_depths[mask_1] * 4.0
+    result[mask_valid][mask_1, 0] = 0                                     # R = 0
+    result[mask_valid][mask_1, 1] = np.clip(t * 255, 0, 255).astype(np.uint8) # G = 0 -> 255
+    result[mask_valid][mask_1, 2] = 255                                     # B = 255
+
+    # 区间2: 0.25 - 0.5 (Cyan -> Yellow)
+    mask_2 = np.logical_and(mask_valid, (valid_depths > 0.25) & (valid_depths <= 0.5))
+    t = (valid_depths[mask_2] - 0.25) * 4.0
+    result[mask_valid][mask_2, 0] = np.clip(t * 255, 0, 255).astype(np.uint8) # R = 0 -> 255
+    result[mask_valid][mask_2, 1] = 255                                     # G = 255
+    result[mask_valid][mask_2, 2] = np.clip(255 * (1.0 - t), 0, 255).astype(np.uint8) # B = 255 -> 0
+
+    # 区间3: 0.5 - 0.75 (Yellow -> Red)
+    mask_3 = np.logical_and(mask_valid, (valid_depths > 0.5) & (valid_depths <= 0.75))
+    t = (valid_depths[mask_3] - 0.5) * 4.0
+    result[mask_valid][mask_3, 0] = 255                                     # R = 255
+    result[mask_valid][mask_3, 1] = np.clip(255 * (1.0 - t), 0, 255).astype(np.uint8) # G = 255 -> 0
+    result[mask_valid][mask_3, 2] = 0                                       # B = 0
+
+    # 区间4: 0.75 - 1.0 (Red -> Dark Red)
+    mask_4 = np.logical_and(mask_valid, valid_depths > 0.75)
+    t = (valid_depths[mask_4] - 0.75) * 4.0
+    result[mask_valid][mask_4, 0] = np.clip(255 * (1.0 - t * 0.5), 0, 255).astype(np.uint8) # R = 255 -> 128
+    result[mask_valid][mask_4, 1] = 0                                       # G = 0
+    result[mask_valid][mask_4, 2] = 0                                       # B = 0
+
+    # 将无效区域设置为黑色 (或其他颜色)
+    result[mask_invalid] = [0, 0, 0]
+
+    return result
+```
+
+**3. `transformations.py` (Coordinate Transformations)**
+
+```python
+# transformations.py
+import numpy as np
+
+def ndc_to_pixel(ndc_coords, width, height):
+    """将归一化设备坐标 (NDC) 转换为屏幕像素坐标"""
+    pixel_coords = np.zeros_like(ndc_coords, dtype=np.float32)
+    # X: [-1, 1] -> [0, width]
+    pixel_coords[:, 0] = (ndc_coords[:, 0] + 1.0) * width / 2.0
+    # Y: [-1, 1] -> [height, 0] (OpenGL/Taichi convention Y up, pixel Y down)
+    pixel_coords[:, 1] = height - (ndc_coords[:, 1] + 1.0) * height / 2.0
+    # pixel_coords[:, 1] = (ndc_coords[:, 1] + 1.0) * height / 2.0 # Use this if Y is already flipped
+    return pixel_coords
+
+def rotate_model(vertices, angle_degrees):
+    """绕Y轴旋转顶点"""
+    theta = np.radians(angle_degrees)
+    cos_theta = np.cos(theta)
+    sin_theta = np.sin(theta)
+    # 更高效的旋转矩阵乘法
+    rotated_vertices = vertices.copy()
+    x = vertices[:, 0]
+    z = vertices[:, 2]
+    rotated_vertices[:, 0] = x * cos_theta + z * sin_theta
+    rotated_vertices[:, 2] = -x * sin_theta + z * cos_theta
+    return rotated_vertices
+
+def orthographic_projection(vertices):
+    """执行正交投影 (只取 X, Y 坐标)"""
+    # 假设顶点已经在合适的范围内，或者将在后续步骤中标准化
+    return vertices[:, :2].astype(np.float32)
+
+def perspective_projection(vertices, focal_length=2.0):
+    """执行透视投影"""
+    projected_vertices = np.zeros((vertices.shape[0], 2), dtype=np.float32)
+    z_values = vertices[:, 2]
+
+    # 处理 Z 坐标接近 0 的情况
+    # Note: Taichi rasterizer expects coordinates AFTER projection,
+    # Z should be view space Z, typically negative.
+    # We divide by -Z for perspective projection.
+    near_plane_threshold = 1e-6 # Avoid division by zero or values too close
+    safe_neg_z = np.where(z_values > -near_plane_threshold, -near_plane_threshold, z_values)
+
+    # Perform projection: x' = x * f / (-z), y' = y * f / (-z)
+    projected_vertices[:, 0] = vertices[:, 0] * focal_length / (-safe_neg_z)
+    projected_vertices[:, 1] = vertices[:, 1] * focal_length / (-safe_neg_z)
+
+    # 处理原始 Z 值非常接近 0 的情况 (可选，取决于如何处理裁剪)
+    # projected_vertices[z_values > -near_plane_threshold] = np.inf # Mark as invalid/clipped
+
+    return projected_vertices
+```
+
+**4. `loaders.py` (Model Loading)**
+
+```python
+# loaders.py
+import numpy as np
+import os
+
+def load_mtl(mtl_filename):
+    """加载并解析 .mtl 文件"""
+    materials = {}
+    current_material = None
+    if not os.path.exists(mtl_filename):
+        print(f"警告: 材质文件未找到: {mtl_filename}")
+        return materials
+
+    try:
+        with open(mtl_filename, "r") as f:
+            for line in f:
+                tokens = line.strip().split()
+                if not tokens or line.startswith("#"):
+                    continue
+                if tokens[0] == "newmtl":
+                    current_material = " ".join(tokens[1:])
+                    # 设置默认值
+                    materials[current_material] = {
+                        "Ka": [0.2, 0.2, 0.2],  # Ambient
+                        "Kd": [0.8, 0.8, 0.8],  # Diffuse
+                        "Ks": [0.0, 0.0, 0.0],  # Specular
+                        "Ns": 10.0,            # Shininess
+                        "d": 1.0,              # Dissolve (alpha)
+                        "map_Kd": None,        # Diffuse texture map
+                        "map_Bump": None,      # Bump map (can be used for normals)
+                        # Add other maps as needed (e.g., map_Ks, map_Ka, map_Ns)
+                    }
+                elif current_material:  # Ensure a material context exists
+                    key = tokens[0]
+                    values = tokens[1:]
+                    try:
+                        if key in ["Ka", "Kd", "Ks"]:
+                            materials[current_material][key] = [float(x) for x in values[:3]]
+                        elif key in ["Ns", "d", "Ni"]: # Ni = optical density
+                             materials[current_material][key] = float(values[0])
+                        elif key.startswith("map_"):
+                            # Store the texture filename relative to the MTL file's directory
+                            texture_path = " ".join(values)
+                            materials[current_material][key] = os.path.join(os.path.dirname(mtl_filename), texture_path)
+                        # Add more properties as needed (e.g., illum)
+                    except (ValueError, IndexError) as e:
+                        print(f"警告: 解析材质 '{current_material}' 属性 '{key}' 时出错: {e} - 行: {line.strip()}")
+
+    except Exception as e:
+        print(f"错误: 无法加载或解析材质文件 {mtl_filename}: {e}")
+
+    return materials
+
+
+def generate_default_texcoords(vertices):
+    """根据顶点位置生成默认的球面纹理坐标"""
+    center = np.mean(vertices, axis=0)
+    vertices_centered = vertices - center
+    radii = np.linalg.norm(vertices_centered, axis=1)
+    max_radius = np.max(radii)
+
+    if max_radius < 1e-6:  # Avoid division by zero for single point or flat models
+        print("警告: 模型半径接近零，无法生成球面纹理坐标。返回零坐标。")
+        return np.zeros((len(vertices), 2), dtype=np.float32)
+
+    # Normalize vectors (handle potential zero-length vectors after centering)
+    # Add a small epsilon to avoid division by zero for vertices at the center
+    vertices_normalized = vertices_centered / (radii[:, np.newaxis] + 1e-9)
+
+    # Spherical coordinates (phi = azimuth, theta = inclination)
+    # atan2(x, z) for azimuth (longitude), range [-pi, pi] -> u [0, 1]
+    # acos(y) for inclination (latitude), range [0, pi] -> v [0, 1]
+    phi = np.arctan2(vertices_normalized[:, 0], vertices_normalized[:, 2]) # x, z
+    theta = np.arccos(np.clip(vertices_normalized[:, 1], -1.0, 1.0))      # y
+
+    u = (phi / (2 * np.pi)) + 0.5
+    v = theta / np.pi
+
+    texcoords = np.stack((u, v), axis=-1).astype(np.float32)
+    return texcoords
+
+
+def generate_vertex_normals(vertices, faces):
+    """通过平均面法线生成平滑的顶点法线"""
+    vertex_normals = np.zeros_like(vertices, dtype=np.float32)
+    face_normals = np.zeros((len(faces), 3), dtype=np.float32)
+
+    # 计算每个三角面片的法线
+    for i, face in enumerate(faces):
+        # 确保面是有效的（至少3个顶点）
+        if len(face) >= 3:
+            v0 = vertices[face[0]]
+            v1 = vertices[face[1]]
+            v2 = vertices[face[2]]
+            # 计算叉积得到面法线 (v1-v0) x (v2-v0)
+            normal = np.cross(v1 - v0, v2 - v0)
+            norm = np.linalg.norm(normal)
+            if norm > 1e-10:
+                face_normals[i] = normal / norm
+            # else: face normal remains [0, 0, 0] for degenerate triangles
+
+    # 将面法线累加到共享该法线的顶点上
+    # 使用 numpy indexing 提高效率
+    for i, face in enumerate(faces):
+        if len(face) >= 3:
+            # 使用 add.at 来安全地对重复索引进行累加
+            np.add.at(vertex_normals, face[0], face_normals[i])
+            np.add.at(vertex_normals, face[1], face_normals[i])
+            np.add.at(vertex_normals, face[2], face_normals[i])
+
+    # 归一化顶点法线
+    norms = np.linalg.norm(vertex_normals, axis=1)
+    # 避免除以零
+    valid_norms_mask = norms > 1e-10
+    vertex_normals[valid_norms_mask] /= norms[valid_norms_mask, np.newaxis]
+
+    # 对于法线为零的顶点（可能未被任何有效面片引用），可以设置一个默认法线
+    zero_norm_mask = ~valid_norms_mask
+    if np.any(zero_norm_mask):
+        print(f"警告: {np.sum(zero_norm_mask)} 个顶点的法线为零，设置为 [0, 1, 0]")
+        vertex_normals[zero_norm_mask] = [0.0, 1.0, 0.0] # Default up vector
+
+    return vertex_normals
+
+
+def load_obj_enhanced(filename, load_texcoords=True, load_normals=True, load_materials=True):
+    """
+    增强版 OBJ 加载器，支持纹理坐标、法线、材质，并处理缺失数据和四边形。
+    """
+    vertices, faces = [], []
+    texcoords = [] if load_texcoords else None
+    normals = [] if load_normals else None
+    face_vertex_indices = []
+    face_texcoord_indices = [] if load_texcoords else None
+    face_normal_indices = [] if load_normals else None
+
+    materials = {} if load_materials else None
+    material_indices = [] if load_materials else None # Index of material per *output* face
+    current_material_name = None # Name of the active material
+    mtl_filename = None
+
+    obj_dir = os.path.dirname(filename)
+
+    try:
+        with open(filename, "r") as f:
+            for line in f:
+                tokens = line.strip().split()
+                if not tokens or line.startswith("#"):
+                    continue
+
+                if tokens[0] == "v":
+                    try:
+                        vertices.append([float(x) for x in tokens[1:4]])
+                    except (ValueError, IndexError):
+                         print(f"警告: 忽略格式错误的顶点行: {line.strip()}")
+                elif tokens[0] == "vt" and load_texcoords:
+                    try:
+                        # OBJ format can have 1, 2, or 3 components for texcoords (u, v, w)
+                        # We primarily use u, v. Handle cases with fewer than 2.
+                        u = float(tokens[1]) if len(tokens) > 1 else 0.0
+                        v = float(tokens[2]) if len(tokens) > 2 else 0.0
+                        # Optional w = float(tokens[3]) if len(tokens) > 3 else 0.0
+                        texcoords.append([u, v])
+                    except (ValueError, IndexError):
+                         print(f"警告: 忽略格式错误的纹理坐标行: {line.strip()}")
+                elif tokens[0] == "vn" and load_normals:
+                     try:
+                        normals.append([float(x) for x in tokens[1:4]])
+                     except (ValueError, IndexError):
+                         print(f"警告: 忽略格式错误的法线行: {line.strip()}")
+                elif tokens[0] == "f":
+                    # Parse face indices (v/vt/vn)
+                    face_v, face_vt, face_vn = [], [], []
+                    valid_face = True
+                    for v_spec in tokens[1:]:
+                        parts = v_spec.split("/")
+                        try:
+                            # Vertex index (always present)
+                            v_idx = int(parts[0])
+                            # OBJ indices are 1-based, convert to 0-based
+                            face_v.append(v_idx - 1 if v_idx > 0 else len(vertices) + v_idx)
+
+                            # Texture coordinate index (optional)
+                            if load_texcoords:
+                                if len(parts) > 1 and parts[1]:
+                                    vt_idx = int(parts[1])
+                                    face_vt.append(vt_idx - 1 if vt_idx > 0 else len(texcoords) + vt_idx)
+                                else:
+                                    face_vt.append(-1) # Indicate missing texcoord index
+
+                            # Normal index (optional)
+                            if load_normals:
+                                if len(parts) > 2 and parts[2]:
+                                    vn_idx = int(parts[2])
+                                    face_vn.append(vn_idx - 1 if vn_idx > 0 else len(normals) + vn_idx)
+                                else:
+                                    face_vn.append(-1) # Indicate missing normal index
+                        except (ValueError, IndexError):
+                            print(f"警告: 忽略格式错误的面定义部分 '{v_spec}' 在行: {line.strip()}")
+                            valid_face = False
+                            break
+                    if not valid_face:
+                        continue
+
+                    # Triangulate polygons (common practice: fan triangulation from first vertex)
+                    if len(face_v) >= 3:
+                        for i in range(1, len(face_v) - 1):
+                            # Add triangle (v0, vi, vi+1)
+                            faces.append([face_v[0], face_v[i], face_v[i+1]])
+                            if load_texcoords:
+                                face_texcoord_indices.append([face_vt[0], face_vt[i], face_vt[i+1]])
+                            if load_normals:
+                                face_normal_indices.append([face_vn[0], face_vn[i], face_vn[i+1]])
+                            if load_materials:
+                                material_indices.append(current_material_name)
+                    else:
+                         print(f"警告: 忽略少于3个顶点的面: {line.strip()}")
+
+
+                elif tokens[0] == "mtllib" and load_materials:
+                    mtl_filename = " ".join(tokens[1:])
+                    mtl_path = os.path.join(obj_dir, mtl_filename)
+                    materials.update(load_mtl(mtl_path)) # Use update to merge if multiple mtllibs
+                elif tokens[0] == "usemtl" and load_materials:
+                    current_material_name = " ".join(tokens[1:])
+                    if current_material_name not in materials:
+                         print(f"警告: 使用了未在 '{mtl_filename}' 中定义的材质 '{current_material_name}'")
+                         # Optionally create a default material entry here
+                         # materials[current_material_name] = { ... default values ... }
+
+    except FileNotFoundError:
+        print(f"错误: OBJ 文件未找到: {filename}")
+        return None
+    except Exception as e:
+        print(f"错误: 读取 OBJ 文件时发生错误 {filename}: {e}")
+        return None
+
+
+    vertices_np = np.array(vertices, dtype=np.float32)
+    faces_np = np.array(faces, dtype=np.int32)
+
+    result = {
+        "vertices": vertices_np,
+        "faces": faces_np,
+    }
+
+    # --- Post-processing and Validation ---
+
+    # Texture Coordinates
+    if load_texcoords:
+        if texcoords:
+            texcoords_np = np.array(texcoords, dtype=np.float32)
+            face_texcoord_indices_np = np.array(face_texcoord_indices, dtype=np.int32)
+            # Check if any face is missing texcoord indices assigned during parsing
+            if np.any(face_texcoord_indices_np == -1):
+                 print("警告: 部分面缺少纹理坐标索引。")
+                 # Option 1: Assign default (e.g., index 0) if texcoords exist
+                 # face_texcoord_indices_np[face_texcoord_indices_np == -1] = 0
+                 # Option 2: Fallback to generating default texcoords if too many are missing
+                 # Option 3: Leave as -1 and handle downstream (e.g., disable texture for that face)
+                 # Current approach: Rely on downstream check for valid indices per face
+            result["texcoords"] = texcoords_np
+            result["face_texcoord_indices"] = face_texcoord_indices_np
+        elif vertices_np.size > 0: # Only generate if vertices exist
+            print("警告: OBJ 文件中未找到纹理坐标 (vt)，将生成默认球面映射。")
+            texcoords_np = generate_default_texcoords(vertices_np)
+            # Assign texcoord indices based on vertex indices for each face
+            # This assumes one texcoord per vertex position
+            face_texcoord_indices_np = faces_np.copy()
+            result["texcoords"] = texcoords_np
+            result["face_texcoord_indices"] = face_texcoord_indices_np
+        else: # No vertices, cannot generate texcoords
+             result["texcoords"] = np.empty((0, 2), dtype=np.float32)
+             result["face_texcoord_indices"] = np.empty((0, 3), dtype=np.int32)
+
+
+    # Normals
+    if load_normals:
+        if normals:
+            normals_np = np.array(normals, dtype=np.float32)
+            # Normalize loaded normals just in case
+            norms = np.linalg.norm(normals_np, axis=1)
+            valid_norms_mask = norms > 1e-10
+            normals_np[valid_norms_mask] /= norms[valid_norms_mask, np.newaxis]
+
+            face_normal_indices_np = np.array(face_normal_indices, dtype=np.int32)
+            if np.any(face_normal_indices_np == -1):
+                print("警告: 部分面缺少法线索引。")
+                # Handle missing indices similarly to texcoords
+            result["normals"] = normals_np
+            result["face_normal_indices"] = face_normal_indices_np
+        elif vertices_np.size > 0 and faces_np.size > 0: # Only generate if geometry exists
+            print("警告: OBJ 文件中未找到顶点法线 (vn)，将生成平滑法线。")
+            normals_np = generate_vertex_normals(vertices_np, faces_np)
+            # Assign normal indices based on vertex indices
+            face_normal_indices_np = faces_np.copy()
+            result["normals"] = normals_np
+            result["face_normal_indices"] = face_normal_indices_np
+        else: # No geometry, cannot generate normals
+            result["normals"] = np.empty((0, 3), dtype=np.float32)
+            result["face_normal_indices"] = np.empty((0, 3), dtype=np.int32)
+
+    # Materials
+    if load_materials:
+        result["materials"] = materials
+        # Ensure material_indices array has the correct length (one per output triangle face)
+        if len(material_indices) != len(faces_np):
+             print(f"警告: 材质索引数量 ({len(material_indices)}) 与三角面片数量 ({len(faces_np)}) 不匹配。可能由多边形细分引起。材质将不可靠。")
+             # Fallback: assign None or a default material index if needed downstream
+             result["material_indices"] = [None] * len(faces_np) # Or handle appropriately
+        else:
+            result["material_indices"] = material_indices # Store the list of material names
+
+    return result
+
+```
+
+**5. `texture_utils.py` (Texture Loading and Generation)**
+
+```python
+# texture_utils.py
+import numpy as np
+import os
+from PIL import Image
+from scipy import ndimage # For procedural noise generation
+
+def load_texture(texture_path, default_color=[0.7, 0.7, 0.7]):
+    """加载纹理图像文件"""
+    try:
+        if texture_path and os.path.exists(texture_path):
+            img = Image.open(texture_path).convert("RGBA")
+            # Flip texture vertically (common practice for OpenGL/graphics conventions)
+            img = img.transpose(Image.FLIP_TOP_BOTTOM)
+            # Normalize to [0, 1] float
+            texture_array = np.array(img, dtype=np.float32) / 255.0
+            print(f"成功加载纹理: {texture_path} (形状: {texture_array.shape})")
+            # Ensure minimum size if needed, although Taichi textures handle dimensions
+            if texture_array.shape[0] == 0 or texture_array.shape[1] == 0:
+                 raise ValueError("纹理尺寸无效 (0)")
+            return texture_array
+        else:
+            print(f"纹理文件未找到或未提供: {texture_path}")
+
+    except Exception as e:
+        print(f"错误: 加载纹理 '{texture_path}' 失败: {e}")
+
+    # Return a 1x1 default texture if loading fails or no path provided
+    print(f"使用 1x1 默认颜色纹理: {default_color}")
+    return np.array(
+        [[[default_color[0], default_color[1], default_color[2], 1.0]]], # RGBA
+        dtype=np.float32,
+    )
+
+
+def generate_procedural_texture(
+    texture_type="checkerboard",
+    size=512,
+    color1=[0.8, 0.8, 0.8],
+    color2=[0.2, 0.2, 0.2],
+):
+    """生成程序化纹理（优化版）"""
+    # Ensure size is positive
+    size = max(1, int(size))
+    # Prepare RGBA colors
+    color1_rgba = np.array([*color1, 1.0], dtype=np.float32)
+    color2_rgba = np.array([*color2, 1.0], dtype=np.float32)
+
+    texture = np.zeros((size, size, 4), dtype=np.float32)
+
+    if texture_type == "checkerboard":
+        # Use NumPy broadcasting to create checkerboard pattern
+        check_size = max(1, size // 8)  # Ensure check_size is at least 1
+        # Create coordinate grids
+        x, y = np.meshgrid(np.arange(size), np.arange(size), indexing='ij')
+        # Determine color based on checker index parity
+        checker_mask = ((x // check_size) % 2 == (y // check_size) % 2)
+
+        # Apply colors using the mask
+        texture[checker_mask] = color1_rgba
+        texture[~checker_mask] = color2_rgba
+
+    elif texture_type == "gradient":
+        # Create a linear gradient (e.g., vertical)
+        gradient = np.linspace(0, 1, size)[:, np.newaxis] # Shape (size, 1)
+
+        # Interpolate RGB channels based on the gradient
+        texture[..., 0] = color1[0] * (1 - gradient) + color2[0] * gradient # R
+        texture[..., 1] = color1[1] * (1 - gradient) + color2[1] * gradient # G
+        texture[..., 2] = color1[2] * (1 - gradient) + color2[2] * gradient # B
+        texture[..., 3] = 1.0 # Alpha
+
+    elif texture_type == "noise":
+        # Generate low-resolution noise and upscale smoothly
+        try:
+            from numpy.random import RandomState
+            rng = RandomState(42) # Seed for reproducibility
+            small_size = max(1, size // 8) # Base noise resolution
+            noise = rng.rand(small_size, small_size)
+
+            # Upscale using spline interpolation (order=3 for cubic, order=1 for linear)
+            zoom_factor = size / small_size
+            noise_large = ndimage.zoom(noise, zoom_factor, order=1) # Linear is faster
+
+            # Ensure the output size is exactly 'size' due to potential float precision issues
+            noise_large = noise_large[:size, :size]
+
+            # Clamp values to [0, 1] range after interpolation
+            noise_large = np.clip(noise_large, 0.0, 1.0)
+
+        except ImportError:
+            print("警告: 未找到 scipy.ndimage。使用简单的 (可能块状的) 噪声。")
+            noise_large = np.random.rand(size, size)
+
+        # Expand noise to 3D array for color blending (shape becomes size, size, 1)
+        noise_3d = noise_large[..., np.newaxis]
+
+        # Linearly interpolate between color1 and color2 based on noise intensity
+        texture[..., :3] = color1_rgba[:3] * (1 - noise_3d) + color2_rgba[:3] * noise_3d
+        texture[..., 3] = 1.0 # Alpha
+
+    else:
+        print(f"警告: 未知的程序化纹理类型 '{texture_type}'。返回默认棋盘格。")
+        # Fallback to checkerboard if type is unknown
+        return generate_procedural_texture("checkerboard", size, color1, color2)
+
+    return texture
+
+```
+
+**6. `lighting.py` (Light Position Calculation)**
+
+```python
+# lighting.py
+import numpy as np
+
+def calculate_light_position(
+    base_pos, animation_type, t, range_val, custom_params=None
+):
+    """
+    计算特定时间点 (t=0..1) 的光源位置。
+
+    Args:
+        base_pos (np.ndarray): 光源的基础位置 (x, y, z).
+        animation_type (str): 动画类型 ('none', 'vertical', 'custom', etc.).
+        t (float): 归一化时间 (0.0 到 1.0).
+        range_val (float): 动画的范围或幅度.
+        custom_params (dict, optional): 用于 'custom' 动画的表达式字典
+                                        {'x_expr': '...', 'y_expr': '...', 'z_expr': '...'}.
+
+    Returns:
+        np.ndarray: 计算得到的光源位置 (x, y, z).
+    """
+    pos = np.array(base_pos, dtype=np.float32) # Start with base position
+    pi = np.pi
+
+    if animation_type == "none":
+        return pos
+
+    # Common trigonometric calculations
+    sin_2pit = np.sin(2 * pi * t)
+    cos_2pit = np.cos(2 * pi * t)
+
+    # Apply animation based on type
+    if animation_type == "vertical":
+        pos[1] += range_val * sin_2pit
+    elif animation_type == "horizontal": # Move along X axis
+        pos[0] += range_val * sin_2pit
+    elif animation_type == "circular": # Circle in XZ plane around base_pos
+        pos[0] += range_val * sin_2pit
+        pos[2] += range_val * cos_2pit
+    elif animation_type == "pulse": # Move along Z axis, simple in-out
+        pos[2] += range_val * (1.0 - cos_2pit) / 2.0 # Range [0, range_val]
+    elif animation_type == "figure8": # Figure 8 in XY plane
+        pos[0] += range_val * sin_2pit
+        pos[1] += range_val * np.sin(4 * pi * t) / 2.0 # Double frequency for Y
+    elif animation_type == "spiral": # Spiral outwards in XY plane while moving along Z
+        radius = range_val * t # Radius increases with time
+        angle_speed = 3 # Increase for faster spiral
+        pos[0] += radius * np.sin(2 * pi * t * angle_speed)
+        pos[1] += radius * np.cos(2 * pi * t * angle_speed)
+        pos[2] += range_val * t # Move along Z as well
+    elif animation_type == "custom" and custom_params:
+        # Create a safe evaluation environment
+        # Include common math functions and constants
+        safe_globals = {"__builtins__": {}} # Restrict builtins
+        safe_locals = {
+            "t": t,
+            "pi": pi,
+            "sin": np.sin,
+            "cos": np.cos,
+            "tan": np.tan,
+            "sqrt": np.sqrt,
+            "exp": np.exp,
+            "log": np.log,
+            "abs": np.abs,
+        }
+        # Basic security check (very basic, not foolproof!)
+        harmful_keywords = ["import", "exec", "eval", "open", "__", "lambda", "compile", "file", "input"]
+
+        for i, axis in enumerate(["x", "y", "z"]):
+            expr_key = f"{axis}_expr"
+            if expr_key in custom_params and custom_params[expr_key]:
+                expr = custom_params[expr_key]
+                # Check for harmful keywords
+                if any(kw in expr for kw in harmful_keywords):
+                      print(f"错误: 在自定义表达式 '{expr_key}' 中检测到潜在不安全关键字: '{expr}'。跳过。")
+                      continue
+                try:
+                    # Evaluate the expression safely
+                    offset = range_val * eval(expr, safe_globals, safe_locals)
+                    pos[i] += float(offset) # Ensure result is float
+                except NameError as e:
+                    print(f"错误: 自定义表达式 '{expr_key}' 中存在未定义的名称: {e}")
+                except SyntaxError as e:
+                     print(f"错误: 自定义表达式 '{expr_key}' 中存在语法错误: {e}")
+                except Exception as e:
+                    print(f"错误: 评估自定义表达式 '{expr_key}' 时出错: {e}")
+            # else: Keep base position for this axis if no expression provided
+    else:
+        print(f"警告: 未知的动画类型 '{animation_type}' 或缺少自定义参数。光源位置保持不变。")
+
+    return pos
+
+```
+
+**7. `renderer.py` (Core Taichi Renderer)**
+
+```python
+# renderer.py
+import taichi as ti
+import numpy as np
+
+# --- Taichi Helper Functions (callable within kernels) ---
+@ti.func
+def barycentric_coordinates_ti(p, v1, v2, v3):
+    """计算点 p 相对于三角形 (v1, v2, v3) 的重心坐标"""
+    # 使用向量叉积计算面积
+    e1 = v2 - v1
+    e2 = v3 - v1
+    p_v1 = p - v1
+
+    # Area of the main triangle (times 2)
+    total_area_x2 = e1[0] * e2[1] - e1[1] * e2[0]
+    bary = ti.Vector([0.0, 0.0, 0.0], dt=ti.f32) # Initialize to zero
+
+    # Avoid division by zero for degenerate triangles
+    if ti.abs(total_area_x2) > 1e-9:
+        inv_total_area_x2 = 1.0 / total_area_x2
+
+        # Area of subtriangle opposite v2 (p, v3, v1) / total_area -> bary for v2 (beta)
+        area2_x2 = p_v1[0] * e2[1] - p_v1[1] * e2[0]
+        beta = area2_x2 * inv_total_area_x2
+
+        # Area of subtriangle opposite v3 (p, v1, v2) / total_area -> bary for v3 (gamma)
+        area3_x2 = e1[0] * p_v1[1] - e1[1] * p_v1[0]
+        gamma = area3_x2 * inv_total_area_x2
+
+        # Bary for v1 (alpha)
+        alpha = 1.0 - beta - gamma
+
+        bary = ti.Vector([alpha, beta, gamma], dt=ti.f32)
+
+    return bary
+
+@ti.func
+def interpolate_z_ti(bary, z1, z2, z3, is_perspective):
+    """根据重心坐标插值 Z 值 (考虑透视校正)"""
+    alpha, beta, gamma = bary[0], bary[1], bary[2]
+    interpolated_z = 0.0 # Default or error value?
+
+    # Check if barycentric coordinates are valid (within triangle)
+    # A small epsilon is useful due to floating point inaccuracies
+    epsilon = 1e-5
+    if alpha >= -epsilon and beta >= -epsilon and gamma >= -epsilon and (alpha + beta + gamma <= 1.0 + epsilon):
+        if is_perspective == 0:
+            # --- 正交投影: 线性插值 ---
+            interpolated_z = alpha * z1 + beta * z2 + gamma * z3
+        else:
+            # --- 透视投影: 透视校正插值 ---
+            # z = 1 / (alpha/z1 + beta/z2 + gamma/z3)
+            # Note: Here z1, z2, z3 are view space Z coordinates (typically negative)
+            # We store 1/z (or 1/w) in screen space for perspective correct interpolation.
+            # However, the input z_values here are typically the original view space Z.
+            # Let's assume z1, z2, z3 are the original view space Z values.
+            # We need to interpolate 1/z perspective-correctly.
+            inv_z1 = 1.0 / z1 if ti.abs(z1) > 1e-9 else 0.0 # Handle division by zero
+            inv_z2 = 1.0 / z2 if ti.abs(z2) > 1e-9 else 0.0
+            inv_z3 = 1.0 / z3 if ti.abs(z3) > 1e-9 else 0.0
+
+            interpolated_inv_z = alpha * inv_z1 + beta * inv_z2 + gamma * inv_z3
+
+            if ti.abs(interpolated_inv_z) > 1e-9:
+                interpolated_z = 1.0 / interpolated_inv_z
+            else:
+                # Handle case where interpolated 1/z is zero (point at infinity?)
+                # Or fallback to linear interpolation if perspective correction fails
+                interpolated_z = alpha * z1 + beta * z2 + gamma * z3
+                # Alternatively, mark as invalid? return float('inf') ?
+
+        # Taichi z-buffer typically stores positive depth values,
+        # while view space Z is negative. Negate the result for comparison.
+        return -interpolated_z
+    else:
+        # Point is outside the triangle based on barycentric coords
+        return float('inf') # Return infinity for points outside
+
+
+# --- Triangle Renderer Class ---
+@ti.data_oriented
+class TriangleRenderer:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        # Depth buffer: stores the *negative* of the view space Z (closer points have smaller positive values)
+        self.depth_buffer = ti.field(dtype=ti.f32, shape=(height, width))
+        # Color buffer: stores RGB color values [0, 1]
+        self.color_buffer = ti.Vector.field(3, dtype=ti.f32, shape=(height, width))
+        self.clear_buffers()
+
+    @ti.kernel
+    def clear_buffers(self):
+        """重置颜色和深度缓冲区"""
+        for i, j in self.depth_buffer:
+            self.depth_buffer[i, j] = float("inf") # Initialize depth to positive infinity
+            self.color_buffer[i, j] = ti.Vector([0.0, 0.0, 0.0]) # Initialize color to black
+
+    @ti.kernel
+    def render_triangles_unified_without_texture(
+        self,
+        vertices_x: ti.types.ndarray(), # Pixel space X
+        vertices_y: ti.types.ndarray(), # Pixel space Y
+        faces: ti.types.ndarray(),      # Face indices (n_faces, 3)
+        z_values: ti.types.ndarray(),   # Original view space Z for vertices (usually negative)
+        colors_r: ti.types.ndarray(),   # Per-face color R [0,1] (n_faces,)
+        colors_g: ti.types.ndarray(),   # Per-face color G [0,1] (n_faces,)
+        colors_b: ti.types.ndarray(),   # Per-face color B [0,1] (n_faces,)
+        face_count: ti.i32,
+        is_perspective: ti.i32,         # 1 if perspective, 0 if orthographic
+        use_zbuffer: ti.i32,            # 1 if z-buffer test enabled, 0 otherwise
+    ) -> ti.i32:
+        """Taichi kernel for rendering triangles without textures."""
+        valid_triangles_rendered = 0
+        ti.loop_config(block_dim=128) # Optimize GPU execution config
+
+        for face_idx in range(face_count):
+            # 1. Get triangle vertex indices
+            i0, i1, i2 = faces[face_idx, 0], faces[face_idx, 1], faces[face_idx, 2]
+
+            # 2. Get vertex positions in pixel space
+            v1_pix = ti.Vector([vertices_x[i0], vertices_y[i0]], dt=ti.f32)
+            v2_pix = ti.Vector([vertices_x[i1], vertices_y[i1]], dt=ti.f32)
+            v3_pix = ti.Vector([vertices_x[i2], vertices_y[i2]], dt=ti.f32)
+
+            # 3. Get original view space Z values (needed for interpolation)
+            z1_view, z2_view, z3_view = z_values[i0], z_values[i1], z_values[i2]
+
+            # 4. Get face color
+            face_color = ti.Vector([colors_r[face_idx], colors_g[face_idx], colors_b[face_idx]], dt=ti.f32)
+
+            # 5. Calculate bounding box in pixel coordinates
+            min_x = ti.max(0, ti.floor(ti.min(v1_pix[0], v2_pix[0], v3_pix[0])))
+            min_y = ti.max(0, ti.floor(ti.min(v1_pix[1], v2_pix[1], v3_pix[1])))
+            max_x = ti.min(self.width, ti.ceil(ti.max(v1_pix[0], v2_pix[0], v3_pix[0])))
+            max_y = ti.min(self.height, ti.ceil(ti.max(v1_pix[1], v2_pix[1], v3_pix[1])))
+
+            # 6. Calculate triangle area (for early culling of degenerate triangles)
+            area_x2 = ti.abs((v2_pix[0] - v1_pix[0]) * (v3_pix[1] - v1_pix[1]) - (v3_pix[0] - v1_pix[0]) * (v2_pix[1] - v1_pix[1]))
+
+            # Optimization: Cull very small or degenerate triangles quickly
+            # Also cull if bounding box is invalid
+            if area_x2 < 1e-3 or max_x <= min_x or max_y <= min_y:
+                # Optional: Handle very small triangles by drawing their center?
+                # (Could be useful for point clouds or distant objects)
+                # For now, just skip them.
+                continue # Skip this face
+
+            # 7. Rasterization loop
+            pixels_filled = 0
+            # Iterate over pixels in the bounding box
+            # Use ti.i32() for range casting
+            for y in range(ti.i32(min_y), ti.i32(max_y)):
+                for x in range(ti.i32(min_x), ti.i32(max_x)):
+                    # Pixel center
+                    p = ti.Vector([ti.f32(x) + 0.5, ti.f32(y) + 0.5], dt=ti.f32)
+
+                    # Calculate barycentric coordinates for the pixel center
+                    bary = barycentric_coordinates_ti(p, v1_pix, v2_pix, v3_pix)
+
+                    # Check if the pixel center is inside the triangle (with tolerance)
+                    epsilon = 1e-5
+                    if bary[0] >= -epsilon and bary[1] >= -epsilon and bary[2] >= -epsilon and (bary[0] + bary[1] + bary[2] <= 1.0 + epsilon):
+
+                        # Interpolate depth (Z) using original view space Z values
+                        # Result is positive depth value for buffer comparison
+                        interpolated_depth = interpolate_z_ti(bary, z1_view, z2_view, z3_view, is_perspective)
+
+                        # Check if depth is valid (not inf)
+                        if interpolated_depth != float('inf'):
+                            # Z-Buffer Test (if enabled)
+                            # Compare interpolated_depth with existing depth in buffer
+                            # Use ti.atomic_min for safe concurrent writes from different threads
+                            if use_zbuffer == 0 or interpolated_depth < self.depth_buffer[y, x]:
+                                old_depth = ti.atomic_min(self.depth_buffer[y, x], interpolated_depth)
+                                # Ensure we were the thread that successfully updated the depth
+                                if old_depth > interpolated_depth: # Check avoids race condition if atomic_min isn't perfect? Or just ensures write.
+                                # if self.depth_buffer[y, x] == interpolated_depth: # Alternative check if atomic_min guarantees return of *old* value
+                                    self.color_buffer[y, x] = face_color
+                                    pixels_filled += 1
+
+            # If any pixels were filled for this triangle, increment the counter
+            if pixels_filled > 0:
+                valid_triangles_rendered += 1
+
+        return valid_triangles_rendered
+
+
+    @ti.kernel
+    def render_triangles_unified_with_texture(
+        self,
+        vertices_x: ti.types.ndarray(), # Pixel space X
+        vertices_y: ti.types.ndarray(), # Pixel space Y
+        faces: ti.types.ndarray(),      # Face vertex indices (n_faces, 3)
+        z_values: ti.types.ndarray(),   # Original view space Z for vertices
+        # colors_r: ti.types.ndarray(), # Base color (might be modulated by texture)
+        # colors_g: ti.types.ndarray(),
+        # colors_b: ti.types.ndarray(),
+        face_count: ti.i32,
+        is_perspective: ti.i32,
+        use_zbuffer: ti.i32,
+        # --- Texture specific arguments ---
+        texcoords_u: ti.types.ndarray(), # Texcoords U for all unique texcoords
+        texcoords_v: ti.types.ndarray(), # Texcoords V for all unique texcoords
+        face_texcoord_indices: ti.types.ndarray(), # Indices into texcoords_u/v per face vertex (n_faces, 3)
+        texture: ti.types.ndarray(element_dim=1), # Texture data (h, w, 4) passed as ndarray
+        texture_width: ti.i32,
+        texture_height: ti.i32,
+    ) -> ti.i32:
+        """Taichi kernel for rendering triangles with textures."""
+        valid_triangles_rendered = 0
+        ti.loop_config(block_dim=128)
+
+        for face_idx in range(face_count):
+            # 1. Get triangle vertex indices
+            i0, i1, i2 = faces[face_idx, 0], faces[face_idx, 1], faces[face_idx, 2]
+
+            # 2. Get vertex positions in pixel space
+            v1_pix = ti.Vector([vertices_x[i0], vertices_y[i0]], dt=ti.f32)
+            v2_pix = ti.Vector([vertices_x[i1], vertices_y[i1]], dt=ti.f32)
+            v3_pix = ti.Vector([vertices_x[i2], vertices_y[i2]], dt=ti.f32)
+
+            # 3. Get original view space Z values
+            z1_view, z2_view, z3_view = z_values[i0], z_values[i1], z_values[i2]
+
+            # 4. Get texture coordinate indices for this face's vertices
+            ti0, ti1, ti2 = (
+                face_texcoord_indices[face_idx, 0],
+                face_texcoord_indices[face_idx, 1],
+                face_texcoord_indices[face_idx, 2],
+            )
+            # Check for invalid texture indices (e.g., -1 from loader)
+            if ti0 < 0 or ti1 < 0 or ti2 < 0:
+                 continue # Skip faces without valid texture coordinates
+
+            # 5. Get texture coordinates (U, V) for the vertices
+            tc1 = ti.Vector([texcoords_u[ti0], texcoords_v[ti0]], dt=ti.f32)
+            tc2 = ti.Vector([texcoords_u[ti1], texcoords_v[ti1]], dt=ti.f32)
+            tc3 = ti.Vector([texcoords_u[ti2], texcoords_v[ti2]], dt=ti.f32)
+
+            # 6. Calculate bounding box
+            min_x = ti.max(0, ti.floor(ti.min(v1_pix[0], v2_pix[0], v3_pix[0])))
+            min_y = ti.max(0, ti.floor(ti.min(v1_pix[1], v2_pix[1], v3_pix[1])))
+            max_x = ti.min(self.width, ti.ceil(ti.max(v1_pix[0], v2_pix[0], v3_pix[0])))
+            max_y = ti.min(self.height, ti.ceil(ti.max(v1_pix[1], v2_pix[1], v3_pix[1])))
+
+            # 7. Calculate triangle area for early culling
+            area_x2 = ti.abs((v2_pix[0] - v1_pix[0]) * (v3_pix[1] - v1_pix[1]) - (v3_pix[0] - v1_pix[0]) * (v2_pix[1] - v1_pix[1]))
+            if area_x2 < 1e-3 or max_x <= min_x or max_y <= min_y:
+                continue
+
+            # 8. Rasterization loop
+            pixels_filled = 0
+            for y in range(ti.i32(min_y), ti.i32(max_y)):
+                for x in range(ti.i32(min_x), ti.i32(max_x)):
+                    p = ti.Vector([ti.f32(x) + 0.5, ti.f32(y) + 0.5], dt=ti.f32)
+                    bary = barycentric_coordinates_ti(p, v1_pix, v2_pix, v3_pix)
+
+                    # Check if inside triangle
+                    epsilon = 1e-5
+                    if bary[0] >= -epsilon and bary[1] >= -epsilon and bary[2] >= -epsilon and (bary[0] + bary[1] + bary[2] <= 1.0 + epsilon):
+
+                        # Interpolate depth
+                        interpolated_depth = interpolate_z_ti(bary, z1_view, z2_view, z3_view, is_perspective)
+
+                        if interpolated_depth != float('inf'):
+                             # Z-Buffer Test
+                            if use_zbuffer == 0 or interpolated_depth < self.depth_buffer[y, x]:
+                                # Interpolate texture coordinates (perspective correct)
+                                # We need to interpolate U/Z, V/Z, 1/Z
+                                inv_z1 = 1.0 / z1_view if ti.abs(z1_view) > 1e-9 else 0.0
+                                inv_z2 = 1.0 / z2_view if ti.abs(z2_view) > 1e-9 else 0.0
+                                inv_z3 = 1.0 / z3_view if ti.abs(z3_view) > 1e-9 else 0.0
+
+                                interpolated_inv_z = bary[0] * inv_z1 + bary[1] * inv_z2 + bary[2] * inv_z3
+
+                                if ti.abs(interpolated_inv_z) > 1e-9:
+                                    # Perspective correct interpolation for U and V
+                                    interp_u = (bary[0] * tc1[0] * inv_z1 + bary[1] * tc2[0] * inv_z2 + bary[2] * tc3[0] * inv_z3) / interpolated_inv_z
+                                    interp_v = (bary[0] * tc1[1] * inv_z1 + bary[1] * tc2[1] * inv_z2 + bary[2] * tc3[1] * inv_z3) / interpolated_inv_z
+                                else:
+                                    # Fallback to linear interpolation if perspective correction fails
+                                    interp_u = bary[0] * tc1[0] + bary[1] * tc2[0] + bary[2] * tc3[0]
+                                    interp_v = bary[0] * tc1[1] + bary[1] * tc2[1] + bary[2] * tc3[1]
+
+                                # Texture sampling (using nearest neighbor for simplicity)
+                                # Apply texture coordinate wrapping (e.g., repeat)
+                                sample_u = interp_u % 1.0
+                                sample_v = interp_v % 1.0
+                                # Handle potential negative results from modulo
+                                if sample_u < 0.0: sample_u += 1.0
+                                if sample_v < 0.0: sample_v += 1.0
+
+                                # Convert normalized UVs to texture pixel coordinates
+                                tex_x = ti.i32(sample_u * (texture_width -1)) # Use width-1 for index
+                                tex_y = ti.i32((1.0 - sample_v) * (texture_height -1)) # Flip V coord (common convention)
+
+                                # Clamp coordinates to be safe
+                                tex_x = ti.max(0, ti.min(texture_width - 1, tex_x))
+                                tex_y = ti.max(0, ti.min(texture_height - 1, tex_y))
+
+                                # Sample the texture (assuming texture is Ndarray(element_dim=1))
+                                # texel = texture[tex_y, tex_x] # This gives a Vector(4)
+                                tex_index = tex_y * texture_width + tex_x
+                                texel = texture[tex_index] # Access flat texture data if needed, or use 2D indexing if passed correctly
+
+                                # Update depth buffer and color buffer atomically
+                                old_depth = ti.atomic_min(self.depth_buffer[y, x], interpolated_depth)
+                                if old_depth > interpolated_depth:
+                                    # Use texture color (first 3 components RGB)
+                                    self.color_buffer[y, x] = ti.Vector([texel[0], texel[1], texel[2]])
+                                    # Optional: Modulate with base color? self.color_buffer[y, x] = base_color * texel.rgb
+                                    pixels_filled += 1
+
+            if pixels_filled > 0:
+                valid_triangles_rendered += 1
+
+        return valid_triangles_rendered
+
+    def render_triangles_unified(
+        self,
+        vertices_x,
+        vertices_y,
+        faces,
+        z_values, # View space Z
+        colors_r, # Base color R (used if no texture or for modulation)
+        colors_g, # Base color G
+        colors_b, # Base color B
+        face_count,
+        is_perspective,
+        use_zbuffer,
+        # Texture related args (can be None)
+        use_texture=False,
+        texcoords_u=None,
+        texcoords_v=None,
+        face_texcoord_indices=None,
+        texture_data=None, # NumPy array (h, w, 4)
+    ):
+        """
+        Dispatches rendering to the appropriate Taichi kernel based on texture usage.
+        Handles data preparation for the texture kernel.
+        """
+        if (
+            use_texture
+            and texcoords_u is not None
+            and texcoords_v is not None
+            and face_texcoord_indices is not None
+            and texture_data is not None
+            and texture_data.shape[0] > 0 # Height > 0
+            and texture_data.shape[1] > 0 # Width > 0
+            and texture_data.shape[2] == 4 # RGBA
+        ):
+            texture_height, texture_width, _ = texture_data.shape
+
+            # --- Prepare Texture Data for Taichi ---
+            # Taichi ndarray expects a specific layout.
+            # If element_dim=1, it expects (H, W, C) but accessed linearly or via ti.Vector.
+            # Create a Taichi Vector field or pass Ndarray directly. Ndarray is usually easier.
+            # Ensure texture_data is contiguous in memory if needed
+            texture_data_cont = np.ascontiguousarray(texture_data)
+            # Pass texture data as ndarray to the kernel
+            # texture_ti = ti.Vector.field(4, dtype=ti.f32, shape=(texture_height, texture_width))
+            # texture_ti.from_numpy(texture_data)
+
+            # Ensure index arrays are not empty if provided
+            if face_texcoord_indices.size == 0:
+                 print("警告: 提供了纹理但 face_texcoord_indices 为空。禁用纹理。")
+                 use_texture = False # Fallback if indices are missing
+
+        # --- Kernel Dispatch ---
+        if use_texture:
+             print("使用纹理渲染内核")
+             return self.render_triangles_unified_with_texture(
+                vertices_x,
+                vertices_y,
+                faces,
+                z_values,
+                # colors_r, # Pass base colors if you want to modulate later
+                # colors_g,
+                # colors_b,
+                face_count,
+                is_perspective,
+                use_zbuffer,
+                texcoords_u,
+                texcoords_v,
+                face_texcoord_indices,
+                texture_data_cont, # Pass the numpy array directly
+                texture_width,
+                texture_height,
+            )
+        else:
+            print("使用无纹理渲染内核")
+            return self.render_triangles_unified_without_texture(
+                vertices_x,
+                vertices_y,
+                faces,
+                z_values,
+                colors_r,
+                colors_g,
+                colors_b,
+                face_count,
+                is_perspective,
+                use_zbuffer,
+            )
+
+
+    def get_color_array(self):
+        """获取颜色缓冲区的 NumPy 数组"""
+        return self.color_buffer.to_numpy()
+
+    def get_depth_array(self):
+        """获取深度缓冲区的 NumPy 数组"""
+        # Remember depth buffer stores positive values, closer is smaller
+        depth_np = self.depth_buffer.to_numpy()
+        # Convert infinite values back to NaN or keep as inf? NaN might be better for processing.
+        # depth_np[np.isinf(depth_np)] = np.nan
+        return depth_np
+
+```
+
+**8. `main.py` (Main Script - Orchestration)**
+
+```python
+# main.py
+import numpy as np
+import os
+import argparse
+import time
+import taichi as ti
+from PIL import Image
+import gc
+from scipy import ndimage # For depth map median filter
+
+# --- Import from local modules ---
+from args_setup import setup_parser
+from renderer import TriangleRenderer
+from loaders import load_obj_enhanced
+from texture_utils import load_texture, generate_procedural_texture
+from transformations import (
+    ndc_to_pixel,
+    rotate_model,
+    orthographic_projection,
+    perspective_projection,
+)
+from color_utils import get_face_color, apply_colormap_jet
+from lighting import calculate_light_position
+
+
+# --- Taichi Initialization ---
+# Initialize Taichi once when the script starts
+try:
+    ti.init(arch=ti.gpu, device_memory_fraction=0.8, log_level=ti.INFO)
+    print("Taichi initialized on GPU.")
+except Exception as e:
+    print(f"GPU initialization failed: {e}. Trying CPU...")
+    try:
+        ti.init(arch=ti.cpu, log_level=ti.INFO)
+        print("Taichi initialized on CPU.")
+    except Exception as e_cpu:
+         print(f"CPU initialization also failed: {e_cpu}")
+         exit(1)
+
+
+# --- Main Rendering Function ---
+def render_model(
+    # Model data
+    vertices,
+    faces,
+    texcoords=None,
+    face_texcoord_indices=None,
+    normals=None,
+    face_normal_indices=None,
+    materials=None,
+    material_indices=None, # List of material names per face
+    # Render settings
+    width,
+    height,
+    projection="perspective",
+    use_zbuffer=True,
+    angle=0, # Rotation angle for model animation
+    focal_length=2.0,
+    # Output settings
+    model_name="model",
+    output_dir="output",
+    colorize=False,
+    render_depth=True,
+    depth_range_percentile=(1, 99),
+    # Texture settings
+    texture_data=None, # Pre-loaded numpy texture array
+    use_texture=False,
+    # Lighting settings
+    use_lighting=True,
+    light_model="blinn-phong",
+    ambient=0.2,
+    diffuse=0.6,
+    specular=0.2,
+    shininess=32.0,
+    light_type="directional",
+    light_dir=None, # Directional light vector
+    light_pos=None, # Point light position
+    light_attenuation=(1.0, 0.09, 0.032),
+):
+    """
+    Renders the loaded model data with specified settings.
+    Handles vertex processing, lighting, calling the Taichi renderer, and saving output.
+    """
+    start_time = time.time()
+    os.makedirs(output_dir, exist_ok=True)
+    color_dir = os.path.join(output_dir, "color")
+    depth_dir = os.path.join(output_dir, "depth")
+    os.makedirs(color_dir, exist_ok=True)
+    if render_depth and use_zbuffer:
+        os.makedirs(depth_dir, exist_ok=True)
+
+    print("-" * 20)
+    print(f"开始渲染: {model_name} (角度: {angle}°, 投影: {projection})")
+    print(f"设置: 纹理={'启用' if use_texture else '禁用'}, 光照={'启用' if use_lighting else '禁用'}, ZBuffer={'启用' if use_zbuffer else '禁用'}")
+
+    if vertices is None or faces is None or vertices.size == 0 or faces.size == 0:
+        print("错误: 顶点或面数据无效或为空。无法渲染。")
+        return None, None
+
+    # --- 1. Vertex Processing ---
+    # a. Rotate (Model space)
+    rotated_vertices = rotate_model(vertices.astype(np.float64), angle).astype(np.float32) # Use higher precision for rotation
+
+    # b. Normalize and Center (World space / View space preparation)
+    # Move model to origin, scale to fit roughly within NDC cube later
+    center = np.mean(rotated_vertices, axis=0)
+    rotated_vertices -= center
+    max_extent = np.max(np.abs(rotated_vertices))
+    if max_extent > 1e-6:
+        rotated_vertices /= (max_extent / 0.8) # Scale to fit approx [-0.8, 0.8]
+
+    # c. Position in front of camera (View space Z adjustment)
+    # Ensure the model is in front of the near plane (z < 0)
+    min_z = np.min(rotated_vertices[:, 2])
+    # Push the model away along negative Z
+    # The amount depends on projection type and desired view
+    z_offset = -min_z + 1.0 # Simple offset based on front-most point + buffer distance
+    if projection == "perspective":
+         z_offset += focal_length # Push further for perspective to avoid near clipping
+    rotated_vertices[:, 2] -= z_offset
+    print(f"模型中心: {center}, 缩放因子: {0.8/max_extent:.3f}, Z偏移: {z_offset:.3f}")
+    print(f"视图空间 Z 范围: [{np.min(rotated_vertices[:, 2]):.3f}, {np.max(rotated_vertices[:, 2]):.3f}]")
+
+
+    # d. Projection (to NDC space)
+    is_perspective = projection == "perspective"
+    projected_vertices = (
+        perspective_projection(rotated_vertices, focal_length)
+        if is_perspective
+        else orthographic_projection(rotated_vertices)
+    )
+
+    # e. Viewport Transform (NDC to Pixel space)
+    pixel_vertices = ndc_to_pixel(projected_vertices, width, height)
+
+    # --- 2. Prepare Data for Renderer ---
+    renderer = TriangleRenderer(width, height) # Create renderer instance
+
+    # Extract data needed by Taichi kernels
+    vertices_x_ti = pixel_vertices[:, 0].astype(np.float32)
+    vertices_y_ti = pixel_vertices[:, 1].astype(np.float32)
+    # IMPORTANT: Pass the VIEW SPACE Z values to the kernel for interpolation
+    z_values_ti = rotated_vertices[:, 2].astype(np.float32)
+
+    n_faces = len(faces)
+    face_colors_r = np.zeros(n_faces, dtype=np.float32)
+    face_colors_g = np.zeros(n_faces, dtype=np.float32)
+    face_colors_b = np.zeros(n_faces, dtype=np.float32)
+
+    # --- 3. Face Processing (Color determination, Lighting) ---
+    print("处理面片颜色和光照...")
+    valid_material_map = isinstance(materials, dict)
+    valid_material_indices = isinstance(material_indices, list) and len(material_indices) == n_faces
+
+    # Normalize light direction if provided
+    if use_lighting and light_type == "directional" and light_dir is not None:
+        norm = np.linalg.norm(light_dir)
+        if norm > 1e-6:
+            light_direction_normalized = -light_dir / norm # Direction *towards* the light source
+        else:
+            light_direction_normalized = np.array([0.0, 0.0, -1.0], dtype=np.float32) # Default fallback
+    else:
+         light_direction_normalized = np.array([0.0, 0.0, -1.0], dtype=np.float32) # Default for non-directional or missing
+
+    # Camera view direction (simplified: assumes camera at origin looking down -Z)
+    view_dir = np.array([0.0, 0.0, 1.0], dtype=np.float32)
+
+    # Pre-calculate light attenuation factors
+    att_const, att_linear, att_quad = light_attenuation
+
+    # Process each face
+    for idx in range(n_faces):
+        face = faces[idx]
+        # Get base color (from random, material, or default)
+        base_color = get_face_color(idx, colorize) # Start with random/default
+
+        # Try getting color from material if available
+        if not colorize and valid_material_map and valid_material_indices:
+            mat_name = material_indices[idx]
+            if mat_name and mat_name in materials:
+                material = materials[mat_name]
+                if "Kd" in material: # Use diffuse color from material
+                    base_color = np.array(material["Kd"], dtype=np.float32)
+                # Could also use Ka for ambient base color if needed
+
+        # --- Apply Lighting (if enabled) ---
+        final_color = base_color
+        if use_lighting and normals is not None and face_normal_indices is not None:
+            # Get vertex normals for the face
+            try:
+                n_indices = face_normal_indices[idx]
+                # Ensure indices are valid
+                if np.all(n_indices >= 0) and np.all(n_indices < len(normals)):
+                     # Smooth shading: Average vertex normals (approximation at face center)
+                     # For better quality, compute lighting per vertex and interpolate color
+                    face_normal = np.mean(normals[n_indices], axis=0)
+                    norm = np.linalg.norm(face_normal)
+                    if norm > 1e-6:
+                        face_normal /= norm
+                    else:
+                        face_normal = np.array([0.0, 0.0, 1.0]) # Default if degenerate
+                else:
+                    # print(f"警告: 面 {idx} 的法线索引无效: {n_indices}。使用默认法线。")
+                    face_normal = np.array([0.0, 0.0, 1.0]) # Default normal
+            except IndexError:
+                # print(f"警告: 面 {idx} 的法线索引越界。使用默认法线。")
+                face_normal = np.array([0.0, 0.0, 1.0])
+
+            # Get face center in view space for point light calculations
+            face_center_view = np.mean(rotated_vertices[face], axis=0)
+
+            # --- Calculate Lighting Components ---
+            # 1. Ambient Component
+            ambient_comp = ambient * base_color
+
+            # 2. Diffuse and Specular Components (depend on light type)
+            diffuse_comp = np.zeros(3, dtype=np.float32)
+            specular_comp = np.zeros(3, dtype=np.float32)
+            current_light_dir = light_direction_normalized # Default for directional
+            attenuation = 1.0 # Default for directional
+
+            if light_type == "point" and light_pos is not None:
+                # Calculate direction from face center *to* light source
+                light_vec = light_pos - face_center_view
+                distance = np.linalg.norm(light_vec)
+                if distance > 1e-6:
+                    current_light_dir = light_vec / distance
+                    # Calculate attenuation for point light
+                    attenuation = 1.0 / (att_const + att_linear * distance + att_quad * (distance**2))
+                    attenuation = max(0.0, attenuation) # Ensure non-negative
+                else:
+                    current_light_dir = np.array([0,0,1]) # Avoid division by zero
+                    attenuation = 1.0 # Max intensity if at the exact point
+
+            # Calculate Diffuse term (Lambertian)
+            # N dot L (use max to clamp negative values)
+            N_dot_L = max(0.0, np.dot(face_normal, current_light_dir))
+            diffuse_comp = diffuse * N_dot_L * base_color
+
+            # Calculate Specular term
+            spec_strength = 0.0
+            if N_dot_L > 0: # Only calculate specular if light hits the surface
+                if light_model.lower() == "phong":
+                    # R = 2 * (N dot L) * N - L
+                    reflect_dir = 2.0 * N_dot_L * face_normal - current_light_dir
+                    # V dot R (V is view direction)
+                    V_dot_R = max(0.0, np.dot(view_dir, reflect_dir))
+                    spec_strength = np.power(V_dot_R, shininess)
+                else: # Default to Blinn-Phong
+                    # H = normalize(L + V)
+                    halfway_dir = current_light_dir + view_dir
+                    norm_H = np.linalg.norm(halfway_dir)
+                    if norm_H > 1e-6:
+                        halfway_dir /= norm_H
+                        # N dot H
+                        N_dot_H = max(0.0, np.dot(face_normal, halfway_dir))
+                        spec_strength = np.power(N_dot_H, shininess)
+
+            # Use white specular color highlight by default
+            specular_comp = specular * spec_strength * np.array([1.0, 1.0, 1.0])
+
+            # Combine components with attenuation and clamp
+            final_color = ambient_comp + attenuation * (diffuse_comp + specular_comp)
+            final_color = np.clip(final_color, 0.0, 1.0)
+
+        # Store final color for the face
+        face_colors_r[idx] = final_color[0]
+        face_colors_g[idx] = final_color[1]
+        face_colors_b[idx] = final_color[2]
+
+    # --- 4. Perform Rendering with Taichi ---
+    print("调用 Taichi 渲染内核...")
+    kernel_start_time = time.time()
+
+    # Prepare texture data for the unified renderer function
+    tex_args = {}
+    if use_texture:
+         # Check if necessary texture data components are available
+         if (texcoords is not None and face_texcoord_indices is not None and
+             texcoords.size > 0 and face_texcoord_indices.size > 0 and
+             texture_data is not None and texture_data.size > 0):
+             tex_args = {
+                 "use_texture": True,
+                 "texcoords_u": texcoords[:, 0].astype(np.float32),
+                 "texcoords_v": texcoords[:, 1].astype(np.float32),
+                 "face_texcoord_indices": face_texcoord_indices.astype(np.int32),
+                 "texture_data": texture_data.astype(np.float32), # Already loaded/generated
+             }
+         else:
+             print("警告: 纹理已启用，但缺少纹理坐标、索引或数据。将禁用纹理渲染。")
+             use_texture = False # Force disable if data is missing
+             tex_args["use_texture"] = False
+
+
+    valid_triangle_count = renderer.render_triangles_unified(
+        vertices_x=vertices_x_ti,
+        vertices_y=vertices_y_ti,
+        faces=faces.astype(np.int32), # Ensure int32 for Taichi
+        z_values=z_values_ti,         # View space Z
+        colors_r=face_colors_r,       # Calculated face colors (R)
+        colors_g=face_colors_g,       # Calculated face colors (G)
+        colors_b=face_colors_b,       # Calculated face colors (B)
+        face_count=n_faces,
+        is_perspective=1 if is_perspective else 0,
+        use_zbuffer=1 if use_zbuffer else 0,
+        **tex_args # Pass texture arguments dictionary
+    )
+    ti.sync() # Ensure kernel finishes before proceeding
+    kernel_end_time = time.time()
+    print(f"Taichi 内核执行时间: {kernel_end_time - kernel_start_time:.3f} 秒")
+
+
+    # --- 5. Post-processing and Saving ---
+    print("后处理和保存图像...")
+    color_buffer = renderer.get_color_array()
+    depth_buffer = renderer.get_depth_array() if use_zbuffer else None
+    total_render_time = time.time() - start_time
+    print(
+        f"渲染了 {valid_triangle_count}/{n_faces} 个有效三角形"
+        f" (总时间: {total_render_time:.2f} 秒)"
+    )
+
+    # Save color image
+    # Convert float [0, 1] buffer to uint8 [0, 255]
+    img_array = (np.clip(color_buffer, 0.0, 1.0) * 255).astype(np.uint8)
+    img = Image.fromarray(img_array, 'RGB') # Assuming RGB format
+    color_path = os.path.join(color_dir, f"{model_name}.png")
+    try:
+        img.save(color_path)
+        print(f"保存彩色图像: {color_path}")
+    except Exception as e:
+        print(f"错误：无法保存彩色图像到 {color_path}: {e}")
+
+    # Save depth image (if enabled and buffer exists)
+    depth_path = None
+    if use_zbuffer and render_depth and depth_buffer is not None:
+        # Process depth buffer: normalize and colorize
+        # Replace inf with NaN for percentile calculation
+        finite_depth = np.where(np.isinf(depth_buffer), np.nan, depth_buffer)
+        mask_valid = ~np.isnan(finite_depth)
+
+        if np.any(mask_valid):
+            valid_depths = finite_depth[mask_valid]
+            # Use robust percentiles to determine normalization range
+            min_depth = float(np.percentile(valid_depths, depth_range_percentile[0]))
+            max_depth = float(np.percentile(valid_depths, depth_range_percentile[1]))
+
+            # Avoid division by zero if range is too small
+            if abs(max_depth - min_depth) < 1e-6:
+                max_depth = min_depth + 1.0 # Create a small range
+
+            depth_range = max_depth - min_depth
+            print(f"深度范围 (百分位 {depth_range_percentile[0]}-{depth_range_percentile[1]}): [{min_depth:.3f}, {max_depth:.3f}]")
+
+
+            # Normalize depth values within the calculated range [0, 1]
+            # Clamp values outside the percentile range
+            normalized_depth = np.full_like(finite_depth, np.nan) # Start with NaN
+            normalized_depth[mask_valid] = (finite_depth[mask_valid] - min_depth) / depth_range
+            normalized_depth = np.clip(normalized_depth, 0.0, 1.0) # Clip to [0, 1]
+
+            # Fill NaN values (original infinities or outside range) with a default (e.g., 1.0 for farthest)
+            normalized_depth = np.nan_to_num(normalized_depth, nan=1.0)
+
+            # Optional: Apply median filter to reduce noise/aliasing in depth map
+            filter_size = 2
+            normalized_depth = ndimage.median_filter(normalized_depth, size=filter_size)
+
+            # Apply colormap (invert: closer is hotter/brighter -> 1.0 - normalized)
+            depth_colored = apply_colormap_jet(1.0 - normalized_depth)
+
+            depth_img = Image.fromarray(depth_colored, 'RGB')
+            depth_path = os.path.join(depth_dir, f"{model_name}.png")
+            try:
+                depth_img.save(depth_path)
+                print(f"保存深度图: {depth_path}")
+            except Exception as e:
+                print(f"错误：无法保存深度图像到 {depth_path}: {e}")
+        else:
+            print("深度缓冲区中没有有效值，跳过深度图生成。")
+
+    # --- Cleanup ---
+    del renderer # Explicitly delete renderer object if needed
+    gc.collect() # Suggest garbage collection
+    print("-" * 20)
+
+    return color_path, depth_path
+
+
+# --- Main Execution Block ---
+if __name__ == "__main__":
+    # --- Check Dependencies ---
+    try:
+        import numpy
+        import taichi
+        from PIL import Image
+        from scipy import ndimage
+    except ImportError as e:
+        print(f"错误: 缺少必要的 Python 库: {e}")
+        print("请运行: pip install numpy taichi Pillow scipy")
+        exit(1)
+
+    # --- Parse Arguments ---
+    parser = setup_parser()
+    args = parser.parse_args()
+
+    # --- Validate Inputs ---
+    if not os.path.exists(args.obj):
+        print(f"错误: OBJ 文件未找到: {args.obj}")
+        exit(1)
+
+    # --- Load Model ---
+    print(f"加载模型: {args.obj}")
+    model_data = load_obj_enhanced(
+        args.obj,
+        load_texcoords=not args.no_texture,
+        load_normals=not args.no_lighting,  # Normals needed for lighting
+        load_materials=(not args.no_materials and not args.colorize), # Load materials if needed and not overridden by colorize
+    )
+    if model_data is None:
+        print("模型加载失败。")
+        exit(1)
+
+
+    # --- Load or Generate Texture ---
+    texture_data = None
+    use_texture_flag = not args.no_texture
+    if use_texture_flag:
+        if args.texture: # Prioritize loading texture from file
+            texture_data = load_texture(args.texture)
+            if texture_data is None or texture_data.shape[0] <= 1 or texture_data.shape[1] <= 1:
+                 print("警告: 从文件加载纹理失败或纹理无效。尝试生成程序化纹理。")
+                 texture_data = None # Reset texture data to trigger procedural generation
+        # If file texture wasn't loaded or provided, try generating procedural
+        if texture_data is None:
+            if model_data.get("texcoords") is None or model_data.get("face_texcoord_indices") is None:
+                 print("警告: 无法生成程序化纹理，因为模型缺少纹理坐标。已禁用纹理。")
+                 use_texture_flag = False
+            else:
+                print(f"生成 {args.texture_size}x{args.texture_size} '{args.texture_type}' 程序化纹理...")
+                texture_data = generate_procedural_texture(
+                    texture_type=args.texture_type, size=args.texture_size
+                )
+
+
+    # --- Setup Lighting ---
+    light_dir_vec = None
+    light_pos_vec = None
+    light_atten_vec = [1.0, 0.09, 0.032] # Default attenuation
+
+    if not args.no_lighting:
+        # Parse light direction
+        try:
+            light_dir_vec = np.array([float(x) for x in args.light_dir.split(",")], dtype=np.float32)
+            if light_dir_vec.shape != (3,): raise ValueError("需要3个分量")
+        except Exception as e:
+            print(f"无效的方向光方向格式 '{args.light_dir}': {e}. 使用默认值 [1, -1, 1].")
+            light_dir_vec = np.array([1.0, -1.0, 1.0], dtype=np.float32)
+
+        # Parse base light position
+        try:
+            base_light_pos = np.array([float(x) for x in args.light_pos.split(",")], dtype=np.float32)
+            if base_light_pos.shape != (3,): raise ValueError("需要3个分量")
+        except Exception as e:
+            print(f"无效的点光源位置格式 '{args.light_pos}': {e}. 使用默认值 [0, 0, 3].")
+            base_light_pos = np.array([0.0, 0.0, 3.0], dtype=np.float32)
+
+        # Parse light attenuation
+        try:
+            light_atten_vec = [float(x) for x in args.light_atten.split(",")]
+            if len(light_atten_vec) != 3: raise ValueError("需要3个系数")
+            if any(x < 0 for x in light_atten_vec): raise ValueError("衰减系数不能为负")
+        except Exception as e:
+            print(f"无效的衰减系数格式 '{args.light_atten}': {e}. 使用默认值 [1.0, 0.09, 0.032].")
+            light_atten_vec = [1.0, 0.09, 0.032]
+
+        # Calculate animated light position if applicable (for the current frame)
+        light_pos_vec = base_light_pos.copy() # Start with base position
+        if args.light_animation != "none" and args.total_frames > 1:
+            # Ensure frame number is within bounds [0, total_frames - 1]
+            current_frame = max(0, min(args.light_frame, args.total_frames - 1))
+            # Normalized time t from 0 to 1
+            t = float(current_frame) / max(1, args.total_frames - 1) if args.total_frames > 1 else 0.0
+
+            custom_params = None
+            if args.light_animation == "custom":
+                custom_params = {
+                    "x_expr": args.custom_x_expr,
+                    "y_expr": args.custom_y_expr,
+                    "z_expr": args.custom_z_expr,
+                }
+
+            light_pos_vec = calculate_light_position(
+                base_light_pos,
+                args.light_animation,
+                t,
+                args.light_range,
+                custom_params,
+            )
+            print(f"帧 {current_frame}/{args.total_frames-1} (t={t:.3f}): 计算光源位置 = {np.round(light_pos_vec, 3)}")
+        elif args.light_type == "point":
+            print(f"点光源位置 (静态): {np.round(light_pos_vec, 3)}")
+        elif args.light_type == "directional":
+             print(f"方向光方向: {np.round(light_dir_vec, 3)}")
+
+
+    # --- Perform Rendering ---
+    render_model(
+        # Model data unpacked from dictionary
+        vertices=model_data.get("vertices"),
+        faces=model_data.get("faces"),
+        texcoords=model_data.get("texcoords"),
+        face_texcoord_indices=model_data.get("face_texcoord_indices"),
+        normals=model_data.get("normals"),
+        face_normal_indices=model_data.get("face_normal_indices"),
+        materials=model_data.get("materials"),
+        material_indices=model_data.get("material_indices"),
+        # Render settings from args
+        width=args.width,
+        height=args.height,
+        projection=args.projection,
+        use_zbuffer=not args.no_zbuffer,
+        angle=args.angle, # Current angle for model rotation
+        focal_length=args.focal,
+        # Output settings
+        model_name=args.output, # Base name for the output file
+        output_dir=args.output_dir,
+        colorize=args.colorize,
+        render_depth=not args.no_depth,
+        depth_range_percentile=(args.depth_min, args.depth_max),
+        # Texture
+        texture_data=texture_data, # Pass loaded/generated texture
+        use_texture=use_texture_flag,
+        # Lighting
+        use_lighting=not args.no_lighting,
+        light_model=args.light_model,
+        ambient=args.ambient,
+        diffuse=args.diffuse,
+        specular=args.specular,
+        shininess=args.shininess,
+        light_type=args.light_type,
+        light_dir=light_dir_vec,     # Parsed directional vector
+        light_pos=light_pos_vec,     # Parsed and potentially animated position
+        light_attenuation=light_atten_vec, # Parsed attenuation factors
+    )
+
+    print("渲染脚本执行完毕！")
+
+```
+
+**9. `Makefile` (Updated)**
+
+The provided Makefile is already quite good and flexible. The main changes needed are to ensure it calls the `main.py` script correctly and maybe add minor clarity improvements.
+
+```makefile
+# 3D模型渲染器批处理系统 - 支持并行任务处理
+# 功能：渲染OBJ模型，支持纹理、光照和深度图生成
+
+# ===== 基本渲染参数配置 =====
+OBJ_FILE		?= models/bunny.obj			# Default OBJ file path
+MODEL_NAME	  ?= $(basename $(notdir $(OBJ_FILE))) # Extract model name from filename
+WIDTH		   ?= 800					   # Output image width
+HEIGHT		  ?= 800					   # Output image height
+PROJECTION	  ?= perspective			   # Projection type: perspective or orthographic
+FRAMES		  ?= 120					   # Number of frames for animation
+OUTPUT_DIR	  ?= output_$(MODEL_NAME)_$(PROJECTION) # Output directory name
+FPS			 ?= 30						# Video frames per second
+COLOR_VIDEO	 ?= $(OUTPUT_DIR)/$(MODEL_NAME)_$(PROJECTION)_color.mp4 # Output color video filename
+DEPTH_VIDEO	 ?= $(OUTPUT_DIR)/$(MODEL_NAME)_$(PROJECTION)_depth.mp4 # Output depth video filename
+
+# ===== 渲染选项 =====
+# Texture options
+TEXTURE		 ?=							# Path to texture file (e.g., models/checker.png)
+TEXTURE_TYPE	?= checkerboard			# Procedural texture: checkerboard, gradient, noise (if TEXTURE is empty)
+TEXTURE_SIZE	?= 512					 # Size of procedural texture
+USE_TEXTURE	 ?= 1						 # 1 to enable texture (file or procedural), 0 to disable
+USE_MATERIALS   ?= 1						 # 1 to load and use .mtl materials, 0 to disable
+COLORIZE		?= 0						 # 1 to use random face colors (overrides materials), 0 otherwise
+
+# Lighting options
+USE_LIGHTING	?= 1						 # 1 to enable lighting, 0 for flat shading
+LIGHT_MODEL	 ?= blinn-phong			 # Lighting model: phong, blinn-phong
+AMBIENT		 ?= 0.2					 # Ambient light intensity
+DIFFUSE		 ?= 0.7					 # Diffuse light intensity
+SPECULAR		?= 0.3					 # Specular light intensity
+SHININESS	   ?= 32.0					# Specular highlight sharpness (higher is sharper)
+
+# Depth and Z-buffer options
+RENDER_DEPTH	?= 1						 # 1 to generate depth map images/video, 0 to disable
+DEPTH_MIN	   ?= 1						 # Min percentile for depth normalization range
+DEPTH_MAX	   ?= 99						# Max percentile for depth normalization range
+ZBUFFER		 ?= 1						 # 1 to enable Z-buffering, 0 to disable (painter's algorithm like)
+FOCAL		   ?= 2.0					   # Focal length for perspective projection
+
+# ===== 光源参数 =====
+LIGHT_TYPE	  ?= point				   # Light source type: directional or point
+# Directional light parameters (used if LIGHT_TYPE=directional)
+LIGHT_DIR	   ?= 1,-1,1				  # Direction vector FROM the light source
+# Point light parameters (used if LIGHT_TYPE=point)
+LIGHT_POS	   ?= 0,1,3				   # Initial position of the point light source
+LIGHT_ATTEN	 ?= 1.0,0.09,0.032		  # Attenuation factors (constant, linear, quadratic) for point light
+
+# --- Light Animation ---
+LIGHT_ANIMATION ?= none				   # Animation type: none, vertical, horizontal, circular, pulse, figure8, spiral, custom
+LIGHT_RANGE	 ?= 1.5					# Range/amplitude of light movement
+# Custom light animation expressions (used if LIGHT_ANIMATION=custom)
+# Expressions are evaluated with t (time 0..1), pi, sin, cos available.
+CUSTOM_X_EXPR   ?= sin(2*pi*t)			 # Custom expression for X offset (relative to LIGHT_POS)
+CUSTOM_Y_EXPR   ?= cos(2*pi*t) * 0.5	  # Custom expression for Y offset
+CUSTOM_Z_EXPR   ?= 0					   # Custom expression for Z offset
+
+# ===== 动画类型 =====
+# Defines what animates over the FRAMES
+# 'model': Rotates the model around Y axis (uses --angle)
+# 'light': Animates the light source position (uses --light-frame)
+ANIMATION_TYPE  ?= model				   # Default animation type
+
+# ===== 并行处理配置 =====
+# Get number of CPU cores, default to 4 if detection fails
+NPROC := $(shell nproc 2>/dev/null || echo 4)
+# Add parallel flag to MAKEFLAGS so sub-makes also run in parallel
+MAKEFLAGS += -j$(NPROC)
+export MAKEFLAGS # Export to sub-makes
+
+# ===== 帧序列生成 =====
+# Generate a sequence of frame numbers from 0 to FRAMES-1
+FRAME_NUMS := $(shell seq 0 $(shell expr $(FRAMES) - 1))
+# Define the expected output PNG files for color and depth based on frame numbers
+COLOR_FRAME_FILES := $(patsubst %,$(OUTPUT_DIR)/color/frame_%.png,$(FRAME_NUMS))
+DEPTH_FRAME_FILES := $(patsubst %,$(OUTPUT_DIR)/depth/frame_%.png,$(FRAME_NUMS))
+
+# ===== Python 脚本 =====
+PYTHON_SCRIPT = main.py
+
+# ===== 渲染选项构建 =====
+# Start with base options
+RENDER_OPTIONS = --obj "$(OBJ_FILE)" \
+	--width $(WIDTH) --height $(HEIGHT) \
+	--projection $(PROJECTION) \
+	--focal $(FOCAL) \
+	--output-dir "$(OUTPUT_DIR)" \
+	--texture-type $(TEXTURE_TYPE) \
+	--texture-size $(TEXTURE_SIZE) \
+	--depth-min $(DEPTH_MIN) --depth-max $(DEPTH_MAX) \
+	--total-frames $(FRAMES)
+
+# Add lighting options conditionally
+ifeq ($(USE_LIGHTING), 1)
+	RENDER_OPTIONS += \
+		--light-model $(LIGHT_MODEL) \
+		--ambient $(AMBIENT) \
+		--diffuse $(DIFFUSE) \
+		--specular $(SPECULAR) \
+		--shininess $(SHININESS) \
+		--light-type $(LIGHT_TYPE) \
+		--light-dir "$(LIGHT_DIR)" \
+		--light-pos "$(LIGHT_POS)" \
+		--light-atten "$(LIGHT_ATTEN)" \
+		--light-animation $(LIGHT_ANIMATION) \
+		--light-range $(LIGHT_RANGE) \
+		--custom-x-expr "$(CUSTOM_X_EXPR)" \
+		--custom-y-expr "$(CUSTOM_Y_EXPR)" \
+		--custom-z-expr "$(CUSTOM_Z_EXPR)"
+else
+	RENDER_OPTIONS += --no-lighting
+endif
+
+# Add texture options conditionally
+ifeq ($(USE_TEXTURE), 0)
+	RENDER_OPTIONS += --no-texture
+else
+	# If a specific texture file is provided, use it
+	ifneq ($(TEXTURE),)
+		RENDER_OPTIONS += --texture "$(TEXTURE)"
+	endif
+	# Otherwise, procedural texture options (type, size) are already included above
+endif
+
+# Add other boolean flag options
+ifeq ($(USE_MATERIALS), 0)
+	RENDER_OPTIONS += --no-materials
+endif
+ifeq ($(ZBUFFER), 0)
+	RENDER_OPTIONS += --no-zbuffer
+endif
+ifeq ($(RENDER_DEPTH), 0)
+	RENDER_OPTIONS += --no-depth
+endif
+ifeq ($(COLORIZE), 1)
+	RENDER_OPTIONS += --colorize
+endif
+
+# Special handling for light animation type
+ifeq ($(ANIMATION_TYPE),light)
+  # When animating light, usually want consistent model appearance
+  override COLORIZE = 0       # Disable random colors
+  # override RENDER_DEPTH = 0 # Often disable depth for light anim, uncomment if needed
+  override USE_MATERIALS = 1 # Ensure materials are used if available
+endif
+
+# ===== 主要目标 =====
+# Define phony targets (targets that don't represent files)
+.PHONY: all color_only depth_only frames color_video depth_video render_single clean clean_videos help
+.PHONY: light_vertical light_horizontal light_circular light_pulse light_figure8 light_spiral light_custom light_preset
+
+# Default target: build everything
+all: color_video depth_video
+
+color_only: color_video
+depth_only: depth_video
+
+# ===== 目录创建目标 =====
+# Use Order-only prerequisite: ensure directories exist before rendering starts,
+# but don't rebuild frames just because the directory timestamp changes.
+$(COLOR_FRAME_FILES) $(DEPTH_FRAME_FILES): | $(OUTPUT_DIR)/color $(OUTPUT_DIR)/depth
+$(OUTPUT_DIR)/color $(OUTPUT_DIR)/depth:
+	@mkdir -p $@
+
+# ===== 单帧渲染规则 =====
+# Pattern rule to render a single frame (e.g., frame_12.png)
+# $< is the prerequisite (none here), $@ is the target file (e.g., output/color/frame_12.png)
+# $* is the stem of the pattern match (e.g., 12)
+$(OUTPUT_DIR)/color/frame_%.png:
+	@echo "===> Rendering Frame $* ($(ANIMATION_TYPE) animation) <==="
+	@# Define variables within the recipe for clarity
+	@frame_num=$*; \
+	output_name="frame_$$frame_num"; \
+	angle_val=0; \
+	light_frame_val=$$frame_num; \
+	# Construct the command based on animation type
+	@echo "  Python Script: $(PYTHON_SCRIPT)"; \
+	echo "  Base Options: $(RENDER_OPTIONS)"; \
+	if [ "$(ANIMATION_TYPE)" = "model" ]; then \
+		if [ $(FRAMES) -gt 1 ]; then \
+			angle_val=$$(awk -v frame=$$frame_num -v total=$(FRAMES) 'BEGIN { printf "%.4f", frame * 360 / (total > 1 ? total - 1 : 1) }'); \
+		fi; \
+		echo "  Animation: Model Rotation, Angle: $$angle_val°"; \
+		python3 $(PYTHON_SCRIPT) $(RENDER_OPTIONS) \
+			--angle "$$angle_val" \
+			--output "$$output_name"; \
+	elif [ "$(ANIMATION_TYPE)" = "light" ]; then \
+		echo "  Animation: Light Movement, Frame: $$light_frame_val"; \
+		python3 $(PYTHON_SCRIPT) $(RENDER_OPTIONS) \
+			--light-frame $$light_frame_val \
+			--output "$$output_name"; \
+	else \
+		echo "  Animation: None (Single Frame Render)"; \
+		python3 $(PYTHON_SCRIPT) $(RENDER_OPTIONS) \
+			--angle $(ANGLE) \
+			--light-frame 0 \
+			--total-frames 1 \
+			--output "$$output_name"; \
+	fi
+
+
+# ===== 批量渲染目标 =====
+# This target depends on all individual frame files.
+# Make will automatically invoke the pattern rule above for each missing frame file in parallel.
+frames: $(COLOR_FRAME_FILES)
+	@echo "All frames rendered."
+
+# ===== 视频生成目标 =====
+# Depends on 'frames' to ensure all PNGs are rendered first.
+color_video: frames
+	@echo "Generating color video..."
+	@# Check if color frames exist before running ffmpeg
+	@if [ -d "$(OUTPUT_DIR)/color" ] && [ $$(find "$(OUTPUT_DIR)/color" -maxdepth 1 -name 'frame_*.png' -print -quit | wc -l) -gt 0 ]; then \
+		ffmpeg -y -framerate $(FPS) -start_number 0 -i "$(OUTPUT_DIR)/color/frame_%d.png" \
+			-c:v libx264 -pix_fmt yuv420p -vf "scale=$(WIDTH):-2:flags=lanczos" \
+			-preset slow -crf 18 \
+			"$(COLOR_VIDEO)" \
+			&& echo "Color video saved as: $(COLOR_VIDEO)" \
+			|| { echo "ERROR: Color video generation failed."; exit 1; }; \
+	else \
+		echo "ERROR: No color frames found in $(OUTPUT_DIR)/color. Cannot generate video."; \
+		exit 1; \
+	fi
+
+# Depends on 'frames', generates depth video only if RENDER_DEPTH=1
+depth_video: frames
+ifeq ($(RENDER_DEPTH), 1)
+	@echo "Generating depth video..."
+	@# Check if depth frames exist
+	@if [ -d "$(OUTPUT_DIR)/depth" ] && [ $$(find "$(OUTPUT_DIR)/depth" -maxdepth 1 -name 'frame_*.png' -print -quit | wc -l) -gt 0 ]; then \
+		ffmpeg -y -framerate $(FPS) -start_number 0 -i "$(OUTPUT_DIR)/depth/frame_%d.png" \
+			-c:v libx264 -pix_fmt yuv420p -vf "scale=$(WIDTH):-2:flags=neighbor" \
+			-preset slow -crf 18 \
+			"$(DEPTH_VIDEO)" \
+			&& echo "Depth video saved as: $(DEPTH_VIDEO)" \
+			|| { echo "ERROR: Depth video generation failed."; exit 1; }; \
+	else \
+		echo "WARNING: No depth frames found in $(OUTPUT_DIR)/depth. Skipping depth video generation."; \
+	fi
+else
+	@echo "Depth rendering is disabled (RENDER_DEPTH=0). Skipping depth video generation."
+endif
+
+# ===== 单文件渲染目标 =====
+# Renders a single frame with specific settings (e.g., fixed angle)
+render_single: | $(OUTPUT_DIR)/color $(OUTPUT_DIR)/depth
+	@echo "Rendering single image (Angle: 45°)..."
+	python3 $(PYTHON_SCRIPT) $(RENDER_OPTIONS) \
+		--angle 45 \
+		--total-frames 1 `# Ensure total-frames is 1 for single render` \
+		--output "$(MODEL_NAME)_single"
+	@echo "Single frame rendered: $(OUTPUT_DIR)/color/$(MODEL_NAME)_single.png"
+
+# ===== 光源动画预设 =====
+# Define a macro to simplify creating light animation targets
+# $(1): Animation type name (e.g., vertical)
+# $(2): Light range value
+# $(3): Optional extra parameters (e.g., custom expressions)
+define run_light_animation
+	@echo "--- Running Light Animation: $(1) ---"
+	@$(MAKE) clean                             # Clean previous output
+	@$(MAKE) all \
+		ANIMATION_TYPE=light \
+		LIGHT_ANIMATION=$(1) \
+		LIGHT_RANGE=$(2) \
+		$(3)                                    # Pass extra params
+endef
+
+light_vertical:
+	$(call run_light_animation,vertical,1.5)
+
+light_horizontal:
+	$(call run_light_animation,horizontal,1.5)
+
+light_circular:
+	$(call run_light_animation,circular,1.5)
+
+light_pulse:
+	$(call run_light_animation,pulse,1.0) # Pulse usually has smaller range
+
+light_figure8:
+	$(call run_light_animation,figure8,1.5)
+
+light_spiral:
+	$(call run_light_animation,spiral,1.0) # Range affects final radius/height
+
+# Target for running custom animation with expressions passed via command line
+light_custom:
+	@echo "Running custom light animation. Use single quotes for expressions:"
+	@echo "Example: make light_custom CUSTOM_X_EXPR='sin(4*pi*t)' CUSTOM_Y_EXPR='cos(2*pi*t)'"
+	$(call run_light_animation,custom,$(LIGHT_RANGE), CUSTOM_X_EXPR='$(CUSTOM_X_EXPR)' CUSTOM_Y_EXPR='$(CUSTOM_Y_EXPR)' CUSTOM_Z_EXPR='$(CUSTOM_Z_EXPR)')
+
+# Example of a specific custom animation preset
+light_preset:
+	$(call run_light_animation,custom,1.5, CUSTOM_X_EXPR='cos(4*pi*t)' CUSTOM_Y_EXPR='sin(6*pi*t)*0.5' CUSTOM_Z_EXPR='t*2-1' FRAMES=300 FPS=60)
+
+# ===== 清理目标 =====
+clean:
+	@echo "Cleaning output directory: $(OUTPUT_DIR)"
+	rm -rf "$(OUTPUT_DIR)"
+	@echo "Output directory cleaned."
+
+clean_videos:
+	@echo "Cleaning video files..."
+	rm -f "$(COLOR_VIDEO)" "$(DEPTH_VIDEO)"
+	@echo "Video files cleaned."
+
+# ===== 帮助信息 =====
+help:
+	@echo "====================== 3D Model Renderer Makefile Help ======================"
+	@echo "Usage: make [target] [VARIABLE=value ...]"
+	@echo ""
+	@echo "Common Targets:"
+	@echo "  make                Render all frames and generate videos (default: $(ANIMATION_TYPE) animation)"
+	@echo "  make all            Alias for 'make'"
+	@echo "  make frames         Render all frames (PNG images) but do not generate videos"
+	@echo "  make color_video    Render frames (if needed) and generate the color video"
+	@echo "  make depth_video    Render frames (if needed) and generate the depth video (if RENDER_DEPTH=1)"
+	@echo "  make render_single  Render a single image at a fixed angle (45 degrees)"
+	@echo "  make clean          Remove the output directory ($(OUTPUT_DIR))"
+	@echo "  make clean_videos   Remove only the generated video files"
+	@echo "  make help           Show this help message"
+	@echo ""
+	@echo "Animation Control:"
+	@echo "  make ANIMATION_TYPE=model  Animate by rotating the model (default)"
+	@echo "  make ANIMATION_TYPE=light  Animate by moving the light source (use light_* targets below)"
+	@echo ""
+	@echo "Light Animation Presets (automatically set ANIMATION_TYPE=light):"
+	@echo "  make light_vertical     make light_horizontal   make light_circular"
+	@echo "  make light_pulse        make light_figure8      make light_spiral"
+	@echo "  make light_custom [CUSTOM_X_EXPR='expr'] [...] - Run with custom expressions (use single quotes!)"
+	@echo "  make light_preset       Example fixed custom light animation"
+	@echo ""
+	@echo "Customization via Variables:"
+	@echo "  OBJ_FILE=<path>     Path to the input .obj model (Default: $(OBJ_FILE))"
+	@echo "  WIDTH=<pixels>      Output image width (Default: $(WIDTH))"
+	@echo "  HEIGHT=<pixels>     Output image height (Default: $(HEIGHT))"
+	@echo "  FRAMES=<count>      Number of frames for animation (Default: $(FRAMES))"
+	@echo "  PROJECTION=<type>   'perspective' or 'orthographic' (Default: $(PROJECTION))"
+	@echo "  USE_TEXTURE=<0|1>   Enable/disable textures (Default: $(USE_TEXTURE))"
+	@echo "  TEXTURE=<path>      Path to texture file (if USE_TEXTURE=1)"
+	@echo "  USE_LIGHTING=<0|1>  Enable/disable lighting (Default: $(USE_LIGHTING))"
+	@echo "  LIGHT_TYPE=<type>   'directional' or 'point' (Default: $(LIGHT_TYPE))"
+	@echo "  RENDER_DEPTH=<0|1>  Enable/disable depth map generation (Default: $(RENDER_DEPTH))"
+	@echo "  ... and many others (see variable definitions at the top of the Makefile)"
+	@echo ""
+	@echo "Example:"
+	@echo "  make -j$(NPROC) all OBJ_FILE=models/teapot.obj WIDTH=1920 HEIGHT=1080 FRAMES=240 USE_TEXTURE=1 TEXTURE=models/grid.png"
+	@echo "  make light_circular LIGHT_RANGE=2.0 FRAMES=180"
+	@echo "============================================================================="
+
+# Mark intermediate frame files as secondary so Make doesn't delete them automatically
+.SECONDARY: $(COLOR_FRAME_FILES) $(DEPTH_FRAME_FILES)
+
+```
+
+**Explanation of Changes and Optimizations:**
+
+1.  **File Separation:** The code is now logically divided into modules (`renderer.py`, `loaders.py`, `texture_utils.py`, `transformations.py`, `color_utils.py`, `lighting.py`, `args_setup.py`), making it much easier to navigate and modify specific parts.
+2.  **Clear Entry Point (`main.py`):** `main.py` handles the overall workflow: argument parsing, loading data, setting up lighting, calling the renderer, and saving results. It imports necessary functions/classes from other modules.
+3.  **Renderer Encapsulation (`renderer.py`):** The `TriangleRenderer` class cleanly encapsulates the Taichi fields (`depth_buffer`, `color_buffer`) and the core rendering kernels. Taichi helper functions (`barycentric_coordinates_ti`, `interpolate_z_ti`) are kept close to the kernels that use them. The `render_triangles_unified` method acts as a dispatcher based on whether texture data is valid and provided.
+4.  **Utility Modules:** Transformations, color operations, texture handling, and model loading are now in their dedicated files. This improves reusability and testability.
+5.  **Argument Parsing (`args_setup.py`):** Separating argument setup makes `main.py` cleaner.
+6.  **Lighting Calculation (`lighting.py`, `main.py`):**
+    *   `calculate_light_position` is moved to `lighting.py`.
+    *   The actual per-face lighting calculation remains within the `render_model` function in `main.py`. This is done on the CPU before passing final face colors to the Taichi kernel.
+    *   **Potential Optimization:** For scenes with *very* high polygon counts and complex lighting, this CPU-based per-face lighting could become a bottleneck. A future optimization could be to move the lighting calculation itself into a Taichi kernel that runs *before* the rasterization kernel, calculating vertex or face colors directly on the GPU. However, this adds significant complexity (passing material data, normals, light parameters to the kernel). The current approach is a reasonable balance.
+7.  **Taichi Kernel Constraints:** The two `render_triangles_unified_...` kernels remain separate as requested, handling the texture vs. non-texture cases. The dispatcher method (`render_triangles_unified`) selects the correct one. No default parameters are used in `@ti.kernel` signatures.
+8.  **NumPy Efficiency:** Vectorized NumPy operations are used where appropriate (e.g., transformations, color map generation, preparing data arrays).
+9.  **Depth Map Post-Processing:** The depth map normalization uses robust percentiles (`np.percentile`) to handle potential outliers and create a visually useful range. A median filter (`ndimage.median_filter`) is applied to reduce aliasing artifacts.
+10. **Error Handling & Warnings:** Added more specific error messages and warnings during file loading (OBJ, MTL, Texture) and data generation (normals, texcoords).
+11. **Makefile:**
+    *   Updated to call `python3 main.py`.
+    *   The logic for building command-line arguments based on variables remains largely the same and should work with the refactored `main.py`'s argument parser.
+    *   Added comments and improved readability.
+    *   Ensured parallel execution (`-j$(NPROC)`) is correctly configured.
+    *   The `light_` animation presets correctly set `ANIMATION_TYPE=light`.
+
+**How to Use:**
+
+1.  Save each code block into its corresponding file name within your project directory.
+2.  Place the `Makefile` in the project directory.
+3.  Create a model directory (e.g., `bunny/`) and place your `.obj` file there.
+4.  Install necessary libraries: `pip install numpy taichi Pillow scipy`
+5.  Run using the Makefile:
+    *   `make` (renders default model animation)
+    *   `make help` (shows available options and targets)
+    *   `make OBJ_FILE=path/to/your/model.obj FRAMES=60` (customize parameters)
+    *   `make light_circular` (runs a light animation preset)
+    *   `make clean` (removes the output directory)
+
+This refactored structure provides a solid foundation for further development and optimization. Remember to test thoroughly with different models and settings.
+
+# 光照模型与光源动画代码分析
+
+作为您的报告参考，我将提取并分析代码中的光照模型和光源动画相关实现。
+
+## 1. 光照模型实现
+
+光照计算主要在 main.py 中的 `render_model()` 函数中实现，关键部分位于渲染流程的第3步：面处理（颜色确定、光照）。
+
+### 1.1 光照类型支持
+
+代码支持两种光照类型：
+
+- 方向光（Directional Light）：来自特定方向的光线，无距离衰减
+- 点光源（Point Light）：从特定位置发出的光线，有距离衰减
+
+### 1.2 光照模型实现
+
+代码支持两种光照模型：
+
+- Blinn-Phong模型：使用半向量（half-vector）计算镜面反射
+- Phong模型：使用反射向量计算镜面反射
+
+### 1.3 光照计算核心代码
+
+```python
+# --- 计算光照分量 ---
+# 1. 环境光分量
+ambient_comp = ambient * base_color
+
+# 2. 漫反射和镜面反射分量（取决于光照类型）
+diffuse_comp = np.zeros(3, dtype=np.float32)
+specular_comp = np.zeros(3, dtype=np.float32)
+current_light_dir = light_direction_normalized  # 方向光的默认值
+attenuation = 1.0  # 方向光的默认衰减值
+
+if light_type == "point" and light_pos is not None:
+    # 计算从面中心到光源的方向向量
+    light_vec = light_pos - face_center_view
+    distance = np.linalg.norm(light_vec)
+    if distance > 1e-6:
+        current_light_dir = light_vec / distance
+        # 计算点光源的衰减
+        attenuation = 1.0 / (
+            att_const + att_linear * distance + att_quad * (distance**2)
+        )
+        attenuation = max(0.0, attenuation)  # 确保非负值
+    else:
+        current_light_dir = np.array([0, 0, 1])  # 避免除零错误
+        attenuation = 1.0  # 位于光源位置则强度最大
+
+# 计算漫反射项（Lambert模型）
+# N·L (使用max函数确保非负值)
+N_dot_L = max(0.0, np.dot(face_normal, current_light_dir))
+diffuse_comp = diffuse * N_dot_L * base_color
+
+# 计算镜面反射项
+spec_strength = 0.0
+if N_dot_L > 0:  # 仅当光线照射到表面时计算镜面反射
+    if light_model.lower() == "phong":
+        # R = 2 * (N·L) * N - L
+        reflect_dir = 2.0 * N_dot_L * face_normal - current_light_dir
+        # V·R (V是视线方向)
+        V_dot_R = max(0.0, np.dot(view_dir, reflect_dir))
+        spec_strength = np.power(V_dot_R, shininess)
+    else:  # 默认使用Blinn-Phong
+        # H = normalize(L + V)
+        halfway_dir = current_light_dir + view_dir
+        norm_H = np.linalg.norm(halfway_dir)
+        if norm_H > 1e-6:
+            halfway_dir /= norm_H
+            # N·H
+            N_dot_H = max(0.0, np.dot(face_normal, halfway_dir))
+            spec_strength = np.power(N_dot_H, shininess)
+
+# 使用白色作为镜面高光颜色
+specular_comp = specular * spec_strength * np.array([1.0, 1.0, 1.0])
+
+# 将各分量结合并应用衰减，然后限制在[0,1]范围内
+final_color = ambient_comp + attenuation * (diffuse_comp + specular_comp)
+final_color = np.clip(final_color, 0.0, 1.0)
+```
+
+### 1.4 光照公式解析
+
+1. **点光源衰减公式**：
+   ```
+   attenuation = 1.0 / (att_const + att_linear * distance + att_quad * (distance^2))
+   ```
+   - 符合物理规律的二次衰减模型
+   - att_const（常数项）：控制光源最大强度
+   - att_linear（一次项）：线性衰减系数
+   - att_quad（二次项）：二次衰减系数，通常是主要的距离衰减因子
+
+2. **漫反射（Lambert模型）**：
+   ```
+   diffuse_comp = diffuse * max(0, N·L) * base_color
+   ```
+   - diffuse：材质的漫反射系数
+   - N·L：法线与光线方向的点积
+   - base_color：基础颜色
+
+3. **镜面反射**：
+   - Phong模型：`spec_strength = pow(max(0, V·R), shininess)`
+   - Blinn-Phong模型：`spec_strength = pow(max(0, N·H), shininess)`
+   - 其中，shininess是材质的光泽度（越高，高光越集中）
+
+## 2. 光源动画实现
+
+光源动画主要在 lighting.py 中的 `calculate_light_position()` 函数中实现。
+
+### 2.1 动画类型支持
+
+代码支持多种类型的光源动画：
+
+- **none**：无动画，静态光源
+- **vertical**：垂直方向（Y轴）运动
+- **horizontal**：水平方向（X轴）运动
+- **circular**：在XZ平面上绕基础位置做圆周运动
+- **pulse**：沿Z轴做简单的来回运动
+- **figure8**：在XY平面上做"8字形"运动
+- **spiral**：在XY平面上做螺旋运动，同时沿Z轴移动
+- **custom**：根据用户提供的数学表达式自定义运动
+
+### 2.2 动画参数
+
+- **base_pos**：光源基础位置（x,y,z）
+- **t**：归一化时间参数（0.0到1.0）
+- **range_val**：动画的范围或幅度
+- **custom_params**：自定义动画参数（仅用于"custom"类型）
+
+### 2.3 动画示例代码
+
+```python
+# 水平运动
+pos[0] += range_val * sin_2pit
+
+# 圆周运动
+pos[0] += range_val * sin_2pit
+pos[2] += range_val * cos_2pit
+
+# 8字形运动
+pos[0] += range_val * sin_2pit
+pos[1] += range_val * np.sin(4 * pi * t) / 2.0  # Y轴频率加倍
+```
+
+### 2.4 自定义动画实现
+
+自定义动画允许用户通过数学表达式控制光源位置：
+
+```python
+for i, axis in enumerate(["x", "y", "z"]):
+    expr_key = f"{axis}_expr"
+    if expr_key in custom_params and custom_params[expr_key]:
+        expr = custom_params[expr_key]
+        # 安全检查...
+        try:
+            # 安全地计算表达式
+            offset = range_val * eval(expr, safe_globals, safe_locals)
+            pos[i] += float(offset)
+        except Exception as e:
+            print(f"错误: {e}")
+```
+
+这允许用户定义如 `sin(3*pi*t)`、`cos(2*pi*t)` 等表达式来控制光源在各个轴上的运动。
+
+## 3. 光源与渲染流程集成
+
+光源动画在`main.py`中集成到渲染过程：
+
+```python
+# 计算光源动画位置
+if args.light_animation != "none" and args.total_frames > 1:
+    # 确保帧号在有效范围内 [0, total_frames - 1]
+    current_frame = max(0, min(args.light_frame, args.total_frames - 1))
+    # 归一化时间t从0到1
+    t = float(current_frame) / max(1, args.total_frames - 1) if args.total_frames > 1 else 0.0
+
+    custom_params = None
+    if args.light_animation == "custom":
+        custom_params = {
+            "x_expr": args.custom_x_expr,
+            "y_expr": args.custom_y_expr,
+            "z_expr": args.custom_z_expr,
+        }
+
+    light_pos_vec = calculate_light_position(
+        base_light_pos,
+        args.light_animation,
+        t,
+        args.light_range,
+        custom_params,
+    )
+```
+
+这段代码展示了如何根据当前帧计算光源位置，然后将位置传递给渲染函数。
+
+## 4. 实际运用示例
+
+根据报告中的Makefile命令，可以看到如何使用这些功能：
+
+1. 水平光源运动：
+   ```bash
+   make light_horizontal -j16 OBJ_FILE=simple/bunny.obj
+   ```
+
+2. 垂直光源运动：
+   ```bash
+   make light_vertical -j16 OBJ_FILE=simple/bunny.obj
+   ```
+
+3. 自定义光源轨迹：
+   ```bash
+   make light_custom CUSTOM_X_EXPR='sin(3*pi*t)' CUSTOM_Y_EXPR='cos(2*pi*t)' CUSTOM_Z_EXPR='sin(pi*t)' -j16 OBJ_FILE=simple/bunny.obj COLORIZE=0
+   ```
+
+这个自定义轨迹表示光源在三个维度上有不同频率的正弦/余弦运动，会形成一个复杂的三维运动轨迹。
+
+## 5. 总结
+
+1. **实现了物理基础的光照模型**：
+   - 支持环境光、漫反射和镜面反射
+   - 实现了点光源的距离衰减
+   - 提供Phong和Blinn-Phong两种光照模型
+
+2. **丰富的光源动画系统**：
+   - 预定义了7种光源动画模式
+   - 支持自定义数学表达式定义光源轨迹
+   - 良好的参数化设计使动画易于控制和调整
+
+3. **安全且灵活的自定义表达式计算**：
+   - 实现了安全的表达式评估
+   - 提供了常用数学函数支持
+   - 有基本的安全检查防止危险代码执行
+
+这些实现使得渲染系统能够产生动态的光照效果，增强了视觉表现力和真实感。
