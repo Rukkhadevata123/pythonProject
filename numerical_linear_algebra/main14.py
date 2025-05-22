@@ -24,7 +24,7 @@ def compute_eigenvalues(x):
     )
 
     # 使用自实现的QR迭代算法计算特征值
-    T, Q, blocks = real_schur_decomposition(A, max_iter=200, tol=1e-12)
+    T, Q, blocks = real_schur_decomposition(A, max_iter=10000, tol=1e-12)
     our_eigenvalues = extract_eigenvalues(T, blocks)
 
     # 使用NumPy计算特征值

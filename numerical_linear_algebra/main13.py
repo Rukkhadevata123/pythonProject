@@ -46,7 +46,7 @@ def solve_polynomial_with_our_qr(coefficients):
     C = create_companion_matrix(coefficients)
 
     # 使用自实现的QR算法计算特征值
-    T, Q, blocks = real_schur_decomposition(C, max_iter=1000, tol=1e-10)
+    T, Q, blocks = real_schur_decomposition(C, max_iter=10000, tol=1e-10)
 
     # 从Schur形式提取特征值
     eigenvalues = extract_eigenvalues(T, blocks)
